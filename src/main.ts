@@ -1,12 +1,15 @@
 import "./style.css";
 
 import * as SURF from "./surfaces";
-import { Surface } from "./surfaces"; // import types
+import { Surface, Rect, Coord } from "./surfaces"; // import types
 import * as IMG from "./image";
+
+const SCREEN_WIDTH = 640;
+const SCREEN_HEIGHT = 480;
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <div class="card">
-      <canvas id="canvas" width="1000" height="700"></canvas>
+      <canvas id="canvas" width="${SCREEN_WIDTH}" height="${SCREEN_HEIGHT}"></canvas>
     </div>
 `;
 
@@ -36,8 +39,8 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 if (
   SURF.init(
     document.getElementById("canvas")! as HTMLCanvasElement,
-    1000,
-    700
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT
   ) !== true
 ) {
   throw "Unable to initialize Pixelf" + SURF.getError();
@@ -61,7 +64,7 @@ const screen: Surface = SURF.getMainSurface();
 
 // SURF.blitToCanvas();
 
-IMG.queueImages(["fighter.png", "front-stars.png"]); // this goes into a loading list
+IMG.queueImages(["smallpenguin.png", "background.png"]); // this goes into a loading list
 
 let images: Surface[];
 try {
@@ -70,16 +73,99 @@ try {
   throw new Error(e as string);
 }
 
-const [fighter, stars] = images;
+const [penguin, background] = images;
 
-SURF.blitSurface(stars, { x: 10, y: 10, w: 40, h: 40 }, fighter, {
-  x: 20,
-  y: 20,
-});
+// SURF.blitSurface(stars, { x: 10, y: 10, w: 40, h: 40 }, fighter, {
+//   x: 20,
+//   y: 20,
+// });
 
-SURF.blitSurface(fighter, { x: 0, y: 0, w: 100, h: 98 }, screen, {
-  x: 200,
-  y: 200,
-});
+// SURF.blitSurface(fighter, { x: 0, y: 0, w: 100, h: 98 }, screen, {
+//   x: 200,
+//   y: 200,
+// });
 
-SURF.blitToCanvas();
+// SURF.blitToCanvas();
+
+const NUM_PENGUINS = 100;
+const MAX_SPEED = 6;
+
+// this type stores the information for one on-screen penguin
+type penguin_t = {
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+};
+
+let penguins: penguin_t[] = []; // array of penguins (NUM_PENGUINS in length)
+
+/* loop through the array of penguins and set each to a random starting position and direction */
+const initPenguins = () => {
+  for (let i = 0; i < NUM_PENGUINS; i++) {
+    penguins[i] = {
+      x: (Math.random() * SCREEN_WIDTH) << 0,
+      y: (Math.random() * SCREEN_HEIGHT) << 0,
+      dx: (Math.random() * 256) % MAX_SPEED << 0,
+      dy: (Math.random() * 256) % MAX_SPEED << 0,
+    };
+  }
+};
+
+/* move each penguin by its motion vector */
+const movePenguins = () => {
+  for (let i = 0; i < NUM_PENGUINS; i++) {
+    // move penguin by it's motion vector
+    penguins[i].x += penguins[i].dx;
+    penguins[i].y += penguins[i].dy;
+    /* turn the penguin if it hits the edge of the screen */
+    if (penguins[i].x < 0 || penguins[i].x > SCREEN_WIDTH - 1) {
+      penguins[i].dx = -penguins[i].dx;
+    }
+    if (penguins[i].y < 0 || penguins[i].y > SCREEN_HEIGHT - 1) {
+      penguins[i].dy = -penguins[i].dy;
+    }
+  }
+};
+
+/* this routing draws each penguin to the screen surface */
+const drawPenguins = () => {
+  for (let i = 0; i < NUM_PENGUINS; i++) {
+    const src: Rect = { x: 0, y: 0, w: penguin.w, h: penguin.h };
+    const dest: Coord = {
+      x: penguins[i].x - penguin.w / 2,
+      y: penguins[i].y - penguin.h / 2,
+    };
+    SURF.blitSurface(penguin, src, screen, dest);
+  }
+};
+
+const main = () => {
+  let frames: number = 300;
+
+  initPenguins();
+
+  const createFrame = () => {
+    if (frames) {
+      SURF.blitSurface(
+        background,
+        { x: 0, y: 0, w: background.w, h: background.h },
+        screen,
+        { x: 0, y: 0 }
+      );
+
+      drawPenguins();
+      SURF.blitToCanvas();
+
+      movePenguins();
+      frames--;
+      window.requestAnimationFrame(createFrame);
+    } else {
+      console.log("end");
+    }
+  };
+
+  window.requestAnimationFrame(createFrame);
+};
+
+main();
