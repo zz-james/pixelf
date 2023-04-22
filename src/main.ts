@@ -1,11 +1,13 @@
 import "./style.css";
 
+import "./globals";
+import { shipStrip, backStarTiles, frontStarTiles } from "./resources";
 import * as SURF from "./surfaces";
+import * as KEY from "./keys";
 import { Surface, Rect, Coord } from "./surfaces"; // import types
-import * as IMG from "./image";
 
-const SCREEN_WIDTH = 640;
-const SCREEN_HEIGHT = 480;
+import "./background";
+import { drawBackground, drawParallax, initBackground } from "./background";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <div class="card">
@@ -13,28 +15,406 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     </div>
 `;
 
-// setupCounter(document.querySelector<HTMLButtonElement>("#counter")!);
+const timer = new Date();
 
-// PIXELF uses structures called surfaces for manipulating graphical data.
-// A surface is simply a block of memory for storing a rectangular region of pixels
-// you can think of a surface as a generic chunk of screen data. Surfaces have widths,
-// heights and specific pixel formats, just as framebuffers do.
+let player: player_t; // the player at the computer
+let opponent: player_t; // scripted or network opponent
 
-// in face, PIXELF represents the browser's frramebuffer as a special surface. The rectangular
-// regions of data stored in surfaces are Uint8ClampedArray bitmaps
+let cameraX: number; // position of the 640x480 viewport within the world
+let cameraY: number;
 
-// the most important property of surfaces is that they can be copied onto each other very quickly
-// one surfaces pixels can be transferred to an identically sized rectangular area of another surface.
 
-// This operation is called a blit, or block image transfer. Blits are a fundamental part of game programming
-// because they allow complete images to be composed out of pre-drawn graphics (usually created by artists with image-processing software).
 
-// Since the framebuffer is a surface, entire images can be sent to the screen with a single blitting operation. PIXELF provides a function for performing
-// fast blits between surfaces
+// these need to be copied into player structures...  // this needs attention
+let localPlayerHit: number = 0;
+let localPlayerDead: number = 0;
+let networkOpponentRespawn: number = 0;
 
-// most game rely almost exclusively on surface blits for their drawing (as opposed to drawing with individual pixels).
+let timeScale: number = 0;
 
-// we will now examime a series of SDL graphical programming examples.
+const drawPlayer = (p: Player_t) => {
+  let angle: number;
+
+  p.screenX = p.worldX - cameraX;
+  p.screenY = p.worldY - cameraY;
+
+  // if player is not on screen, don't draw anything
+  if (
+    p.screenX < -PLAYER_WIDTH / 2 ||
+    p.screenX >= SCREEN_WIDTH + PLAYER_WIDTH / 2
+  ) {
+    return;
+  }
+
+  if (
+    p.screenY < -PLAYER_HEIGHT / 2 ||
+    p.screenY >= SCREEN_HEIGHT + PLAYER_HEIGHT / 2
+  ) {
+    return;
+  }
+
+  angle = p.angle;
+  if (angle < 0) angle += 360;
+
+  const src: Rect = {
+    x: PLAYER_WIDTH * (angle / 4), // lines up with px value in strip fighter.png
+    y: 0,
+    w: PLAYER_WIDTH,
+    h: PLAYER_HEIGHT,
+  };
+
+  const dest: Coord = {
+    x: p.screenX - PLAYER_WIDTH / 2,
+    y: p.screenY - PLAYER_HEIGHT / 2,
+  };
+
+  SURF.blitSurface(shipStrip, src, screen, dest);
+};
+
+/* calculates the player's new world coordinates based on the camera
+   and player's velocity. Adds acceleration to velocity. Uses simple
+   trigonometry to update the world's coordinates */
+const updatePlayer = (p: Player_t) => {
+  const angle: number = p.angle;
+
+  p.velocity += p.accel * timeScale;
+  if (p.type === PlayerType.WARRIOR) {
+    if (p.velocity > PLAYER_MAX_VELOCITY) p.velocity = PLAYER_MAX_VELOCITY;
+    if (p.velocity < PLAYER_MIN_VELOCITY) p.velocity = PLAYER_MIN_VELOCITY;
+  } else if (p.type === PlayerType.DEVIL) {
+    if (p.velocity > DEVIL_MAX_VELOCITY) p.velocity = DEVIL_MAX_VELOCITY;
+    if (p.velocity < DEVIL_MIN_VELOCITY) p.velocity = DEVIL_MIN_VELOCITY;
+  }
+
+  p.worldX += p.velocity * Math.cos((angle * Math.PI) / 180) * timeScale;
+  p.worldY += p.velocity * Math.sin((angle * Math.PI) / 180) * timeScale;
+
+  /* make sure the player doesn't slide off the edge of the world */
+  if (p.worldX < 0) p.worldX = 0;
+  if (p.worldX >= WORLD_WIDTH) p.worldX = WORLD_WIDTH - 1;
+  if (p.worldY < 0) p.worldY = 0;
+  if (p.worldY >= WORLD_HEIGHT) p.worldY = WORLD_HEIGHT - 1;
+};
+
+const initPlayer = (p: Player_t, type: PlayerType): void => {
+  p.state = PlayerState.EVADE;
+  p.type = type;
+  p.worldX = (Math.random() * 1024) % WORLD_WIDTH;
+  p.worldY = (Math.random() * 1024) % WORLD_HEIGHT;
+  p.accel = 0;
+  p.velocity = 0;
+  p.angle = 0;
+  p.charge = 0;
+  p.firing = 0;
+  p.sheilds = 100;
+  updatePlayer(p);
+};
+
+const canPlayerFire = (p: Player_t): boolean => {
+  if (p.charge >= PHASER_CHARGE_FIRE && p.firing == 0) return true;
+  return false;
+};
+
+/* Turns on a phaser beam. Test CanPlayerFire first. */
+const firePhasers = (p: Player_t): void => {
+  p.charge -= PHASER_CHARGE_FIRE;
+  if (p.charge < 0) p.charge = 0;
+
+  if (p === player) {
+    // play player fire sound
+  } else {
+    // play opponent sound
+  }
+};
+
+/* Charge phasers by one increment. */
+const chagePhasers = (p: Player_t): void => {
+  p.charge += (timeScale / 30) * PHASER_CHARGE_RATE;
+  if (p.charge > PHASER_CHARGE_MAX) p.charge = PHASER_CHARGE_MAX;
+};
+
+/* Show a small explosion due to phaser damage. */
+const showPhaserHit = (p: Player_t): void => {
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 10, 300);
+  createParticleExplosion(-p.worldX, p.worldY, 255, 0, 0, 5, 100);
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 2, 50);
+};
+
+/* Show a large ship explosion. */
+const showShipExplosion = (p: Player_t): void => {
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 15, 3000);
+  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 10, 1000);
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 5, 500);
+};
+
+const killOpponent = (): void => {
+  player.score++;
+  showShipExplosion(opponent);
+  initPlayer(opponent, PlayerType.DEVIL);
+};
+
+const killPlayer = (): void => {
+  showShipExplosion(player);
+  player.velocity = 0;
+  player.accel = 0;
+  player.state = PlayerState.DEAD;
+  opponent.score++;
+};
+
+const damageOpponent = (): void => {
+  opponent.sheilds -= PHASER_DAMAGE;
+  if (opponent.sheilds <= 0) {
+    killOpponent();
+  }
+};
+
+const playGame = (): void => {
+  let keystate: any; // fig this out later
+  let mouseX: number;
+  let mouseY: number;
+  let quit: boolean = false;
+  let turn: number;
+  let prevTicks: number = 0;
+  let curTicks: number = 0;
+  let awaitingRespawn: boolean = false;
+
+  /* framerate counter variables */
+  let startTime: number;
+  let endTime: number;
+
+  let framesDrawn: number = 0;
+
+  /* respawn times */
+  let respawnTimer: number = -1;
+
+  let invincibleTimer: number = -1;
+
+  prevTicks = timer.getTime();
+  startTime = timer.getTime();
+
+  /* reset the score timers */
+  player.score = 0;
+  opponent.score = 0;
+
+  let goOn: number = 0;
+
+  while (quit == false) {
+    /* determine how many milliseconds have passed since the last frame, and update our motion scaling */
+    prevTicks = curTicks;
+    curTicks = timer.getTime();
+
+    if (goOn != 4) {
+      timeScale = (curTicks - prevTicks) / 30;
+    }
+    goOn = 0;
+
+    /* grab a snapshot of keyboard */
+    keystate = KEY.getKeyState();
+
+    /* Update phasers. */
+    player.firing -= timeScale;
+    if (player.firing < 0) player.firing = 0;
+    opponent.firing -= timeScale;
+    if (opponent.firing < 0) opponent.firing = 0;
+    chargePhasers(player);
+
+    /* If the local player is destroyed, the respawn timer will
+           start counting. During this time the controls are disabled
+           and explosion sequence occurs. */
+    if (respawnTimer >= 0) {
+      respawnTimer++;
+
+      if (respawnTimer >= RESPAWN_TIME / timeScale) {
+        respawnTimer = -1;
+        initPlayer(player, WARRIOR);
+
+        /* Set the local_player_respawn flag so the
+				   network thread will notify the opponent
+				   of the respawn. */
+        // local_player_respawn = 1;
+
+        setStatusMessage("GOOD LUCK, WARRIOR!!");
+
+        /* Go to invincible state */
+        player.state = INVINCIBLE;
+        invincibleTimer++;
+      }
+    }
+
+/* Respond to input and network events, but not if we're in a respawn. */
+        if (respawnTimer == -1) {
+
+            /* Small period of time invincible */
+            if (invincibleTimer >= 0){
+                invincibleTimer++;
+                if (invincibleTimer >= ((NVINCIBLE_TIME / timeScale)) {
+                    invincibleTimer = -1;
+                    /* Back to normal */
+                    player.state = PlayerState.EVADE;
+                }
+            }
+
+            if (keystate[SDLK_q] || keystate[SDLK_ESCAPE]) quit = 1;
+
+            turn = 0;
+
+
+
+            }
+            /// Add screenshot
+            if (keystate['SDLK_q'])
+            {
+                // SDL_SaveBMP(screen, "screen.bmp");
+            }
+            /* Spacebar fires phasers. */
+            if (keystate['SDLK_j']) {
+
+                if (canPlayerFire(player)) {
+
+                    firePhasers(player);
+
+                    /* If it's a hit, either notify the opponent
+                       or exact the damage. Create a satisfying particle
+                       burst. */
+                    if (!awaitingRespawn &&
+                        checkPhaserHit(player,opponent)) {
+
+                        showPhaserHit(opponent);
+                        damageOpponent();
+
+      
+                        
+                    }
+                }
+            }
+
+            /* Turn. */
+            player.angle += turn * timeScale;
+            if (player.angle < 0) player.angle += 360;
+            if (player.angle >= 360) player.angle -= 360;
+
+            /* If this is a network game, the remote player will
+               tell us if we've died. Otherwise we have to check
+               for failed shields. */
+            if (player.shields <= 0)
+            {
+                console.log("Local player has been destroyed.\n");
+                localPlayerDead = 0;
+
+                /* Kaboom! */
+                killPlayer();
+
+                /* Respawn. */
+                respawnTimer = 0;
+            }
+        }
+
+        /* If this is a player vs. computer game, give the computer a chance. */
+        if (opponentType == OPP_COMPUTER) {
+            runGameScript() 
+    
+            /* Check for phaser hits against the player. */
+            if (opponent.firing) {
+                if (CheckPhaserHit(opponent,player)) {
+					if (player.state != INVINCIBLE){
+                        showPhaserHit(&player);
+                        player.shields -= PHASER_DAMAGE_DEVIL;
+
+                        /* Did that destroy the player? */
+                        if (respawnTimer < 0 && player.shields <= 0) {
+                            killPlayer();
+                            respawnTimer = 0;
+                        }
+                    }
+                }
+            }
+
+            chargePhasers(opponent);
+            updatePlayer(opponent);
+        }
+
+        /* Update the player's position. */
+    updatePlayer(player);
+
+    setPlayerStatusInfo(player.score, player.shields, player.charge);
+    setOpponentStatusInfo(opponent.score, opponent.sheilds);
+
+    /* make the camera follow the player (but impose limits) */
+    cameraX = player.worldX - SCREEN_WIDTH / 2;
+    cameraY = player.worldY - SCREEN_HEIGHT / 2;
+
+    if (cameraX < 0) cameraX = 0;
+    if (cameraX >= WORLD_WIDTH - SCREEN_WIDTH)
+      cameraX = WORLD_WIDTH - SCREEN_WIDTH - 1;
+    if (cameraY < 0) cameraY = 0;
+    if (cameraY >= WORLD_HEIGHT - SCREEN_HEIGHT)
+      cameraY = WORLD_HEIGHT - SCREEN_HEIGHT - 1;
+
+    updateParticles();
+
+    // redraw everything
+    drawBackground(screen, cameraX, cameraY);
+    drawParallax(screen, cameraX, cameraY);
+    drawParticles(screen, cameraX, cameraY);
+
+    if (opponent.firing) {
+      drawPhaserBeam(opponent, screen, cameraX, cameraY);
+    }
+    if (player.firing) {
+      drawPhaserBeam(player, screen, cameraX, cameraY);
+    }
+
+    if (respawnTimer < 0) {
+      drawPlayer(player);
+    }
+
+    if (!awaitingRespawn) {
+      drawPlayer(opponent);
+    }
+
+    updateStatusDisplay(screen);
+
+    updateRadarDisplay(
+      screen,
+      player.worldX,
+      player.worldY,
+      opponent.worldX,
+      opponent.worldY
+    );
+
+    // do we flip to canvas here?
+
+    framesDrawn++;
+  }
+
+  endTime = new Date().getTime();
+
+  if (startTime == endTime) endTime++;
+
+  console.log(
+    `Drew ${framesDrawn} frames in ${
+      endTime - startTime
+    } seconds, for a framerate of ${framesDrawn / (endTime - startTime)} fps`
+  );
+
+  // end here
+};
+
+const main = (): number => {
+
+  // enum gameType {
+  //   COMPUTER,
+  //   UNKNOWN
+  // };
+
+  const gameType = 'COMPUTER'
+
+  opponentType = OPP_COMPUTER;
+
+  console.log('playing against the computer');
+
+  initScripting()
+
 
 if (
   SURF.init(
@@ -46,126 +426,42 @@ if (
   throw "Unable to initialize Pixelf" + SURF.getError();
 }
 
-// this program includes SURF from the /surfaces.ts file. This is the master file for PIXELF and needs to be included in all PIXELF applications
-// we begin by calling SURF.init to initialise PIXELF. This function takes a canvas element and a width and height.If this is not possible, for example
-// if there is no canvas element to pass, we throw an error.
-const screen: Surface = SURF.getMainSurface();
+  /* Save the screen pointer for later use. */
+const screen: Surface = SURF.getMainSurface(); // global reference to screen for blitting
 
-// now we use getMainSurface to get a pointer to the surface that represents the frame buffer.
+// todo: set window title to Penguin Warriot
 
-// for (let i = 0; i < screen.pixels.length; i += 4) {
-//   let x = ((i % 400) / 400) * 255;
-//   let y = (Math.ceil(i / 400) / 100) * 255;
-//   screen.pixels[i + 0] = x;
-//   screen.pixels[i + 1] = y;
-//   screen.pixels[i + 2] = 255 - x;
-//   screen.pixels[i + 3] = 255;
-// }
+initStatusDisplay();
 
-// SURF.blitToCanvas();
+initRaderDisplay();
 
-IMG.queueImages(["smallpenguin.png", "background.png"]); // this goes into a loading list
+initAudio();
 
-let images: Surface[];
-try {
-  images = await IMG.loadImages(); // returns an array of Surfaces with the queued image data in.
-} catch (e) {
-  throw new Error(e as string);
-}
+initMusic();
 
-const [penguin, background] = images;
+loadMusic(); // files and shit
 
-// SURF.blitSurface(stars, { x: 10, y: 10, w: 40, h: 40 }, fighter, {
-//   x: 20,
-//   y: 20,
-// });
+loadGameData();
 
-// SURF.blitSurface(fighter, { x: 0, y: 0, w: 100, h: 98 }, screen, {
-//   x: 200,
-//   y: 200,
-// });
+initBackground()
 
-// SURF.blitToCanvas();
+initPlayer(player, PlayerType.WARRIOR)
+initPlayer(player, PlayerType.WARRIOR);
+playGame();
 
-const NUM_PENGUINS = 100;
-const MAX_SPEED = 6;
+cleanupStatusDisplay();
 
-// this type stores the information for one on-screen penguin
-type penguin_t = {
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
+cleanupRadarDisplay()
+
+unloadGameData();
+
+cleanupScripting();
+
+cleanupMusic();
+
+cleanupAudio()
+
+return 0;
+
+
 };
-
-let penguins: penguin_t[] = []; // array of penguins (NUM_PENGUINS in length)
-
-/* loop through the array of penguins and set each to a random starting position and direction */
-const initPenguins = () => {
-  for (let i = 0; i < NUM_PENGUINS; i++) {
-    penguins[i] = {
-      x: (Math.random() * SCREEN_WIDTH) << 0,
-      y: (Math.random() * SCREEN_HEIGHT) << 0,
-      dx: (Math.random() * 256) % MAX_SPEED << 0,
-      dy: (Math.random() * 256) % MAX_SPEED << 0,
-    };
-  }
-};
-
-/* move each penguin by its motion vector */
-const movePenguins = () => {
-  for (let i = 0; i < NUM_PENGUINS; i++) {
-    // move penguin by it's motion vector
-    penguins[i].x += penguins[i].dx;
-    penguins[i].y += penguins[i].dy;
-    /* turn the penguin if it hits the edge of the screen */
-    if (penguins[i].x < 0 || penguins[i].x > SCREEN_WIDTH - 1) {
-      penguins[i].dx = -penguins[i].dx;
-    }
-    if (penguins[i].y < 0 || penguins[i].y > SCREEN_HEIGHT - 1) {
-      penguins[i].dy = -penguins[i].dy;
-    }
-  }
-};
-
-/* this routing draws each penguin to the screen surface */
-const drawPenguins = () => {
-  for (let i = 0; i < NUM_PENGUINS; i++) {
-    const src: Rect = { x: 0, y: 0, w: penguin.w, h: penguin.h };
-    const dest: Coord = {
-      x: penguins[i].x - penguin.w / 2,
-      y: penguins[i].y - penguin.h / 2,
-    };
-    SURF.blitSurface(penguin, src, screen, dest);
-  }
-};
-
-const main = () => {
-  let frames: number = 300;
-
-  initPenguins();
-
-  const createFrame = () => {
-    if (frames) {
-      SURF.blitSurface(
-        background,
-        { x: 0, y: 0, w: background.w, h: background.h },
-        screen,
-        { x: 0, y: 0 }
-      );
-
-      drawPenguins();
-      SURF.blitToCanvas();
-
-      movePenguins();
-      frames--;
-      window.requestAnimationFrame(createFrame);
-    } else {
-      console.log("end");
-    }
-  };
-
-  window.requestAnimationFrame(createFrame);
-};
-
-main();
