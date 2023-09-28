@@ -35,6 +35,12 @@ const PHASER_DAMAGE_DEVIL = 1;
 const WORLD_WIDTH = 2000;
 const WORLD_HEIGHT = 2000;
 
+/* Number of particles allowed in the particle system. */
+const MAX_PARTICLES = 30000;
+
+/* Time to delay before respawning, in ticks. */
+const RESPAWN_TIME = 60;
+
 enum PlayerType {
   WARRIOR,
   DEVIL,

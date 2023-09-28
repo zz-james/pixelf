@@ -41,14 +41,8 @@ if (
 
 const surface: Surface = SURF.getMainSurface();
 
-drawLine(
-  surface,
-  40,
-  80,
-  100,
-  100,
-  new Uint8ClampedArray([255, 255, 255, 255])
-);
+// remember to come back and write cliplineagainstrectange
+drawLine(surface, 0, 0, 639, 479, new Uint8ClampedArray([255, 255, 255, 255]));
 
 SURF.blitToCanvas();
 

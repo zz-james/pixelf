@@ -155,7 +155,7 @@ export const blitToCanvas = (
   );
 };
 
-export const createSurface = (image: HTMLImageElement): Surface => {
+export const createSurfaceWithImage = (image: HTMLImageElement): Surface => {
   const offscreen_canvas = new OffscreenCanvas(image.width, image.height);
   const offscreen_context = offscreen_canvas.getContext("2d")!;
   offscreen_context.drawImage(image, 0, 0);
@@ -165,6 +165,21 @@ export const createSurface = (image: HTMLImageElement): Surface => {
     pixels: offscreen_context.getImageData(0, 0, image.width, image.height)
       .data, // extract typedArray
   };
+};
+
+export const createSurface = (width: number, height: number): Surface => {
+  const offscreen_canvas = new OffscreenCanvas(width, height);
+  const offscreen_context = offscreen_canvas.getContext("2d")!;
+
+  return {
+    w: width,
+    h: height,
+    pixels: offscreen_context.getImageData(0, 0, width, height).data, // extract typedArray
+  };
+};
+
+export const freeSurface = (surface: Surface) => {
+  delete surface.pixels;
 };
 
 // /**

@@ -46,7 +46,7 @@ const loadImage = async (image: HTMLImageElement): Promise<Surface> => {
   return new Promise((resolve, reject) => {
     image.onload = () => {
       console.log("completed loading image " + image.id);
-      resolve(SURF.createSurface(image));
+      resolve(SURF.createSurfaceWithImage(image));
     };
     image.onerror = function (event: Event | string) {
       if (typeof event === "string") reject(`there was an error ${event}`);
