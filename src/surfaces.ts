@@ -155,10 +155,8 @@ export const blitToCanvas = (
   );
 };
 
-export const createSurface = (image: HTMLImageElement): Surface => {
-  const offscreen_canvas = document.createElement("canvas");
-  offscreen_canvas.height = image.height;
-  offscreen_canvas.width = image.width;
+export const createSurfaceWithImage = (image: HTMLImageElement): Surface => {
+  const offscreen_canvas = new OffscreenCanvas(image.width, image.height);
   const offscreen_context = offscreen_canvas.getContext("2d")!;
   offscreen_context.drawImage(image, 0, 0);
   return {
@@ -167,6 +165,21 @@ export const createSurface = (image: HTMLImageElement): Surface => {
     pixels: offscreen_context.getImageData(0, 0, image.width, image.height)
       .data, // extract typedArray
   };
+};
+
+export const createSurface = (width: number, height: number): Surface => {
+  const offscreen_canvas = new OffscreenCanvas(width, height);
+  const offscreen_context = offscreen_canvas.getContext("2d")!;
+
+  return {
+    w: width,
+    h: height,
+    pixels: offscreen_context.getImageData(0, 0, width, height).data, // extract typedArray
+  };
+};
+
+export const freeSurface = (surface: Surface) => {
+  delete surface.pixels;
 };
 
 // /**
@@ -245,15 +258,13 @@ export const blitSurface = (
   const destStartX = destCoord.x * 4;
   const offSet = destStartX - srcStart;
 
-  console.log(src.w * src.h * 4);
-  console.log(destPixels.length);
-
   // loop over the number of rows you have to draw
   for (let row = 0; row < srcRect.h; row++) {
     // loop over the pixels in each row
     for (let col = srcStart; col < srcRowLength; col += 4) {
       // col is in pixels
       const srcPixelByte = srcPitch * row + col;
+      if (!srcPixels[srcPixelByte + 3]) continue; // skip if alpha is zero
       const destPixelByte = destPitch * (row + destCoord.y) + col + offSet;
       destPixels[destPixelByte + 0] = srcPixels[srcPixelByte + 0]; // r
       destPixels[destPixelByte + 1] = srcPixels[srcPixelByte + 1]; // g
@@ -261,13 +272,6 @@ export const blitSurface = (
       destPixels[destPixelByte + 3] = srcPixels[srcPixelByte + 3]; // a
     }
   }
-
-  // for (let i = 0; i < destPixels.length; i += 4) {
-  //   destPixels[i + 0] = srcPixels[i + 0]; // r
-  //   destPixels[i + 1] = srcPixels[i + 1]; // g
-  //   destPixels[i + 2] = srcPixels[i + 2]; // b
-  //   destPixels[i + 3] = srcPixels[i + 3]; // a
-  // }
 };
 
 // /**
