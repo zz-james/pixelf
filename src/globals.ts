@@ -41,6 +41,13 @@ const MAX_PARTICLES = 30000;
 /* Time to delay before respawning, in ticks. */
 const RESPAWN_TIME = 60;
 
+const INVINCIBLE_TIME = 300;
+
+const PLAYER_FORWARD_THRUST = 3;
+const PLAYER_REVERSE_THRUST = -1;
+
+const PHASER_RANGE = WORLD_WIDTH * 2;
+
 enum PlayerType {
   WARRIOR,
   DEVIL,

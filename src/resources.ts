@@ -1,4 +1,4 @@
-import { Surface, Rect, Coord } from "./surfaces"; // import types
+import { Surface } from "./surfaces"; // import types
 import * as IMG from "./image";
 
 export let shipStrip: Surface;
