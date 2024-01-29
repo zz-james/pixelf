@@ -1,24 +1,25 @@
 import "./style.css";
 
-import "./globals";
+import * as g from "./globals";
 
 // import { shipStrip, backStarTiles, frontStarTiles } from "./resources";
 import * as SURF from "./surfaces";
+
+import { main } from "./main2";
+
 // import * as KEY from "./keys";
 // import { createParticleExplosion, updateParticles } from './particle';
 
-import { Surface } from "./surfaces"; // import types
-import { drawLine } from "./bresline";
+// import { Surface } from "./surfaces"; // import types
+// import { drawLine } from "./bresline";
+// import { Font5x5 } from "./font5x5";
 
 // import "./background";
 // import { drawBackground, drawParallax, initBackground } from "./background";
 
-const SCREEN_WIDTH = 640;
-const SCREEN_HEIGHT = 480;
-
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <div class="card">
-      <canvas id="canvas" width="${SCREEN_WIDTH}" height="${SCREEN_HEIGHT}"></canvas>
+      <canvas id="canvas" width="${g.SCREEN_WIDTH}" height="${g.SCREEN_HEIGHT}"></canvas>
     </div>
 `;
 
@@ -37,11 +38,17 @@ if (
   throw "Unable to initialize Pixelf" + SURF.getError();
 }
 
+main();
+
 /* create a surface */
 
-const surface: Surface = SURF.getMainSurface();
+// const surface: Surface = SURF.getMainSurface();
 
 // remember to come back and write cliplineagainstrectange
-drawLine(surface, 0, 0, 639, 479, new Uint8ClampedArray([255, 255, 255, 255]));
+// drawLine(surface, 0, 0, 639, 479, new Uint8ClampedArray([255, 255, 255, 255]));
 
-SURF.blitToCanvas();
+// SURF.blitToCanvas();
+
+// var charCode = "A".charCodeAt(0);
+
+// console.log(Font5x5[charCode]);

@@ -1,4 +1,6 @@
 import { Surface } from "./surfaces"; //types
+import * as g from "./globals";
+import { Player_t } from "./globals";
 
 export const drawLine16 = (
   surf: Surface,
@@ -255,20 +257,16 @@ export const clipLineAgainstRectange = (
 
 // calculates the starting and ending coordinates of a phaser beam fired
 // from the given player's position and angle
-const calcPhaserBeamCoords = (
-  source: Player_t,
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number
-) => {
+const calcPhaserBeamCoords = (source: Player_t): number[] => {
   // these are pointers like global shiz
-  x0 = source.worldX;
-  y0 = source.worldY;
-  x1 =
-    PHASER_RANGE * Math.cos((source.angle * Math.PI) / 180.0) + source.worldX;
-  y1 =
-    PHASER_RANGE * Math.sin((source.angle * Math.PI) / 180.0) + source.worldY;
+  const x0 = source.worldX;
+  const y0 = source.worldY;
+  const x1 =
+    g.PHASER_RANGE * Math.cos((source.angle * Math.PI) / 180.0) + source.worldX;
+  const y1 =
+    g.PHASER_RANGE * Math.sin((source.angle * Math.PI) / 180.0) + source.worldY;
+
+  return [x0, y0, x1, y1];
 };
 
 /* Phasers have a virtually unlimited range. */
@@ -282,69 +280,68 @@ export const drawPhaserBeam = (
   visX: number,
   visY: number
 ) => {
-  let x0: number;
-  let y0: number;
-  let x1: number;
-  let y1: number;
-
-  calcPhaserBeamCoords(source, x0, y0, x1, y1);  // yeah sort this globals out
+  let [x0, y0, x1, y1] = calcPhaserBeamCoords(source); // yeah sort this globals out
 
   x0 -= visX;
   y0 -= visY;
   x1 -= visX;
   y1 -= visY;
 
-  if(clipLineAgainstRectange(x0,y0,x1,y1,0,0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1) == false) {
+  if (
+    clipLineAgainstRectange(
+      x0,
+      y0,
+      x1,
+      y1,
+      0,
+      0,
+      g.SCREEN_WIDTH - 1,
+      g.SCREEN_HEIGHT - 1
+    ) == false
+  ) {
     return;
   }
 
   // the color of the laser is the last argument
-  drawLine16(surf, x0, y0 x1, y1, 0xD2FF);
-
+  drawLine16(surf, x0, y0, x1, y1, 0xd2ff);
 };
 
 /* Checks whether a phaser beam originating from the given
 player hits the given target. Requires the same data
 as DrawPhaserBeam. Returns 1 on hit, 0 on miss. */
-export const checkPhaserHit = (
-  source: Player_t,
-  target: Player_t
-): boolean => {
-    let v1x:number;
-    let v1y:number;
-    let v2x:number;
-    let v2y:number;
-    let px:number;
-    let py:number;
-    let dist:number;
-    let x0:number;
-    let y0:number;
-    let x1:number;
-    let y1:number;
+export const checkPhaserHit = (source: Player_t, target: Player_t): boolean => {
+  let v1x: number;
+  let v1y: number;
+  let v2x: number;
+  let v2y: number;
+  let px: number;
+  let py: number;
+  let dist: number;
+  let x0: number;
+  let y0: number;
+  let x1: number;
+  let y1: number;
 
-    calcPhaserBeamCoords(source, x0, y0, x1, y1);
+  [x0, y0, x1, y1] = calcPhaserBeamCoords(source);
 
-    v1x = x1 - x0;
-    v1y = y1 = y0;
-    v2x = target.worldX - x0;
-    v2y = target.worldY - y0;
+  v1x = x1 - x0;
+  v1y = y1 = y0;
+  v2x = target.worldX - x0;
+  v2y = target.worldY - y0;
 
-    // if the dot product is less that zero, the target is behind the source, so there cannot be a hit
-    if(v1x * v2x + v1y * v2y < 0) {
-        return false;
-    }
-
-    px = v1x * (v1x * v2x + v1y * v2y) / (v1x * v1x + v1y * v1y);
-    py = v1y * (v1x * v2x + v1y * v2y) / (v1x * v1x + v1y * v1y);
-
-    dist = Math.sqrt(
-        (v2x-px)*(v2x-px)+(v2y-py)*(v2y-py)
-    );
-
-    if(dist < 50) {
-        return true;
-    }
-
+  // if the dot product is less that zero, the target is behind the source, so there cannot be a hit
+  if (v1x * v2x + v1y * v2y < 0) {
     return false;
+  }
 
+  px = (v1x * (v1x * v2x + v1y * v2y)) / (v1x * v1x + v1y * v1y);
+  py = (v1y * (v1x * v2x + v1y * v2y)) / (v1x * v1x + v1y * v1y);
+
+  dist = Math.sqrt((v2x - px) * (v2x - px) + (v2y - py) * (v2y - py));
+
+  if (dist < 50) {
+    return true;
+  }
+
+  return false;
 };

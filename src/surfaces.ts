@@ -319,7 +319,7 @@ export const getError = (): string => {
  * @param srcOffset *in bytes!*
  * @param length *in bytes!*
  */
-var memcpy = (
+export const memcpy = (
   dst: ArrayBuffer,
   dstOffset: number,
   src: ArrayBuffer,
@@ -352,3 +352,5 @@ var memcpy = (
 //      */
 
 // return my;
+
+export const loadBMP = () => {};
