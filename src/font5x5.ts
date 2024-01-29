@@ -1,767 +1,767 @@
 // prettier-ignore
 export const Font5x5: string[] = [
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "     ",
 
-    "  X  \n"+
-    "  X  \n"+
-    "  X  \n"+
-    "     \n"+
+    "  X  "+
+    "  X  "+
+    "  X  "+
+    "     "+
     "  X  ",
 
-    " X X \n"+
-    " X X \n"+
-    "     \n"+
-    "     \n"+
+    " X X "+
+    " X X "+
+    "     "+
+    "     "+
     "     ",
 
-    " X X \n"+
-    "XXXXX\n"+
-    " X X \n"+
-    "XXXXX\n"+
+    " X X "+
+    "XXXXX"+
+    " X X "+
+    "XXXXX"+
     " X X ",
 
-    " XXXX\n"+
-    "X X  \n"+
-    " XXX \n"+
-    "  X X\n"+
+    " XXXX"+
+    "X X  "+
+    " XXX "+
+    "  X X"+
     "XXXX ",
 
-    "XX  X\n"+
-    "XX X \n"+
-    "  X  \n"+
-    " X XX\n"+
+    "XX  X"+
+    "XX X "+
+    "  X  "+
+    " X XX"+
     "X  XX",
 
-    " XX  \n"+
-    "X  X \n"+
-    " XX  \n"+
-    "X X  \n"+
+    " XX  "+
+    "X  X "+
+    " XX  "+
+    "X X  "+
     "XX X ",
 
-    "  X  \n"+
-    "  X  \n"+
-    "     \n"+
-    "     \n"+
+    "  X  "+
+    "  X  "+
+    "     "+
+    "     "+
     "     ",
 
-    "  X  \n"+
-    " X   \n"+
-    " X   \n"+
-    " X   \n"+
+    "  X  "+
+    " X   "+
+    " X   "+
+    " X   "+
     "  X  ",
 
-    "  X  \n"+
-    "   X \n"+
-    "   X \n"+
-    "   X \n"+
+    "  X  "+
+    "   X "+
+    "   X "+
+    "   X "+
     "  X  ",
 
-    "X X X\n"+
-    " XXX \n"+
-    "XXXXX\n"+
-    " XXX \n"+
+    "X X X"+
+    " XXX "+
+    "XXXXX"+
+    " XXX "+
     "X X X",
 
-    "  X  \n"+
-    "  X  \n"+
-    "XXXXX\n"+
-    "  X  \n"+
+    "  X  "+
+    "  X  "+
+    "XXXXX"+
+    "  X  "+
     "  X  ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "   X \n"+
+    "     "+
+    "     "+
+    "     "+
+    "   X "+
     "  X  ",
 
-    "     \n"+
-    "     \n"+
-    "XXXXX\n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "XXXXX"+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "  X  ",
 
-    "    X\n"+
-    "   X \n"+
-    "  X  \n"+
-    " X   \n"+
+    "    X"+
+    "   X "+
+    "  X  "+
+    " X   "+
     "X    ",
 
-    " XXX \n"+
-    "X  Xx\n"+
-    "X X X\n"+
-    "XX  X\n"+
+    " XXX "+
+    "X  Xx"+
+    "X X X"+
+    "XX  X"+
     " XXX ",
 
-    "  X  \n"+
-    " XX  \n"+
-    "  X  \n"+
-    "  X  \n"+
+    "  X  "+
+    " XX  "+
+    "  X  "+
+    "  X  "+
     " XXX ",
 
-    " XXX \n"+
-    "    X\n"+
-    "   X \n"+
-    "  x  \n"+
+    " XXX "+
+    "    X"+
+    "   X "+
+    "  x  "+
     " XXXX",
 
-    " XXX \n"+
-    "    X\n"+
-    "  XX \n"+
-    "    X\n"+
+    " XXX "+
+    "    X"+
+    "  XX "+
+    "    X"+
     " XXX ",
 
-    " X  X\n"+
-    " X  X\n"+
-    " XXXX\n"+
-    "    X\n"+
+    " X  X"+
+    " X  X"+
+    " XXXX"+
+    "    X"+
     "    X",
 
-    " XXXX\n"+
-    " X   \n"+
-    " XXX \n"+
-    "    X\n"+
+    " XXXX"+
+    " X   "+
+    " XXX "+
+    "    X"+
     " XXX ",
 
-    "  XXX\n"+
-    " X   \n"+
-    " XXX \n"+
-    " X  X\n"+
+    "  XXX"+
+    " X   "+
+    " XXX "+
+    " X  X"+
     "  XX ",
 
-    " XXXX\n"+
-    "    X\n"+
-    "   X \n"+
-    "  X  \n"+
+    " XXXX"+
+    "    X"+
+    "   X "+
+    "  X  "+
     "  X  ",
 
-    "  XX \n"+
-    " X  X\n"+
-    "  XX \n"+
-    " X  X\n"+
+    "  XX "+
+    " X  X"+
+    "  XX "+
+    " X  X"+
     "  XX ",
 
-    "  XX \n"+
-    " X  X\n"+
-    "  XXX\n"+
-    "    X\n"+
+    "  XX "+
+    " X  X"+
+    "  XXX"+
+    "    X"+
     "   X ",
 
-    "     \n"+
-    "  X  \n"+
-    "     \n"+
-    "  X  \n"+
+    "     "+
+    "  X  "+
+    "     "+
+    "  X  "+
     "     ",
 
-    "     \n"+
-    "  X  \n"+
-    "     \n"+
-    "  X  \n"+
+    "     "+
+    "  X  "+
+    "     "+
+    "  X  "+
     " X   ",
 
-    "   X \n"+
-    "  X  \n"+
-    " X   \n"+
-    "  X  \n"+
+    "   X "+
+    "  X  "+
+    " X   "+
+    "  X  "+
     "   X ",
 
-    "     \n"+
-    "XXXXX\n"+
-    "     \n"+
-    "XXXXX\n"+
+    "     "+
+    "XXXXX"+
+    "     "+
+    "XXXXX"+
     "     ",
 
-    " X   \n"+
-    "  X  \n"+
-    "   X \n"+
-    "  X  \n"+
+    " X   "+
+    "  X  "+
+    "   X "+
+    "  X  "+
     " X   ",
 
-    " XXX \n"+
-    "   X \n"+
-    "  X  \n"+
-    "     \n"+
+    " XXX "+
+    "   X "+
+    "  X  "+
+    "     "+
     "  X  ",
 
-    " XXX \n"+
-    "X XXX\n"+
-    "X XXX\n"+
-    "X    \n"+
+    " XXX "+
+    "X XXX"+
+    "X XXX"+
+    "X    "+
     " XXX ",
 
-    " XXX \n"+
-    "X   X\n"+
-    "XXXXX\n"+
-    "X   X\n"+
+    " XXX "+
+    "X   X"+
+    "XXXXX"+
+    "X   X"+
     "X   X",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "XXXX \n"+
-    "X   X\n"+
+    "XXXX "+
+    "X   X"+
+    "XXXX "+
+    "X   X"+
     "XXXX ",
 
-    " XXXX\n"+
-    "X    \n"+
-    "X    \n"+
-    "X    \n"+
+    " XXXX"+
+    "X    "+
+    "X    "+
+    "X    "+
     " XXXX",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
+    "XXXX "+
+    "X   X"+
+    "X   X"+
+    "X   X"+
     "XXXX ",
 
-    "XXXXX\n"+
-    "X    \n"+
-    "XXXX \n"+
-    "X    \n"+
+    "XXXXX"+
+    "X    "+
+    "XXXX "+
+    "X    "+
     "XXXXX",
 
-    "XXXXX\n"+
-    "X    \n"+
-    "XXXX \n"+
-    "X    \n"+
+    "XXXXX"+
+    "X    "+
+    "XXXX "+
+    "X    "+
     "X    ",
 
-    " XXXX\n"+
-    "X    \n"+
-    "X  XX\n"+
-    "X   X\n"+
+    " XXXX"+
+    "X    "+
+    "X  XX"+
+    "X   X"+
     " XXXX",
 
-    "X   X\n"+
-    "X   X\n"+
-    "XXXXX\n"+
-    "X   X\n"+
+    "X   X"+
+    "X   X"+
+    "XXXXX"+
+    "X   X"+
     "X   X",
 
-    " XXX \n"+
-    "  X  \n"+
-    "  X  \n"+
-    "  X  \n"+
+    " XXX "+
+    "  X  "+
+    "  X  "+
+    "  X  "+
     " XXX ",
 
-    "  XXX\n"+
-    "   X \n"+
-    "   X \n"+
-    "X  X \n"+
+    "  XXX"+
+    "   X "+
+    "   X "+
+    "X  X "+
     " XX  ",
 
-    "X  X \n"+
-    "X X  \n"+
-    "XX   \n"+
-    "X X  \n"+
+    "X  X "+
+    "X X  "+
+    "XX   "+
+    "X X  "+
     "X  X ",
 
-    "X    \n"+
-    "X    \n"+
-    "X    \n"+
-    "X    \n"+
+    "X    "+
+    "X    "+
+    "X    "+
+    "X    "+
     "XXXX ",
 
-    "X   X\n"+
-    "XX XX\n"+
-    "X X X\n"+
-    "X   X\n"+
+    "X   X"+
+    "XX XX"+
+    "X X X"+
+    "X   X"+
     "X   X",
 
-    "X   X\n"+
-    "XX  X\n"+
-    "X X X\n"+
-    "X  XX\n"+
+    "X   X"+
+    "XX  X"+
+    "X X X"+
+    "X  XX"+
     "X   X",
 
-    " XXX \n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
+    " XXX "+
+    "X   X"+
+    "X   X"+
+    "X   X"+
     " XXX ",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "XXXX \n"+
-    "X    \n"+
+    "XXXX "+
+    "X   X"+
+    "XXXX "+
+    "X    "+
     "X    ",
 
-    " XXX \n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X  XX\n"+
+    " XXX "+
+    "X   X"+
+    "X   X"+
+    "X  XX"+
     " XXXX",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "XXXX \n"+
-    "X X  \n"+
+    "XXXX "+
+    "X   X"+
+    "XXXX "+
+    "X X  "+
     "X  X ",
 
-    " XXXX\n"+
-    "X    \n"+
-    " XXX \n"+
-    "    X\n"+
+    " XXXX"+
+    "X    "+
+    " XXX "+
+    "    X"+
     "XXXX ",
 
-    "XXXXX\n"+
-    "  X  \n"+
-    "  X  \n"+
-    "  X  \n"+
+    "XXXXX"+
+    "  X  "+
+    "  X  "+
+    "  X  "+
     "  X  ",
 
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
+    "X   X"+
+    "X   X"+
+    "X   X"+
+    "X   X"+
     " XXX ",
 
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
-    " X X \n"+
+    "X   X"+
+    "X   X"+
+    "X   X"+
+    " X X "+
     "  X  ",
 
-    "X   X\n"+
-    "X   X\n"+
-    "X X X\n"+
-    "X X X\n"+
+    "X   X"+
+    "X   X"+
+    "X X X"+
+    "X X X"+
     " X X ",
 
-    "X   X\n"+
-    " X X \n"+
-    "  X  \n"+
-    " X X \n"+
+    "X   X"+
+    " X X "+
+    "  X  "+
+    " X X "+
     "X   X",
 
-    "X   X\n"+
-    "X   X\n"+
-    " XXX \n"+
-    "  X  \n"+
+    "X   X"+
+    "X   X"+
+    " XXX "+
+    "  X  "+
     "  X  ",
 
-    "XXXXX\n"+
-    "   X \n"+
-    "  X  \n"+
-    " X   \n"+
+    "XXXXX"+
+    "   X "+
+    "  X  "+
+    " X   "+
     "XXXXX",
 
-    " XXX \n"+
-    " X   \n"+
-    " X   \n"+
-    " X   \n"+
+    " XXX "+
+    " X   "+
+    " X   "+
+    " X   "+
     " XXX ",
 
-    "X    \n"+
-    " X   \n"+
-    "  X  \n"+
-    "   X \n"+
+    "X    "+
+    " X   "+
+    "  X  "+
+    "   X "+
     "    X",
 
-    " XXX \n"+
-    "   X \n"+
-    "   X \n"+
-    "   X \n"+
+    " XXX "+
+    "   X "+
+    "   X "+
+    "   X "+
     " XXX ",
 
-    "  X  \n"+
-    " X X \n"+
-    "     \n"+
-    "     \n"+
+    "  X  "+
+    " X X "+
+    "     "+
+    "     "+
     "     ",
 
-    "     \n"+
-    "     \n"+
-    "     \n"+
-    "     \n"+
+    "     "+
+    "     "+
+    "     "+
+    "     "+
     "XXXXX",
 
-    "  X  \n"+
-    "   X \n"+
-    "     \n"+
-    "     \n"+
+    "  X  "+
+    "   X "+
+    "     "+
+    "     "+
     "     ",
 
 
-    " XXX \n"+
-    "X   X\n"+
-    "XXXXX\n"+
-    "X   X\n"+
+    " XXX "+
+    "X   X"+
+    "XXXXX"+
+    "X   X"+
     "X   X",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "XXXX \n"+
-    "X   X\n"+
+    "XXXX "+
+    "X   X"+
+    "XXXX "+
+    "X   X"+
     "XXXX ",
 
-    " XXXX\n"+
-    "X    \n"+
-    "X    \n"+
-    "X    \n"+
+    " XXXX"+
+    "X    "+
+    "X    "+
+    "X    "+
     " XXXX",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
+    "XXXX "+
+    "X   X"+
+    "X   X"+
+    "X   X"+
     "XXXX ",
 
-    "XXXXX\n"+
-    "X    \n"+
-    "XXXX \n"+
-    "X    \n"+
+    "XXXXX"+
+    "X    "+
+    "XXXX "+
+    "X    "+
     "XXXXX",
 
-    "XXXXX\n"+
-    "X    \n"+
-    "XXXX \n"+
-    "X    \n"+
+    "XXXXX"+
+    "X    "+
+    "XXXX "+
+    "X    "+
     "X    ",
 
-    " XXXX\n"+
-    "X    \n"+
-    "X  XX\n"+
-    "X   X\n"+
+    " XXXX"+
+    "X    "+
+    "X  XX"+
+    "X   X"+
     " XXXX",
 
-    "X   X\n"+
-    "X   X\n"+
-    "XXXXX\n"+
-    "X   X\n"+
+    "X   X"+
+    "X   X"+
+    "XXXXX"+
+    "X   X"+
     "X   X",
 
-    " XXX \n"+
-    "  X  \n"+
-    "  X  \n"+
-    "  X  \n"+
+    " XXX "+
+    "  X  "+
+    "  X  "+
+    "  X  "+
     " XXX ",
 
-    "  XXX\n"+
-    "   X \n"+
-    "   X \n"+
-    "X  X \n"+
+    "  XXX"+
+    "   X "+
+    "   X "+
+    "X  X "+
     " XX  ",
 
-    "X  X \n"+
-    "X X  \n"+
-    "XX   \n"+
-    "X X  \n"+
+    "X  X "+
+    "X X  "+
+    "XX   "+
+    "X X  "+
     "X  X ",
 
-    "X    \n"+
-    "X    \n"+
-    "X    \n"+
-    "X    \n"+
+    "X    "+
+    "X    "+
+    "X    "+
+    "X    "+
     "XXXX ",
 
-    "X   X\n"+
-    "XX XX\n"+
-    "X X X\n"+
-    "X   X\n"+
+    "X   X"+
+    "XX XX"+
+    "X X X"+
+    "X   X"+
     "X   X",
 
-    "X   X\n"+
-    "XX  X\n"+
-    "X X X\n"+
-    "X  XX\n"+
+    "X   X"+
+    "XX  X"+
+    "X X X"+
+    "X  XX"+
     "X   X",
 
-    " XXX \n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
+    " XXX "+
+    "X   X"+
+    "X   X"+
+    "X   X"+
     " XXX ",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "XXXX \n"+
-    "X    \n"+
+    "XXXX "+
+    "X   X"+
+    "XXXX "+
+    "X    "+
     "X    ",
 
-    " XXX \n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X  XX\n"+
+    " XXX "+
+    "X   X"+
+    "X   X"+
+    "X  XX"+
     " XXXX",
 
-    "XXXX \n"+
-    "X   X\n"+
-    "XXXX \n"+
-    "X X  \n"+
+    "XXXX "+
+    "X   X"+
+    "XXXX "+
+    "X X  "+
     "X  X ",
 
-    " XXXX\n"+
-    "X    \n"+
-    " XXX \n"+
-    "    X\n"+
+    " XXXX"+
+    "X    "+
+    " XXX "+
+    "    X"+
     "XXXX ",
 
-    "XXXXX\n"+
-    "  X  \n"+
-    "  X  \n"+
-    "  X  \n"+
+    "XXXXX"+
+    "  X  "+
+    "  X  "+
+    "  X  "+
     "  X  ",
 
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
+    "X   X"+
+    "X   X"+
+    "X   X"+
+    "X   X"+
     " XXX ",
 
-    "X   X\n"+
-    "X   X\n"+
-    "X   X\n"+
-    " X X \n"+
+    "X   X"+
+    "X   X"+
+    "X   X"+
+    " X X "+
     "  X  ",
 
-    "X   X\n"+
-    "X   X\n"+
-    "X X X\n"+
-    "X X X\n"+
+    "X   X"+
+    "X   X"+
+    "X X X"+
+    "X X X"+
     " X X ",
 
-    "X   X\n"+
-    " X X \n"+
-    "  X  \n"+
-    " X X \n"+
+    "X   X"+
+    " X X "+
+    "  X  "+
+    " X X "+
     "X   X",
 
-    "X   X\n"+
-    "X   X\n"+
-    " XXX \n"+
-    "  X  \n"+
+    "X   X"+
+    "X   X"+
+    " XXX "+
+    "  X  "+
     "  X  ",
 
-    "XXXXX\n"+
-    "   X \n"+
-    "  X  \n"+
-    " X   \n"+
+    "XXXXX"+
+    "   X "+
+    "  X  "+
+    " X   "+
     "XXXXX",
 
-    "  XX \n"+
-    "  X  \n"+
-    " X   \n"+
-    "  X  \n"+
+    "  XX "+
+    "  X  "+
+    " X   "+
+    "  X  "+
     "  XX ",
 
-    "  X  \n"+
-    "  X  \n"+
-    "  X  \n"+
-    "  X  \n"+
+    "  X  "+
+    "  X  "+
+    "  X  "+
+    "  X  "+
     "  X  ",
 
-    " XX  \n"+
-    "  X  \n"+
-    "   X \n"+
-    "  X  \n"+
+    " XX  "+
+    "  X  "+
+    "   X "+
+    "  X  "+
     " XX  ",
 
-    "  X X\n"+
-    " X X \n"+
-    "     \n"+
-    "     \n"+
+    "  X X"+
+    " X X "+
+    "     "+
+    "     "+
     "     ",
 
     ""

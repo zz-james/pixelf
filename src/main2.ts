@@ -1,6 +1,6 @@
 import * as SURF from "./surfaces";
 import * as KEY from "./keys";
-import { shipStrip } from "./resources";
+import { shipStrip, loadGameData } from "./resources";
 import { drawBackground, drawParallax } from "./background";
 import {
   createParticleExplosion,
@@ -30,8 +30,38 @@ let opponentType: Opponent_type;
 
 // eg. let blah = opponent_type.OPP_COMPUTER;
 
-let player: g.Player_t; // the player at the computer
-let opponent: g.Player_t; // scripted or network opponent
+let player: Player_t = {
+  type: PlayerType.WARRIOR,
+  state: PlayerState.ATTACK,
+  angle: 0,
+  worldX: 0,
+  worldY: 0,
+  screenX: 0,
+  screenY: 0,
+  velocity: 0,
+  accel: 0,
+  shields: 0,
+  firing: 0,
+  charge: 0,
+  score: 0,
+  hit: 0,
+}; // the player at the computer
+let opponent: Player_t = {
+  type: PlayerType.DEVIL,
+  state: PlayerState.EVADE,
+  angle: 0,
+  worldX: 0,
+  worldY: 0,
+  screenX: 0,
+  screenY: 0,
+  velocity: 0,
+  accel: 0,
+  shields: 0,
+  firing: 0,
+  charge: 0,
+  score: 0,
+  hit: 0,
+}; // scripted or network opponent
 
 let cameraX: number; // position of the 640x480 viewport within the world
 let cameraY: number;
@@ -77,14 +107,14 @@ const drawPlayer = (p: Player_t) => {
   // if player is not on screen, don't draw anything
   if (
     p.screenX < -g.PLAYER_WIDTH / 2 ||
-    p.screenX >= g.g.SCREEN_WIDTH + g.PLAYER_WIDTH / 2
+    p.screenX >= g.SCREEN_WIDTH + g.PLAYER_WIDTH / 2
   ) {
     return;
   }
 
   if (
     p.screenY < -g.PLAYER_HEIGHT / 2 ||
-    p.screenY >= g.g.SCREEN_HEIGHT + g.PLAYER_HEIGHT / 2
+    p.screenY >= g.SCREEN_HEIGHT + g.PLAYER_HEIGHT / 2
   ) {
     return;
   }
@@ -247,6 +277,8 @@ const playGame = (): void => {
 
   /* start the game! */
   while (quit == false) {
+    // instead of this while loop we need to hook into the screen refraw onupdateframe thing
+
     /* determine how many milliseconds have passed since 
        the last frame, and update our motion scaling */
     prevTicks = curTicks;
@@ -261,11 +293,11 @@ const playGame = (): void => {
     keystate = KEY.getKeyState();
 
     /* Update phasers. */
-    player.firing -= timeScale;
-    if (player.firing < 0) player.firing = 0;
-    opponent.firing -= timeScale;
-    if (opponent.firing < 0) opponent.firing = 0;
-    chargePhasers(player);
+    // player.firing -= timeScale;
+    // if (player.firing < 0) player.firing = 0;
+    // opponent.firing -= timeScale;
+    // if (opponent.firing < 0) opponent.firing = 0;
+    // chargePhasers(player);
 
     /* If the local player is destroyed, the respawn timer will
            start counting. During this time the controls are disabled
@@ -399,52 +431,55 @@ const playGame = (): void => {
     setPlayerStatusInfo(player.score, player.shields, player.charge);
     setOpponentStatusInfo(opponent.score, opponent.shields);
 
-    /* make the camera follow the player (but impose limits) */
-    cameraX = player.worldX - g.SCREEN_WIDTH / 2;
-    cameraY = player.worldY - g.SCREEN_HEIGHT / 2;
+    // /* make the camera follow the player (but impose limits) */
+    // cameraX = player.worldX - g.SCREEN_WIDTH / 2;
+    // cameraY = player.worldY - g.SCREEN_HEIGHT / 2;
 
-    if (cameraX < 0) cameraX = 0;
-    if (cameraX >= g.WORLD_WIDTH - g.SCREEN_WIDTH)
-      cameraX = g.WORLD_WIDTH - g.SCREEN_WIDTH - 1;
-    if (cameraY < 0) cameraY = 0;
-    if (cameraY >= g.WORLD_HEIGHT - g.SCREEN_HEIGHT)
-      cameraY = g.WORLD_HEIGHT - g.SCREEN_HEIGHT - 1;
+    // if (cameraX < 0) cameraX = 0;
+    // if (cameraX >= g.WORLD_WIDTH - g.SCREEN_WIDTH)
+    //   cameraX = g.WORLD_WIDTH - g.SCREEN_WIDTH - 1;
+    // if (cameraY < 0) cameraY = 0;
+    // if (cameraY >= g.WORLD_HEIGHT - g.SCREEN_HEIGHT)
+    //   cameraY = g.WORLD_HEIGHT - g.SCREEN_HEIGHT - 1;
 
-    updateParticles();
+    // updateParticles();
 
-    // redraw everything
-    drawBackground(screen, cameraX, cameraY);
-    drawParallax(screen, cameraX, cameraY);
-    drawParticles(screen, cameraX, cameraY);
+    // // redraw everything
+    // drawBackground(screen, cameraX, cameraY);
+    // drawParallax(screen, cameraX, cameraY);
+    // drawParticles(screen, cameraX, cameraY);
 
-    if (opponent.firing) {
-      drawPhaserBeam(opponent, screen, cameraX, cameraY);
-    }
-    if (player.firing) {
-      drawPhaserBeam(player, screen, cameraX, cameraY);
-    }
+    // if (opponent.firing) {
+    //   drawPhaserBeam(opponent, screen, cameraX, cameraY);
+    // }
+    // if (player.firing) {
+    //   drawPhaserBeam(player, screen, cameraX, cameraY);
+    // }
 
-    if (respawnTimer < 0) {
-      drawPlayer(player);
-    }
+    // if (respawnTimer < 0) {
+    //   drawPlayer(player);
+    // }
 
-    if (!awaitingRespawn) {
-      drawPlayer(opponent);
-    }
+    // if (!awaitingRespawn) {
+    //   drawPlayer(opponent);
+    // }
 
     updateStatusDisplay(screen);
 
-    updateRadarDisplay(
-      screen,
-      player.worldX,
-      player.worldY,
-      opponent.worldX,
-      opponent.worldY
-    );
+    // updateRadarDisplay(
+    //   screen,
+    //   player.worldX,
+    //   player.worldY,
+    //   opponent.worldX,
+    //   opponent.worldY
+    // );
 
     // do we flip to canvas here?
 
+    SURF.blitToCanvas();
+
     framesDrawn++;
+    if (framesDrawn === 20) quit = true;
   }
 
   endTime = new Date().getTime();
@@ -460,18 +495,19 @@ const playGame = (): void => {
   // end here
 };
 
-export const main = (): number => {
-  enum GameType {
-    GAME_COMPUTER,
-    GAME_NETWORK,
-    GAME_UNKNOWN,
-  }
+export const main = async () => {
+  // we not really using this right now
+  // enum GameType {
+  //   GAME_COMPUTER,
+  //   GAME_NETWORK,
+  //   GAME_UNKNOWN,
+  // }
 
-  let gameType: GameType = GameType.GAME_UNKNOWN;
+  // let gameType: GameType = GameType.GAME_UNKNOWN;
 
-  gameType = GameType.GAME_COMPUTER;
+  // gameType = GameType.GAME_COMPUTER;
 
-  opponentType = Opponent_type.OPP_COMPUTER;
+  // opponentType = Opponent_type.OPP_COMPUTER;
 
   // initScripting() // probably don't need this
 
@@ -490,7 +526,7 @@ export const main = (): number => {
 
   // todo: set window title to Penguin Warriot
 
-  initStatusDisplay();
+  await initStatusDisplay();
 
   // initRaderDisplay();
 
@@ -500,13 +536,13 @@ export const main = (): number => {
 
   // loadMusic(); // files and shit
 
-  // loadGameData();
+  await loadGameData();
 
   // initBackground()
 
   // initPlayer(player, PlayerType.WARRIOR)
   // initPlayer(player, PlayerType.WARRIOR);
-  // playGame();
+  playGame();
 
   // cleanupStatusDisplay();
 
@@ -519,6 +555,4 @@ export const main = (): number => {
   // cleanupMusic();
 
   // cleanupAudio()
-
-  return 0;
 };

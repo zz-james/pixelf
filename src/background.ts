@@ -1,6 +1,8 @@
 import * as SURF from "./surfaces";
 import { Surface, Rect, Coord } from "./surfaces"; // import types
+import { backStarTiles, frontStarTiles } from "./resources";
 import { createMultiArray } from "./utils/multiArray";
+import * as g from "./globals";
 
 /* These define the sizes of the backgrond tile grids. We don't really need a one to one
    mapping between the size of the playing field and the size of the tile grids;
@@ -68,10 +70,10 @@ export const drawBackground = (
   tileY = startTileY;
   drawY = startDrawY;
 
-  while (drawY < SCREEN_HEIGHT) {
+  while (drawY < g.SCREEN_HEIGHT) {
     tileX = startTileX;
     drawX = startDrawX;
-    while (drawX < SCREEN_WIDTH) {
+    while (drawX < g.SCREEN_WIDTH) {
       const srcRect: Rect = {
         x: TILE_WIDTH * backTiles[tileX][tileY],
         y: 0,
@@ -118,10 +120,10 @@ export const drawParallax = (
   tileY = startTileY;
   drawY = startDrawY;
 
-  while (drawY < SCREEN_HEIGHT) {
+  while (drawY < g.SCREEN_HEIGHT) {
     tileX = startTileX;
     drawX = startDrawX;
-    while (drawX < SCREEN_WIDTH) {
+    while (drawX < g.SCREEN_WIDTH) {
       const srcRect: Rect = {
         x: TILE_WIDTH * frontTiles[tileX][tileY],
         y: 0,

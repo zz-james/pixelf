@@ -1,5 +1,5 @@
 import * as g from "./globals";
-import { Surface, Rect } from "./surfaces"; // import types
+import { Surface, Rect, Coord } from "./surfaces"; // import types
 import * as SURF from "./surfaces";
 import * as IMG from "./image";
 
@@ -24,24 +24,15 @@ on, off = filenames of the bitmaps to use for the 'on' LED and 'off' LED
 returns 0 on success and -1 on error */
 /* not a pure function mutates disp in place */
 const LED_CreateDisplay = async (
-  disp: LED_Display, // this is the block
   cols: number,
   rows: number,
   vcols: number,
   vrows: number,
   on: string /* path to image */,
   off: string /* path to image */
-): Promise<boolean> => {
+): Promise<LED_Display> => {
   let c: Uint8ClampedArray = new Uint8ClampedArray([0, 0, 0, 0]);
   let i: number;
-
-  disp.led_surface = SURF.createSurface(vcols, vrows);
-  disp.virt_w = vcols;
-  disp.virt_h = vrows;
-  disp.phys_w = cols;
-  disp.phys_h = rows;
-  disp.virt_x = 0;
-  disp.virt_y = 0;
 
   for (i = 0; i < 256; i++) {
     c[0] = i;
@@ -60,10 +51,19 @@ const LED_CreateDisplay = async (
     throw new Error(e as string);
   }
 
-  disp.on_image = imageSurfaces[0];
-  disp.off_image = imageSurfaces[1];
+  const disp: LED_Display = {
+    led_surface: SURF.createSurface(vcols, vrows),
+    virt_w: vcols,
+    virt_h: vrows,
+    phys_w: cols,
+    phys_h: rows,
+    virt_x: 0,
+    virt_y: 0,
+    on_image: imageSurfaces[0],
+    off_image: imageSurfaces[1],
+  };
 
-  return true;
+  return disp;
 };
 
 const LED_FreeDisplay = (disp: LED_Display): void => {
@@ -88,21 +88,24 @@ const LED_DrawDisplay = (
     y: 0,
   };
 
-  let destRect: Rect = srcRect;
+  let destCoord: Coord = { x: 0, y: 0 };
 
   let leds: Uint8ClampedArray = disp.led_surface.pixels; // get pointer to pixels
 
   for (row = 0; row < disp.phys_h; row++) {
     for (col = 0; col < disp.phys_w; col++) {
       let led: number;
-      destRect.x = col * disp.on_image.w + x;
-      destRect.y = row * disp.on_image.h + y;
-      led = leds[row + disp.virt_y * disp.led_surface.w + col + disp.virt_x];
+      destCoord.x = col * disp.on_image.w + x;
+      destCoord.y = row * disp.on_image.h + y;
+
+      led = leds[row * disp.led_surface.w + col];
+
       if (led) {
-        SURF.blitSurface(disp.on_image, srcRect, dest, destRect);
+        SURF.blitSurface(disp.on_image, srcRect, dest, destCoord);
       } else {
-        SURF.blitSurface(disp.off_image, srcRect, dest, destRect);
+        SURF.blitSurface(disp.off_image, srcRect, dest, destCoord);
       }
+      SURF.blitToCanvas();
     }
   }
 
@@ -122,15 +125,15 @@ const drawChar5x5 = (
   let sy: number;
 
   let data = Font5x5[ch];
-
+  const fontWidth = 5;
   pixels = dest.pixels;
 
   for (sy = 0; sy < 5; sy++) {
     for (sx = 0; sx < 5; sx++) {
-      if (data[5 * sy + sx] !== " ") {
-        pixels[dest.w * (y + sy) + x + sx] = color;
+      if (data[fontWidth * sy + sx] !== " ") {
+        pixels[dest.w * (y + sy) + (x + sx)] = color;
       } else {
-        pixels[y + sy + x + sx] = 0;
+        pixels[dest.w * (y + sy) + (x + sx)] = 0;
       }
     }
   }
@@ -161,93 +164,60 @@ let opponentScore: LED_Display;
 let opponentShields: LED_Display;
 let statusMsg: LED_Display;
 
-/* Initializes the status display system.
-Returns 0 on success, -1 on failure. 
-quite messy and with side effects rather than returning 
-*/
 export const initStatusDisplay = async (): Promise<boolean> => {
-  if (
-    // make LED_CreateDislay return a LED_DISPLAY object
-    // and assign it here ie.
-    // playerScore = LED_CreateDisplay(... etc)
+  playerScore = await LED_CreateDisplay(
+    12,
+    5,
+    12,
+    5,
+    "led-red-on.png",
+    "led-red-off.png"
+  );
 
-    (await LED_CreateDisplay(
-      playerScore,
-      12,
-      5,
-      12,
-      5,
-      "led-red-on.png",
-      "led-red-off.png"
-    )) === false
-  ) {
-    return false;
-  }
-  if (
-    (await LED_CreateDisplay(
-      playerShields,
-      12,
-      1,
-      12,
-      1,
-      "led-red-on.png",
-      "led-red-off.png"
-    )) === false
-  ) {
-    return false;
-  }
-  if (
-    (await LED_CreateDisplay(
-      playerCharge,
-      80,
-      1,
-      80,
-      1,
-      "led-red-on.png",
-      "led-red-off.png"
-    )) === false
-  ) {
-    return false;
-  }
-  if (
-    (await LED_CreateDisplay(
-      opponentScore,
-      12,
-      5,
-      12,
-      5,
-      "led-red-on.png",
-      "led-red-off.png"
-    )) === false
-  ) {
-    return false;
-  }
-  if (
-    (await LED_CreateDisplay(
-      opponentShields,
-      12,
-      1,
-      12,
-      1,
-      "led-red-on.png",
-      "led-red-off.png"
-    )) === false
-  ) {
-    return false;
-  }
-  if (
-    (await LED_CreateDisplay(
-      statusMsg,
-      56,
-      5,
-      66,
-      5,
-      "led-green-on.png",
-      "led-green-off.png"
-    )) === false
-  ) {
-    return false;
-  }
+  playerShields = await LED_CreateDisplay(
+    12,
+    1,
+    12,
+    1,
+    "led-red-on.png",
+    "led-red-off.png"
+  );
+
+  playerCharge = await LED_CreateDisplay(
+    80,
+    1,
+    80,
+    1,
+    "led-red-on.png",
+    "led-red-off.png"
+  );
+
+  opponentScore = await LED_CreateDisplay(
+    12,
+    5,
+    12,
+    5,
+    "led-red-on.png",
+    "led-red-off.png"
+  );
+
+  opponentShields = await LED_CreateDisplay(
+    12,
+    1,
+    12,
+    1,
+    "led-red-on.png",
+    "led-red-off.png"
+  );
+
+  statusMsg = await LED_CreateDisplay(
+    56,
+    5,
+    66,
+    5,
+    "led-green-on.png",
+    "led-green-off.png"
+  );
   return true;
 };
 
@@ -270,9 +240,9 @@ export const setStatusMessage = (msg: string) => {
 };
 
 export const setPlayerStatusInfo = (
-  score: number,
-  shields: number,
-  charge: number
+  score: number = 0,
+  shields: number = 0,
+  charge: number = 0
 ) => {
   const buf: number[] = [0, 0, 0];
   let pixels: Uint8ClampedArray;
@@ -280,10 +250,10 @@ export const setPlayerStatusInfo = (
 
   // set the score counter
   // sprintf(buf, "%2i", score);
-  console.log(score);
+  // console.log(score);
 
-  drawChar5x5(playerScore.led_surface, buf[0], 1, 0, 0);
-  drawChar5x5(playerScore.led_surface, buf[1], 1, 6, 0);
+  // drawChar5x5(playerScore.led_surface, buf[0], 1, 0, 0);
+  // drawChar5x5(playerScore.led_surface, buf[1], 1, 6, 0);
 
   // set the shield bar
   // SDL_LockSurface(playerShields.led_surface)
@@ -323,8 +293,8 @@ export const setOpponentStatusInfo = (score: number, shields: number) => {
   /* set the score counter */
   // sprintf(buf, "%2i", score);
   console.log(score);
-  drawChar5x5(opponentScore.led_surface, buf[0], 1, 0, 0);
-  drawChar5x5(opponentScore.led_surface, buf[1], 1, 6, 0);
+  // drawChar5x5(opponentScore.led_surface, buf[0], 1, 0, 0);
+  // drawChar5x5(opponentScore.led_surface, buf[1], 1, 6, 0);
 
   /* set shield as bar */
   // SURF.locksurface(opponentShields.ledsurface)
@@ -351,35 +321,41 @@ export const updateStatusDisplay = (screen: Surface) => {
    */
   if (scrollerTicks % 6 == 0) {
     let ch: number;
+
     for (i = 0; i < SCROLLER_BUF_SIZE - 1; i++) {
       scroller_buf[i] = scroller_buf[i + 1];
     }
-    if (scrollerMsg[scrollerPos] == "\0") {
-      // end of string so maybe use length
+
+    if (scrollerPos === scrollerMsg.length - 1) {
       ch = " ".charCodeAt(0);
       scrollerPos--;
     } else {
       ch = scrollerMsg[scrollerPos].charCodeAt(0);
     }
     scrollerPos++;
+
     scroller_buf[i] = ch;
+
     statusMsg.virt_x = 0;
-    for (i = 0; i < SCROLLER_BUF_SIZE; i++) {
-      drawChar5x5(statusMsg.led_surface, scroller_buf[i], 1, 6 * i, 0);
+
+    console.log(scroller_buf);
+
+    for (let j = 0; j < SCROLLER_BUF_SIZE; j++) {
+      drawChar5x5(statusMsg.led_surface, scroller_buf[j] || 32, 1, 6 * j, 0); // move along x 6 at a time
     }
   } else {
     statusMsg.virt_x++;
   }
 
   scrollerTicks++;
-  LED_DrawDisplay(playerScore, screen, 0, 0);
-  LED_DrawDisplay(playerShields, screen, 0, 48);
+  // LED_DrawDisplay(playerScore, screen, 0, 0);
+  // LED_DrawDisplay(playerShields, screen, 0, 48);
   LED_DrawDisplay(
     statusMsg,
     screen,
-    96 + (g.SCREEN_WIDTH - 2 * 96 - 448) / 2,
+    0, //96 + (g.SCREEN_WIDTH - 2 * 96 - 448) / 2,
     0
   );
-  LED_DrawDisplay(opponentScore, screen, g.SCREEN_WIDTH - 96, 0);
-  LED_DrawDisplay(opponentShields, screen, g.SCREEN_WIDTH - 96, 48);
+  // LED_DrawDisplay(opponentScore, screen, g.SCREEN_WIDTH - 96, 0);
+  // LED_DrawDisplay(opponentShields, screen, g.SCREEN_WIDTH - 96, 48);
 };
