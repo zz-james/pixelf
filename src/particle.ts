@@ -1,5 +1,5 @@
 import { Surface } from "./surfaces";
-import "./globals";
+import * as g from "./globals";
 
 type Particle_t = {
   x: number;
@@ -13,11 +13,13 @@ type Particle_t = {
 
 const particles: Particle_t[] = []; // up to MAX_PARTICLES items
 
+let timeScale = 0.1; // for now
+
 let activeParticles: number = 0;
 
 const addParticle = (particle: Particle_t) => {
   /* if there are too many particles, forget it */
-  if (activeParticles >= MAX_PARTICLES) return;
+  if (activeParticles >= g.MAX_PARTICLES) return;
   particles[activeParticles] = particle;
   activeParticles++;
 };
@@ -28,7 +30,7 @@ const deleteParticle = (index: number) => {
   activeParticles--;
 };
 
-const drawParticles = (
+export const drawParticles = (
   dest: Surface,
   cameraX: number,
   cameraY: number
@@ -45,8 +47,8 @@ const drawParticles = (
     x = particles[i].x - cameraX;
     y = particles[i].y - cameraY;
 
-    if (x < 0 || x >= SCREEN_WIDTH) continue;
-    if (y < 0 || y >= SCREEN_HEIGHT) continue;
+    if (x < 0 || x >= g.SCREEN_WIDTH) continue;
+    if (y < 0 || y >= g.SCREEN_HEIGHT) continue;
 
     /* find the color of this particle */
     color = createPixel(particles[i].r, particles[i].g, particles[i].b);

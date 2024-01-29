@@ -73,7 +73,7 @@ export const init = (
     return false;
   }
 
-  ctx = canvas.getContext("2d")!; // default sRGB colour space
+  ctx = canvas.getContext("2d", { willReadFrequently: true })!; // default sRGB colour space
 
   imageData = ctx.getImageData(0, 0, w, h); // the whole image data for the canvas
   mainBuffer = imageData.data;
@@ -157,7 +157,9 @@ export const blitToCanvas = (
 
 export const createSurfaceWithImage = (image: HTMLImageElement): Surface => {
   const offscreen_canvas = new OffscreenCanvas(image.width, image.height);
-  const offscreen_context = offscreen_canvas.getContext("2d")!;
+  const offscreen_context = offscreen_canvas.getContext("2d", {
+    willReadFrequently: true,
+  })!;
   offscreen_context.drawImage(image, 0, 0);
   return {
     w: image.width,
@@ -169,7 +171,9 @@ export const createSurfaceWithImage = (image: HTMLImageElement): Surface => {
 
 export const createSurface = (width: number, height: number): Surface => {
   const offscreen_canvas = new OffscreenCanvas(width, height);
-  const offscreen_context = offscreen_canvas.getContext("2d")!;
+  const offscreen_context = offscreen_canvas.getContext("2d", {
+    willReadFrequently: true,
+  })!;
 
   return {
     w: width,
@@ -319,7 +323,7 @@ export const getError = (): string => {
  * @param srcOffset *in bytes!*
  * @param length *in bytes!*
  */
-var memcpy = (
+export const memcpy = (
   dst: ArrayBuffer,
   dstOffset: number,
   src: ArrayBuffer,
@@ -352,3 +356,5 @@ var memcpy = (
 //      */
 
 // return my;
+
+export const loadBMP = () => {};

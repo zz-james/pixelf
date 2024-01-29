@@ -1,21 +1,23 @@
-import { Surface, Rect, Coord } from "./surfaces"; // import types
+import { Surface } from "./surfaces"; // import types
 import * as IMG from "./image";
 
 export let shipStrip: Surface;
 export let backStarTiles: Surface;
 export let frontStarTiles: Surface;
 
-const loadGameData = async () => {
-  let tmp: Surface;
+export const loadGameData = async () => {
+  const imageQueue: HTMLImageElement[] = IMG.queueImages([
+    "fighter.png",
+    "back-stars.png",
+    "front-stars.png",
+  ]); // this goes into a loading list
 
-  IMG.queueImages(["fighter.png", "back-stars.png", "front-stars.png"]); // this goes into a loading list
-
-  let images: Surface[];
+  let imageSurfaces: Surface[];
   try {
-    images = await IMG.loadImages(); // returns an array of Surfaces with the queued image data in.
+    imageSurfaces = await IMG.loadImages(imageQueue); // returns an array of Surfaces with the queued image data in.
   } catch (e) {
     throw new Error(e as string);
   }
 
-  [shipStrip, backStarTiles, frontStarTiles] = images;
+  [shipStrip, backStarTiles, frontStarTiles] = imageSurfaces;
 };

@@ -2,39 +2,42 @@ import * as SURF from "./surfaces";
 import { Surface } from "./surfaces";
 
 // type BufferData = { buffer: Surface; image: HTMLImageElement };
-
 // let bufferDataContainer: BufferData[] = []; // array [{surface object, image object},...]
-let images: HTMLImageElement[] = []; // array of image objects
-
-let numImgs: number;
 // let numLoadedImgs: number = 0;
 // let callback;
 // let tmpImg: HTMLImageElement = new Image(); // just have this image pointer in heap
 
-export const queueImage = (url: string) => {
+// takes a url and returns an empty html image element with their id
+// set to the url they will load
+// image to surface function actually loads the image
+// by setting the src from the id
+export const createImagePlaceholder = (url: string): HTMLImageElement => {
   const img = new Image();
 
   img.id = url; // when we load we'll set src = id
-  images.push(img);
-  numImgs = images.length;
-  console.log("queueing image " + numImgs); // debug
+
+  console.log("queueing image " + url); // debug
+  return img;
 };
 
-export const queueImages = (urls: string[]) => {
-  urls.map((url) => {
-    queueImage(url);
+// takes a list of urls and returns a list of
+// placeholder HTML image elements
+export const queueImages = (urls: string[]): HTMLImageElement[] => {
+  return urls.map((url) => {
+    return createImagePlaceholder(url);
   });
 };
 
 /**
- * itterate over list of buffer objects setting the src
- * property of the image objects which will trigger the download
- * @param callback ; the function to call when all the images are loaded
+ * itterate over list of image elements converting
+ * each to a surface object
  */
-export const loadImages = async () => {
+export const loadImages = async (
+  images: HTMLImageElement[]
+): Promise<SURF.Surface[]> => {
   const finalResults: Surface[] = await Promise.all(
     images.map(
-      async (image): Promise<Surface> => await loadImage(image) // loader function that retuns a promise
+      async (image): Promise<Surface> => await loadImageToSurface(image) // loader function that retuns a promise
     ) // this will return an array of promises
   ).then((results) => {
     return results;
@@ -42,7 +45,11 @@ export const loadImages = async () => {
   return finalResults;
 };
 
-const loadImage = async (image: HTMLImageElement): Promise<Surface> => {
+// converts the html image element into a surface
+// by loading the image and copying the image data
+const loadImageToSurface = async (
+  image: HTMLImageElement
+): Promise<Surface> => {
   return new Promise((resolve, reject) => {
     image.onload = () => {
       console.log("completed loading image " + image.id);
