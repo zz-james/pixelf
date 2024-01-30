@@ -276,7 +276,7 @@ const playGame = (): void => {
   let goOn: number = 0;
 
   /* start the game! */
-  while (quit == false) {
+  const whileLoop = () => {
     // instead of this while loop we need to hook into the screen refraw onupdateframe thing
 
     /* determine how many milliseconds have passed since 
@@ -477,10 +477,14 @@ const playGame = (): void => {
     // do we flip to canvas here?
 
     SURF.blitToCanvas();
-
+    if (framesDrawn < 250) {
+      window.requestAnimationFrame(whileLoop);
+    }
+    console.log(framesDrawn);
     framesDrawn++;
-    if (framesDrawn === 20) quit = true;
-  }
+  };
+
+  whileLoop();
 
   endTime = new Date().getTime();
 
