@@ -292,7 +292,7 @@ export const setOpponentStatusInfo = (score: number, shields: number) => {
 
   /* set the score counter */
   // sprintf(buf, "%2i", score);
-  console.log(score);
+  // console.log(score);
   // drawChar5x5(opponentScore.led_surface, buf[0], 1, 0, 0);
   // drawChar5x5(opponentScore.led_surface, buf[1], 1, 6, 0);
 
@@ -326,7 +326,7 @@ export const updateStatusDisplay = (screen: Surface) => {
       scroller_buf[i] = scroller_buf[i + 1];
     }
 
-    if (scrollerPos === scrollerMsg.length - 1) {
+    if (scrollerPos === scrollerMsg.length) {
       ch = " ".charCodeAt(0);
       scrollerPos--;
     } else {
@@ -338,7 +338,7 @@ export const updateStatusDisplay = (screen: Surface) => {
 
     statusMsg.virt_x = 0;
 
-    console.log(scroller_buf);
+    // console.log(scroller_buf);
 
     for (let j = 0; j < SCROLLER_BUF_SIZE; j++) {
       drawChar5x5(statusMsg.led_surface, scroller_buf[j] || 32, 1, 6 * j, 0); // move along x 6 at a time
