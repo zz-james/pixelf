@@ -53,10 +53,10 @@ const LED_CreateDisplay = async (
 
   const disp: LED_Display = {
     led_surface: SURF.createSurface(vcols, vrows),
-    virt_w: vcols,
-    virt_h: vrows,
     phys_w: cols,
     phys_h: rows,
+    virt_w: vcols,
+    virt_h: vrows,
     virt_x: 0,
     virt_y: 0,
     on_image: imageSurfaces[0],
@@ -147,13 +147,13 @@ const drawChar5x5 = (
  * displays for Penguin Warrior.
  */
 
-const SCROLLER_BUF_SIZE = 10;
-const scroller_buf: number[] = []; // char scroller_buf[SCROLLER_BUF_SIZE];
+const SCROLLER_BUF_SIZE = 10; // the number of characters in the scolling message display
+const scroller_buf: number[] = []; // array of char codes that are used to load the status screen letters using font5x5;
 
 /* message to scroll. this can be changed */
 let scrollerMsg: string = "Welcome to Penguin Warrior";
-let scrollerPos = 0;
-let scrollerTicks = 0;
+let scrollerPos = 0; // cursor along the scrolling message
+let scrollerTicks = 0; // used to control timing so scrolling display updates every 6 frames
 
 /* various LED displays that appear on the penguin warrior screen */
 let playerScore: LED_Display;
@@ -315,47 +315,50 @@ export const updateStatusDisplay = (screen: Surface) => {
 
   /**
    * update the scroller
-   * this is not linked to the global time_scale since speed
-   * doesn't really matter. the only effect of a high framerate
-   * would be that the scrolling message would move faster
+   * called once per frame
    */
   if (scrollerTicks % 6 == 0) {
+    scrollerTicks = 0; // no need to let scrollerTicks grow big
     let ch: number;
 
     for (i = 0; i < SCROLLER_BUF_SIZE - 1; i++) {
-      scroller_buf[i] = scroller_buf[i + 1];
+      scroller_buf[i] = scroller_buf[i + 1]; // move everything along by one. initially all undefined
     }
 
+    // here we determing what char to add to the scroller_buf on line 337
     if (scrollerPos === scrollerMsg.length) {
-      ch = " ".charCodeAt(0);
-      scrollerPos--;
+      // if we are at the end of the msg
+      ch = " ".charCodeAt(0); // add a space at the end
+      scrollerPos--; // step back one (because length is 1 longer than highest array index?)
     } else {
+      // if we are not at the end of the msg
       ch = scrollerMsg[scrollerPos].charCodeAt(0);
     }
-    scrollerPos++;
 
-    scroller_buf[i] = ch;
+    scrollerPos++; // move cursor along the scrolling message
 
-    statusMsg.virt_x = 0;
+    scroller_buf[i] = ch; // add the charcode to the scrollerMsg array
 
-    // console.log(scroller_buf);
+    // statusMsg.virt_x = 0; // make the virt_x to zero but why?
 
+    // draw the characters onto the display by looping over scroller_buf
     for (let j = 0; j < SCROLLER_BUF_SIZE; j++) {
       drawChar5x5(statusMsg.led_surface, scroller_buf[j] || 32, 1, 6 * j, 0); // move along x 6 at a time
     }
-  } else {
-    statusMsg.virt_x++;
   }
+  // else {
+  //  statusMsg.virt_x++;
+  // }
 
   scrollerTicks++;
-  // LED_DrawDisplay(playerScore, screen, 0, 0);
-  // LED_DrawDisplay(playerShields, screen, 0, 48);
+  LED_DrawDisplay(playerScore, screen, 0, 0);
+  LED_DrawDisplay(playerShields, screen, 0, 48);
   LED_DrawDisplay(
     statusMsg,
     screen,
-    0, //96 + (g.SCREEN_WIDTH - 2 * 96 - 448) / 2,
+    96 + (g.SCREEN_WIDTH - 2 * 96 - 448) / 2,
     0
   );
-  // LED_DrawDisplay(opponentScore, screen, g.SCREEN_WIDTH - 96, 0);
-  // LED_DrawDisplay(opponentShields, screen, g.SCREEN_WIDTH - 96, 48);
+  LED_DrawDisplay(opponentScore, screen, g.SCREEN_WIDTH - 96, 0);
+  LED_DrawDisplay(opponentShields, screen, g.SCREEN_WIDTH - 96, 48);
 };
