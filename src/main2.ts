@@ -1,7 +1,7 @@
 import * as SURF from "./surfaces";
 import * as KEY from "./keys";
 import { shipStrip, loadGameData } from "./resources";
-import { drawBackground, drawParallax } from "./background";
+import { initBackground, drawBackground, drawParallax } from "./background";
 import {
   createParticleExplosion,
   updateParticles,
@@ -95,14 +95,15 @@ let timeScale: number = 0;
  * Drawing
  */
 const drawPlayer = (p: Player_t) => {
-  // const src: Rect;
-  // const dest: Rect;
-
   let angle: number;
 
   // calculate the player's new screen coordinates
   p.screenX = p.worldX - cameraX;
   p.screenY = p.worldY - cameraY;
+
+  // console.log("camera", cameraX);
+  // console.log("worldx", p.worldX);
+  // console.log("screenx", p.screenX);
 
   // if player is not on screen, don't draw anything
   if (
@@ -123,8 +124,10 @@ const drawPlayer = (p: Player_t) => {
   angle = p.angle;
   if (angle < 0) angle += 360;
 
+  console.log(g.PLAYER_WIDTH * (angle / 4));
+
   const src: Rect = {
-    x: g.PLAYER_WIDTH * (angle / 4), // lines up with px value in strip fighter.png
+    x: g.PLAYER_WIDTH * ((angle / 4) | 0), // lines up with px value in strip fighter.png
     y: 0,
     w: g.PLAYER_WIDTH,
     h: g.PLAYER_HEIGHT,
@@ -145,8 +148,8 @@ const drawPlayer = (p: Player_t) => {
 const initPlayer = (p: Player_t, type: PlayerType): void => {
   p.state = PlayerState.EVADE;
   p.type = type;
-  p.worldX = (Math.random() * 1024) % g.WORLD_WIDTH;
-  p.worldY = (Math.random() * 1024) % g.WORLD_HEIGHT;
+  p.worldX = ((Math.random() * 1024) | 0) % g.WORLD_WIDTH;
+  p.worldY = ((Math.random() * 1024) | 0) % g.WORLD_HEIGHT;
   p.accel = 0;
   p.velocity = 0;
   p.angle = 0;
@@ -163,6 +166,7 @@ const updatePlayer = (p: Player_t) => {
   const angle: number = p.angle;
 
   p.velocity += p.accel * timeScale;
+
   if (p.type === PlayerType.WARRIOR) {
     if (p.velocity > g.PLAYER_MAX_VELOCITY) p.velocity = g.PLAYER_MAX_VELOCITY;
     if (p.velocity < g.PLAYER_MIN_VELOCITY) p.velocity = g.PLAYER_MIN_VELOCITY;
@@ -171,8 +175,10 @@ const updatePlayer = (p: Player_t) => {
     if (p.velocity < g.DEVIL_MIN_VELOCITY) p.velocity = g.DEVIL_MIN_VELOCITY;
   }
 
-  p.worldX += p.velocity * Math.cos((angle * Math.PI) / 180) * timeScale;
-  p.worldY += p.velocity * Math.sin((angle * Math.PI) / 180) * timeScale;
+  // console.log(Math.cos((angle * Math.PI) / 180));
+
+  p.worldX += (p.velocity * Math.cos((angle * Math.PI) / 180) * timeScale) | 0;
+  p.worldY += (p.velocity * Math.sin((angle * Math.PI) / 180) * timeScale) | 0;
 
   /* make sure the player doesn't slide off the edge of the world */
   if (p.worldX < 0) p.worldX = 0;
@@ -282,7 +288,7 @@ const playGame = (): void => {
     prevTicks = curTicks;
     curTicks = Date.now();
 
-    if (goOn != 4) {
+    if (goOn !== 4) {
       timeScale = (curTicks - prevTicks) / 30;
     }
     goOn = 0;
@@ -332,69 +338,69 @@ const playGame = (): void => {
     //     }
     //   }
 
-    if (keystate["q"]) {
-      quit = true;
+    // if (keystate["q"]) {
+    //   quit = true;
+    // }
+
+    turn = 0;
+
+    if (turn == 0) {
+      if (keystate["a"]) {
+        turn += 10;
+      }
+      if (keystate["d"]) {
+        turn -= 10;
+      }
     }
 
-    //   turn = 0;
+    // forward and back arrow keys activate thrusters */
+    player.accel = 0;
+    if (keystate["w"]) {
+      player.accel = g.PLAYER_FORWARD_THRUST;
+    }
+    if (keystate["s"]) {
+      player.accel = g.PLAYER_REVERSE_THRUST;
+    }
 
-    //   if (turn == 0) {
-    //     if (keystate["a"]) {
-    //       turn += 10;
-    //     }
-    //     if (keystate["d"]) {
-    //       turn -= 10;
-    //     }
-    //   }
+    // /* Spacebar fires phasers. */
+    // if (keystate[" "]) {
+    //   if (canPlayerFire(player)) {
+    //     firePhasers(player);
 
-    //   // forward and back arrow keys activate thrusters */
-    //   player.accel = 0;
-    //   if (keystate["w"]) {
-    //     player.accel = g.PLAYER_FORWARD_THRUST;
-    //   }
-    //   if (keystate["s"]) {
-    //     player.accel = g.PLAYER_REVERSE_THRUST;
-    //   }
-
-    //   /* Spacebar fires phasers. */
-    //   if (keystate[" "]) {
-    //     if (canPlayerFire(player)) {
-    //       firePhasers(player);
-
-    //       /* If it's a hit, either notify the opponent
-    //                    or exact the damage. Create a satisfying particle
-    //                    burst. */
-    //       if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
-    //         showPhaserHit(opponent);
-    //         damageOpponent();
-    //         /* if that killed the opponent, set the
-    //                     "awaiting respawn" state to prevent
-    //                     multiple kills */
-    //         if (opponent.shields <= 0) {
-    //           awaitingRespawn = true;
-    //         }
+    //     /* If it's a hit, either notify the opponent
+    //                  or exact the damage. Create a satisfying particle
+    //                  burst. */
+    //     if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
+    //       showPhaserHit(opponent);
+    //       damageOpponent();
+    //       /* if that killed the opponent, set the
+    //                   "awaiting respawn" state to prevent
+    //                   multiple kills */
+    //       if (opponent.shields <= 0) {
+    //         awaitingRespawn = true;
     //       }
     //     }
     //   }
+    // }
 
     //   /* Turn. */
-    //   player.angle += turn * timeScale;
-    //   if (player.angle < 0) player.angle += 360;
-    //   if (player.angle >= 360) player.angle -= 360;
+    player.angle += (turn * timeScale) | 0;
+    if (player.angle < 0) player.angle += 360;
+    if (player.angle >= 360) player.angle -= 360;
 
-    //   /* If this is a network game, the remote player will
-    //            tell us if we've died. Otherwise we have to check
-    //            for failed shields. */
-    //   if (player.shields <= 0) {
-    //     console.log("Local player has been destroyed.\n");
-    //     localPlayerDead = 0;
+    /* If this is a network game, the remote player will
+               tell us if we've died. Otherwise we have to check
+               for failed shields. */
+    // if (player.shields <= 0) {
+    //   console.log("Local player has been destroyed.\n");
+    //   localPlayerDead = 0;
 
-    //     /* Kaboom! */
-    //     killPlayer();
+    //   /* Kaboom! */
+    //   killPlayer();
 
-    //     /* Respawn. */
-    //     respawnTimer = 0;
-    //   }
+    //   /* Respawn. */
+    //   respawnTimer = 0;
+    // }
     // }
 
     // /* If this is a player vs. computer game, give the computer a chance. */
@@ -422,14 +428,14 @@ const playGame = (): void => {
     // }
 
     /* Update the player's position. */
-    // updatePlayer(player);
+    updatePlayer(player);
 
-    setPlayerStatusInfo(player.score, player.shields, player.charge);
-    setOpponentStatusInfo(opponent.score, opponent.shields);
+    // setPlayerStatusInfo(player.score, player.shields, player.charge);
+    // setOpponentStatusInfo(opponent.score, opponent.shields);
 
-    // /* make the camera follow the player (but impose limits) */
-    cameraX = player.worldX - g.SCREEN_WIDTH / 2;
-    cameraY = player.worldY - g.SCREEN_HEIGHT / 2;
+    /* make the camera follow the player (but impose limits) */
+    cameraX = (player.worldX - g.SCREEN_WIDTH / 2) | 0;
+    cameraY = (player.worldY - g.SCREEN_HEIGHT / 2) | 0;
 
     if (cameraX < 0) cameraX = 0;
     if (cameraX >= g.WORLD_WIDTH - g.SCREEN_WIDTH)
@@ -441,8 +447,8 @@ const playGame = (): void => {
     // updateParticles();
 
     // // redraw everything
-    // drawBackground(screen, cameraX, cameraY);
-    // drawParallax(screen, cameraX, cameraY);
+    drawBackground(screen, cameraX, cameraY);
+    drawParallax(screen, cameraX, cameraY);
     // drawParticles(screen, cameraX, cameraY);
 
     // if (opponent.firing) {
@@ -473,7 +479,7 @@ const playGame = (): void => {
     // flip to canvas here
     SURF.blitToCanvas();
 
-    if (framesDrawn < 250) {
+    if (!quit) {
       // replace with !quit at some point
       window.requestAnimationFrame(whileLoop);
     }
@@ -539,7 +545,7 @@ export const main = async () => {
 
   await loadGameData();
 
-  // initBackground()
+  initBackground();
 
   initPlayer(player, PlayerType.WARRIOR);
   // initPlayer(player, PlayerType.WARRIOR);

@@ -4,6 +4,7 @@ import * as IMG from "./image";
 export let shipStrip: Surface;
 export let backStarTiles: Surface;
 export let frontStarTiles: Surface;
+export let numStarTiles: number = 4;
 
 export const loadGameData = async () => {
   const imageQueue: HTMLImageElement[] = IMG.queueImages([

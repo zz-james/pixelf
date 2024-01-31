@@ -1,6 +1,6 @@
 import * as SURF from "./surfaces";
 import { Surface, Rect, Coord } from "./surfaces"; // import types
-import { backStarTiles, frontStarTiles } from "./resources";
+import { backStarTiles, frontStarTiles, numStarTiles } from "./resources";
 import { createMultiArray } from "./utils/multiArray";
 import * as g from "./globals";
 
@@ -19,9 +19,6 @@ const PARALLAX_FRONT_FACTOR = 2;
 const TILE_WIDTH = 64;
 const TILE_HEIGHT = 64;
 
-/* two dimensional arrays for storing the world's tiles (by index) */
-let numStarTiles: number; // an int
-
 const frontTiles: any[] = createMultiArray(
   PARALLAX_GRID_WIDTH,
   PARALLAX_GRID_WIDTH
@@ -39,8 +36,8 @@ export const initBackground = (): void => {
 
   for (x = 0; x < PARALLAX_GRID_WIDTH; x++) {
     for (y = 0; y < PARALLAX_GRID_WIDTH; y++) {
-      frontTiles[x][y] = (Math.random() * 1028) % numStarTiles;
-      backTiles[x][y] = (Math.random() * 1028) % numStarTiles;
+      frontTiles[x][y] = ((Math.random() * 1028) | 0) % numStarTiles;
+      backTiles[x][y] = ((Math.random() * 1028) | 0) % numStarTiles;
     }
   }
 };
@@ -60,12 +57,12 @@ export const drawBackground = (
 
   /* map the camera position into the tile indices */
   startTileX =
-    (cameraX / PARALLAX_BACK_FACTOR / TILE_WIDTH) % PARALLAX_GRID_WIDTH;
+    (cameraX / PARALLAX_BACK_FACTOR / TILE_WIDTH) % PARALLAX_GRID_WIDTH | 0;
   startTileY =
-    (cameraY / PARALLAX_BACK_FACTOR / TILE_HEIGHT) % PARALLAX_GRID_HEIGHT;
+    (cameraY / PARALLAX_BACK_FACTOR / TILE_HEIGHT) % PARALLAX_GRID_HEIGHT | 0;
 
-  startDrawX = -((cameraX / PARALLAX_BACK_FACTOR) % TILE_WIDTH);
-  startDrawY = -((cameraY / PARALLAX_BACK_FACTOR) % TILE_HEIGHT);
+  startDrawX = -((cameraX / PARALLAX_BACK_FACTOR) % TILE_WIDTH) | 0;
+  startDrawY = -((cameraY / PARALLAX_BACK_FACTOR) % TILE_HEIGHT) | 0;
 
   tileY = startTileY;
   drawY = startDrawY;
@@ -86,15 +83,14 @@ export const drawBackground = (
         w: TILE_WIDTH,
         h: TILE_HEIGHT,
       };
-
-      SURF.blitSurface(backStarTiles, srcRect, dest, destRect); // what this needs attention!!!
+      SURF.blitSurface(backStarTiles, srcRect, dest, destRect);
       tileX++;
       tileX %= PARALLAX_GRID_WIDTH;
       drawX += TILE_WIDTH;
     }
     tileY++;
     tileY %= PARALLAX_GRID_HEIGHT;
-    drawX += TILE_HEIGHT;
+    drawY += TILE_HEIGHT;
   }
 };
 
@@ -110,12 +106,12 @@ export const drawParallax = (
 
   /* map the camera position into the tile indices */
   startTileX =
-    (cameraX / PARALLAX_FRONT_FACTOR / TILE_WIDTH) % PARALLAX_GRID_WIDTH;
+    (cameraX / PARALLAX_FRONT_FACTOR / TILE_WIDTH) % PARALLAX_GRID_WIDTH | 0;
   startTileY =
-    (cameraY / PARALLAX_FRONT_FACTOR / TILE_HEIGHT) % PARALLAX_GRID_HEIGHT;
+    (cameraY / PARALLAX_FRONT_FACTOR / TILE_HEIGHT) % PARALLAX_GRID_HEIGHT | 0;
 
-  startDrawX = -((cameraX / PARALLAX_FRONT_FACTOR) % TILE_WIDTH);
-  startDrawY = -((cameraY / PARALLAX_FRONT_FACTOR) % TILE_HEIGHT);
+  startDrawX = -((cameraX / PARALLAX_FRONT_FACTOR) % TILE_WIDTH) | 0;
+  startDrawY = -((cameraY / PARALLAX_FRONT_FACTOR) % TILE_HEIGHT) | 0;
 
   tileY = startTileY;
   drawY = startDrawY;
@@ -136,14 +132,13 @@ export const drawParallax = (
         w: TILE_WIDTH,
         h: TILE_HEIGHT,
       };
-
-      SURF.blitSurface(frontStarTiles, srcRect, dest, destRect); // what this needs attention!!!
+      SURF.blitSurface(frontStarTiles, srcRect, dest, destRect);
       tileX++;
       tileX %= PARALLAX_GRID_WIDTH;
       drawX += TILE_WIDTH;
     }
     tileY++;
     tileY %= PARALLAX_GRID_HEIGHT;
-    drawX += TILE_HEIGHT;
+    drawY += TILE_HEIGHT;
   }
 };

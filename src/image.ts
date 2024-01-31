@@ -16,7 +16,7 @@ export const createImagePlaceholder = (url: string): HTMLImageElement => {
 
   img.id = url; // when we load we'll set src = id
 
-  console.log("queueing image " + url); // debug
+  // console.log("queueing image " + url); // debug
   return img;
 };
 
@@ -52,7 +52,7 @@ const loadImageToSurface = async (
 ): Promise<Surface> => {
   return new Promise((resolve, reject) => {
     image.onload = () => {
-      console.log("completed loading image " + image.id);
+      // console.log("completed loading image " + image.id);
       resolve(SURF.createSurfaceWithImage(image));
     };
     image.onerror = function (event: Event | string) {
@@ -61,6 +61,6 @@ const loadImageToSurface = async (
     };
 
     image.src = image.id; // trigger the actual loading of the image
-    console.log("started loading image " + image.id);
+    // console.log("started loading image " + image.id);
   });
 };

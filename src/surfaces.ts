@@ -238,6 +238,13 @@ export const showImageData = function (surface: Surface) {
   );
 };
 
+/**
+ * blit one surface to another surface
+ * @param src
+ * @param srcRect
+ * @param dest
+ * @param destCoord
+ */
 export const blitSurface = (
   src: Surface,
   srcRect: Rect = { x: 0, y: 0, w: src.w, h: src.h },
@@ -258,6 +265,7 @@ export const blitSurface = (
 
   const srcRowLength = srcRect.w * 4; // length of a row in bytes
   const srcStart = srcRect.x * 4;
+  const srcEnd = srcStart + srcRowLength;
 
   const destStartX = destCoord.x * 4;
   const offSet = destStartX - srcStart;
@@ -265,7 +273,7 @@ export const blitSurface = (
   // loop over the number of rows you have to draw
   for (let row = 0; row < srcRect.h; row++) {
     // loop over the pixels in each row
-    for (let col = srcStart; col < srcRowLength; col += 4) {
+    for (let col = srcStart; col < srcEnd; col += 4) {
       // col is in pixels
       const srcPixelByte = srcPitch * row + col;
       if (!srcPixels[srcPixelByte + 3]) continue; // skip if alpha is zero
