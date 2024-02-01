@@ -101,10 +101,6 @@ const drawPlayer = (p: Player_t) => {
   p.screenX = p.worldX - cameraX;
   p.screenY = p.worldY - cameraY;
 
-  // console.log("camera", cameraX);
-  // console.log("worldx", p.worldX);
-  // console.log("screenx", p.screenX);
-
   // if player is not on screen, don't draw anything
   if (
     p.screenX < -g.PLAYER_WIDTH / 2 ||
@@ -123,8 +119,6 @@ const drawPlayer = (p: Player_t) => {
   // calculate drawing coordinates
   angle = p.angle;
   if (angle < 0) angle += 360;
-
-  console.log(g.PLAYER_WIDTH * (angle / 4));
 
   const src: Rect = {
     x: g.PLAYER_WIDTH * ((angle / 4) | 0), // lines up with px value in strip fighter.png
@@ -187,6 +181,7 @@ const updatePlayer = (p: Player_t) => {
   if (p.worldY >= g.WORLD_HEIGHT) p.worldY = g.WORLD_HEIGHT - 1;
 };
 
+// ** phaser stuff ** //
 const canPlayerFire = (p: Player_t): boolean => {
   if (p.charge >= g.PHASER_CHARGE_FIRE && p.firing == 0) return true;
   return false;
@@ -396,7 +391,10 @@ const playGame = (): void => {
     //   localPlayerDead = 0;
 
     //   /* Kaboom! */
-    //   killPlayer();
+
+    if (framesDrawn === 2) {
+      killPlayer();
+    }
 
     //   /* Respawn. */
     //   respawnTimer = 0;
@@ -444,12 +442,12 @@ const playGame = (): void => {
     if (cameraY >= g.WORLD_HEIGHT - g.SCREEN_HEIGHT)
       cameraY = g.WORLD_HEIGHT - g.SCREEN_HEIGHT - 1;
 
-    // updateParticles();
+    updateParticles();
 
-    // // redraw everything
+    // redraw everything
     drawBackground(screen, cameraX, cameraY);
     drawParallax(screen, cameraX, cameraY);
-    // drawParticles(screen, cameraX, cameraY);
+    drawParticles(screen, cameraX, cameraY);
 
     // if (opponent.firing) {
     //   drawPhaserBeam(opponent, screen, cameraX, cameraY);

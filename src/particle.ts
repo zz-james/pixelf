@@ -53,23 +53,20 @@ export const drawParticles = (
     /* find the color of this particle */
     color = createPixel(particles[i].r, particles[i].g, particles[i].b);
 
-    pixels[(dest.w / 2) * y + x + 0] = color[0];
-    pixels[(dest.w / 2) * y + x + 1] = color[1];
-    pixels[(dest.w / 2) * y + x + 2] = color[2];
-    pixels[(dest.w / 2) * y + x + 3] = color[3];
+    pixels[y * (dest.w * 4) + x + 0] = color[0];
+    pixels[y * (dest.w * 4) + x + 1] = color[1];
+    pixels[y * (dest.w * 4) + x + 2] = color[2];
+    pixels[y * (dest.w * 4) + x + 3] = color[3];
   }
 };
 
 export const updateParticles = (): void => {
   for (let i = 0; i < activeParticles; i++) {
+    const angle = particles[i].angle;
     particles[i].x +=
-      particles[i].energy *
-      Math.cos((particles[i].angle * Math.PI) / 180) *
-      timeScale;
+      (particles[i].energy * Math.cos(angle * (Math.PI / 180))) | 0;
     particles[i].y +=
-      particles[i].energy *
-      -Math.sin((particles[i].angle * Math.PI) / 180) *
-      timeScale;
+      (particles[i].energy * -Math.sin(angle * (Math.PI / 180))) | 0;
 
     /* fade the particles color */
     particles[i].r--;
@@ -104,8 +101,8 @@ export const createParticleExplosion = (
     particle = {
       x,
       y,
-      angle: (Math.random() * 1028) % 360,
-      energy: ((Math.random() * 1028) % (energy * 1000)) / 1000,
+      angle: ((Math.random() * 1028) | 0) % 360,
+      energy: ((Math.random() * 1028) | 0) % ((energy * 1000) / 1000) | 0,
       r,
       g,
       b,
