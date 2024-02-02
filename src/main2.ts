@@ -172,7 +172,7 @@ const updatePlayer = (p: Player_t) => {
   // console.log(Math.cos((angle * Math.PI) / 180));
 
   p.worldX += (p.velocity * Math.cos((angle * Math.PI) / 180) * timeScale) | 0;
-  p.worldY += (p.velocity * Math.sin((angle * Math.PI) / 180) * timeScale) | 0;
+  p.worldY += (p.velocity * -Math.sin((angle * Math.PI) / 180) * timeScale) | 0;
 
   /* make sure the player doesn't slide off the edge of the world */
   if (p.worldX < 0) p.worldX = 0;
@@ -333,27 +333,27 @@ const playGame = (): void => {
     //     }
     //   }
 
-    // if (keystate["q"]) {
-    //   quit = true;
-    // }
+    if (keystate["q"]) {
+      quit = true;
+    }
 
     turn = 0;
 
     if (turn == 0) {
-      if (keystate["a"]) {
+      if (keystate["ArrowLeft"]) {
         turn += 10;
       }
-      if (keystate["d"]) {
+      if (keystate["ArrowRight"]) {
         turn -= 10;
       }
     }
 
     // forward and back arrow keys activate thrusters */
     player.accel = 0;
-    if (keystate["w"]) {
+    if (keystate["ArrowUp"]) {
       player.accel = g.PLAYER_FORWARD_THRUST;
     }
-    if (keystate["s"]) {
+    if (keystate["ArrowDown"]) {
       player.accel = g.PLAYER_REVERSE_THRUST;
     }
 
@@ -392,9 +392,9 @@ const playGame = (): void => {
 
     //   /* Kaboom! */
 
-    if (framesDrawn === 2) {
-      killPlayer();
-    }
+    // if (framesDrawn === 2) {
+    //   killPlayer();
+    // }
 
     //   /* Respawn. */
     //   respawnTimer = 0;
@@ -442,12 +442,12 @@ const playGame = (): void => {
     if (cameraY >= g.WORLD_HEIGHT - g.SCREEN_HEIGHT)
       cameraY = g.WORLD_HEIGHT - g.SCREEN_HEIGHT - 1;
 
-    updateParticles();
+    // updateParticles();
 
     // redraw everything
     drawBackground(screen, cameraX, cameraY);
-    drawParallax(screen, cameraX, cameraY);
-    drawParticles(screen, cameraX, cameraY);
+    // drawParallax(screen, cameraX, cameraY);
+    // drawParticles(screen, cameraX, cameraY);
 
     // if (opponent.firing) {
     //   drawPhaserBeam(opponent, screen, cameraX, cameraY);
@@ -464,7 +464,7 @@ const playGame = (): void => {
     //   drawPlayer(opponent);
     // }
 
-    updateStatusDisplay(screen);
+    // updateStatusDisplay(screen);
 
     // updateRadarDisplay(
     //   screen,
