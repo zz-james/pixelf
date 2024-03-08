@@ -1,5 +1,7 @@
-- shooting
-- opponent shooting
+- hitting
+- opponent hitting
+- player status
 - opponent status
 - radars
-- win state
+- kill state
+- respawn state
