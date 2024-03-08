@@ -16,6 +16,11 @@ const opponent = {
   state: "attack",
 }; // this should be enum
 
+let target: Coord = {
+  x: 0,
+  y: 0,
+};
+
 const fireWeapon = (opponent: Player_t) => {
   if (canPlayerFire(opponent)) {
     firePhasers(opponent);
@@ -46,11 +51,6 @@ export const runGameScript = (player: Player_t, computer: Player_t) => {
 const playComputer = (player: Player_t, computer: Player_t) => {
   // uses pass by refrence so doesn't bother to return the player and computer objects
 
-  let target: Coord = {
-    x: 0,
-    y: 0,
-  };
-
   if (opponent.state === "attack") {
     // in attack mode the player is the target
     target.x = player.worldX;
@@ -58,8 +58,7 @@ const playComputer = (player: Player_t, computer: Player_t) => {
 
     // if we're too close to player switch to evade
     const distance = getDistanceToTarget(computer, target);
-    console.log(distance);
-    if (distance < 30) {
+    if (distance < 20) {
       console.log("going into evade mode");
       opponent.state = "evade";
       target.x = -1;
@@ -83,8 +82,8 @@ const playComputer = (player: Player_t, computer: Player_t) => {
   } else {
     // evade state
     if (
-      Math.abs(target.x - computer.worldX) > 10 &&
-      Math.abs(target.y - computer.worldY) > 10
+      Math.abs(computer.worldX - target.x) < 100 &&
+      Math.abs(computer.worldY - target.y) < 100
     ) {
       console.log("going back into attack mode");
       opponent.state = "attack";
