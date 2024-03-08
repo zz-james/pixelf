@@ -45,7 +45,7 @@ let player: Player_t = {
   accel: 0,
   shields: 0,
   firing: 0,
-  charge: 0,
+  charge: 100,
   score: 0,
   hit: 0,
 }; // the player at the computer
@@ -61,7 +61,7 @@ let opponent: Player_t = {
   accel: 0,
   shields: 0,
   firing: 0,
-  charge: 0,
+  charge: 100,
   score: 0,
   hit: 0,
 };
@@ -424,7 +424,7 @@ const playGame = (): void => {
     //       }
     //   }
 
-    //   chargePhasers(opponent);
+    chargePhasers(opponent);
     updatePlayer(opponent);
     // }
 
@@ -452,9 +452,9 @@ const playGame = (): void => {
     drawParallax(screen, cameraX, cameraY);
     drawParticles(screen, cameraX, cameraY);
 
-    // if (opponent.firing) {
-    //   drawPhaserBeam(opponent, screen, cameraX, cameraY);
-    // }
+    if (opponent.firing) {
+      drawPhaserBeam(opponent, screen, cameraX, cameraY);
+    }
     if (player.firing) {
       drawPhaserBeam(player, screen, cameraX, cameraY);
     }

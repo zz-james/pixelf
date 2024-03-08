@@ -58,7 +58,7 @@ const playComputer = (player: Player_t, computer: Player_t) => {
 
     // if we're too close to player switch to evade
     const distance = getDistanceToTarget(computer, target);
-    if (distance < 20) {
+    if (distance < 25) {
       console.log("going into evade mode");
       opponent.state = "evade";
       target.x = -1;
@@ -82,8 +82,8 @@ const playComputer = (player: Player_t, computer: Player_t) => {
   } else {
     // evade state
     if (
-      Math.abs(computer.worldX - target.x) < 100 &&
-      Math.abs(computer.worldY - target.y) < 100
+      Math.abs(computer.worldX - target.x) < 25 &&
+      Math.abs(computer.worldY - target.y) < 25
     ) {
       console.log("going back into attack mode");
       opponent.state = "attack";
