@@ -1,0 +1,5 @@
+- shooting
+- opponent shooting
+- opponent status
+- radars
+- win state
