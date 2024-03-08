@@ -406,7 +406,7 @@ const playGame = (): void => {
     // }
     // }
 
-    //runGameScript(player, opponent);
+    runGameScript(player, opponent);
 
     /* Check for phaser hits against the player. */
     //   if (opponent.firing) {
