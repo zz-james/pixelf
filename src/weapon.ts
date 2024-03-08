@@ -2,7 +2,7 @@ import { Surface } from "./surfaces"; //types
 import * as g from "./globals";
 import { Player_t } from "./globals";
 
-export const drawLine16 = (
+export const drawLine32 = (
   surf: Surface,
   x0: number,
   y0: number,
@@ -22,23 +22,24 @@ export const drawLine16 = (
   // get the surface's data pointer
   buffer = surf.pixels;
 
-  xspan = x1 - x0 + 1;
+  /* Calculate the x and y spans of the line. */
+  xspan = x1 - x0 + 1; // in pixels
   yspan = y1 - y0 + 1;
 
   /* figure out the correct increment for the major axis
     account for negative spans (x1<x0 for instance) */
   if (xspan < 0) {
-    xinc = -1;
+    xinc = -4;
     xspan = -xspan;
   } else {
-    xinc = 1;
+    xinc = 4; // in pixels
   }
 
   if (yspan < 0) {
-    yinc = -surf.w;
+    yinc = -surf.w * 4;
     yspan = -yspan;
   } else {
-    yinc = surf.w;
+    yinc = surf.w * 4; // in bytes
   }
 
   i = 0;
@@ -51,11 +52,13 @@ export const drawLine16 = (
   instead of adding 1 to the x coordinate we add one to drawpos
   instead of adding 1 to the y coordinate we add the surface's pitch (scanline width) to drawpos */
 
-  drawpos = surf.w * y0 + x0;
+  // so we need to figure out what we need to convert from pixels to bytes for when we are in the loop
 
-  /* out loop will be different depending on the major axis */
+  drawpos = surf.w * 4 * y0 + x0 * 4; // in bytes!
+
+  /* our loop will be different depending on the major axis */
   if (xspan < yspan) {
-    // loop through each pixels along the major axit
+    // loop through each pixels along the major axis (vertical)
     for (i = 0; i < yspan; i++) {
       // draw the pixel
       buffer[drawpos] = color;
@@ -76,6 +79,7 @@ export const drawLine16 = (
     // see comments above. this code is equivelent
     for (i = 0; i < xspan; i++) {
       buffer[drawpos] = color;
+
       sum += yspan;
       if (sum >= xspan) {
         drawpos += yinc;
@@ -103,7 +107,7 @@ const clipLineAgainstVerticals = (
   let hspan: number;
   let vspan: number;
 
-  if (x0 == x1) {
+  if (x0 === x1) {
     if (x0 > left || x0 > right) {
       return false;
     }
@@ -112,7 +116,7 @@ const clipLineAgainstVerticals = (
 
   // if both x coordinates are out of range, the line
   // is completely invisible. return false to indicate this
-  if ((x0 < left && x1 < left) || (x0 < right && x1 > right)) {
+  if ((x0 < left && x1 < left) || (x0 > right && x1 > right)) {
     return false;
   }
 
@@ -262,9 +266,10 @@ const calcPhaserBeamCoords = (source: Player_t): number[] => {
   const x0 = source.worldX;
   const y0 = source.worldY;
   const x1 =
-    g.PHASER_RANGE * Math.cos((source.angle * Math.PI) / 180.0) + source.worldX;
+    g.PHASER_RANGE * Math.cos(source.angle * (Math.PI / 180.0)) + source.worldX;
   const y1 =
-    g.PHASER_RANGE * Math.sin((source.angle * Math.PI) / 180.0) + source.worldY;
+    g.PHASER_RANGE * -Math.sin(source.angle * (Math.PI / 180.0)) +
+    source.worldY;
 
   return [x0, y0, x1, y1];
 };
@@ -303,7 +308,7 @@ export const drawPhaserBeam = (
   }
 
   // the color of the laser is the last argument
-  drawLine16(surf, x0, y0, x1, y1, 0xd2ff);
+  drawLine32(surf, x0, y0, x1, y1, 0xd2ff); // rgba = 26, 23 31, 256
 };
 
 /* Checks whether a phaser beam originating from the given

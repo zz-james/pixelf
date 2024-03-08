@@ -16,6 +16,9 @@ import {
 } from "./status";
 import { checkPhaserHit, drawPhaserBeam } from "./weapon";
 import { updateRadarDisplay } from "./radar";
+
+import { runGameScript } from "./scripting";
+
 import { Rect, Surface } from "./surfaces"; //types
 
 import * as g from "./globals";
@@ -50,8 +53,8 @@ let opponent: Player_t = {
   type: PlayerType.DEVIL,
   state: PlayerState.EVADE,
   angle: 0,
-  worldX: 0,
-  worldY: 0,
+  worldX: 500,
+  worldY: 500,
   screenX: 0,
   screenY: 0,
   velocity: 0,
@@ -61,7 +64,7 @@ let opponent: Player_t = {
   charge: 0,
   score: 0,
   hit: 0,
-}; // scripted or network opponent
+};
 
 let cameraX: number; // position of the 640x480 viewport within the world
 let cameraY: number;
@@ -182,13 +185,13 @@ const updatePlayer = (p: Player_t) => {
 };
 
 // ** phaser stuff ** //
-const canPlayerFire = (p: Player_t): boolean => {
+export const canPlayerFire = (p: Player_t): boolean => {
   if (p.charge >= g.PHASER_CHARGE_FIRE && p.firing == 0) return true;
   return false;
 };
 
 /* Turns on a phaser beam. Test CanPlayerFire first. */
-const firePhasers = (p: Player_t): void => {
+export const firePhasers = (p: Player_t): void => {
   p.charge -= g.PHASER_CHARGE_FIRE;
   if (p.charge < 0) p.charge = 0;
 
@@ -292,11 +295,13 @@ const playGame = (): void => {
     keystate = KEY.getKeyState();
 
     /* Update phasers. */
-    // player.firing -= timeScale;
-    // if (player.firing < 0) player.firing = 0;
-    // opponent.firing -= timeScale;
-    // if (opponent.firing < 0) opponent.firing = 0;
-    // chargePhasers(player);
+    player.firing -= timeScale;
+    if (player.firing < 0) player.firing = 0;
+
+    opponent.firing -= timeScale;
+    if (opponent.firing < 0) opponent.firing = 0;
+
+    chargePhasers(player);
 
     /* If the local player is destroyed, the respawn timer will
            start counting. During this time the controls are disabled
@@ -357,26 +362,26 @@ const playGame = (): void => {
       player.accel = g.PLAYER_REVERSE_THRUST;
     }
 
-    // /* Spacebar fires phasers. */
-    // if (keystate[" "]) {
-    //   if (canPlayerFire(player)) {
-    //     firePhasers(player);
+    /* Spacebar fires phasers. */
+    if (keystate[" "]) {
+      // if (canPlayerFire(player)) {
+      firePhasers(player);
 
-    //     /* If it's a hit, either notify the opponent
-    //                  or exact the damage. Create a satisfying particle
-    //                  burst. */
-    //     if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
-    //       showPhaserHit(opponent);
-    //       damageOpponent();
-    //       /* if that killed the opponent, set the
-    //                   "awaiting respawn" state to prevent
-    //                   multiple kills */
-    //       if (opponent.shields <= 0) {
-    //         awaitingRespawn = true;
-    //       }
-    //     }
-    //   }
-    // }
+      // /* If it's a hit, either notify the opponent
+      //              or exact the damage. Create a satisfying particle
+      //              burst. */
+      // if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
+      //   showPhaserHit(opponent);
+      //   damageOpponent();
+      //   /* if that killed the opponent, set the
+      //               "awaiting respawn" state to prevent
+      //               multiple kills */
+      //   if (opponent.shields <= 0) {
+      //     awaitingRespawn = true;
+      //   }
+      // }
+      // }
+    }
 
     //   /* Turn. */
     player.angle += (turn * timeScale) | 0;
@@ -392,37 +397,35 @@ const playGame = (): void => {
 
     //   /* Kaboom! */
 
-    // if (framesDrawn === 2) {
-    //   killPlayer();
-    // }
+    if (framesDrawn === 6) {
+      killPlayer();
+    }
 
     //   /* Respawn. */
     //   respawnTimer = 0;
     // }
     // }
 
-    // /* If this is a player vs. computer game, give the computer a chance. */
-    // if (opponentType == Opponent_type.OPP_COMPUTER) {
-    //   // runGameScript()
+    //runGameScript(player, opponent);
 
-    //   /* Check for phaser hits against the player. */
-    //   //   if (opponent.firing) {
-    //   //       if (CheckPhaserHit(opponent,player)) {
-    //   // if (player.state != INVINCIBLE){
-    //   //               showPhaserHit(&player);
-    //   //               player.shields -= PHASER_DAMAGE_DEVIL;
+    /* Check for phaser hits against the player. */
+    //   if (opponent.firing) {
+    //       if (CheckPhaserHit(opponent,player)) {
+    // if (player.state != INVINCIBLE){
+    //               showPhaserHit(&player);
+    //               player.shields -= PHASER_DAMAGE_DEVIL;
 
-    //   //               /* Did that destroy the player? */
-    //   //               if (respawnTimer < 0 && player.shields <= 0) {
-    //   //                   killPlayer();
-    //   //                   respawnTimer = 0;
-    //   //               }
-    //   //           }
-    //   //       }
-    //   //   }
+    //               /* Did that destroy the player? */
+    //               if (respawnTimer < 0 && player.shields <= 0) {
+    //                   killPlayer();
+    //                   respawnTimer = 0;
+    //               }
+    //           }
+    //       }
+    //   }
 
     //   chargePhasers(opponent);
-    //   updatePlayer(opponent);
+    updatePlayer(opponent);
     // }
 
     /* Update the player's position. */
@@ -442,29 +445,29 @@ const playGame = (): void => {
     if (cameraY >= g.WORLD_HEIGHT - g.SCREEN_HEIGHT)
       cameraY = g.WORLD_HEIGHT - g.SCREEN_HEIGHT - 1;
 
-    // updateParticles();
+    updateParticles();
 
     // redraw everything
     drawBackground(screen, cameraX, cameraY);
-    // drawParallax(screen, cameraX, cameraY);
-    // drawParticles(screen, cameraX, cameraY);
+    drawParallax(screen, cameraX, cameraY);
+    drawParticles(screen, cameraX, cameraY);
 
     // if (opponent.firing) {
     //   drawPhaserBeam(opponent, screen, cameraX, cameraY);
     // }
-    // if (player.firing) {
-    //   drawPhaserBeam(player, screen, cameraX, cameraY);
-    // }
+    if (player.firing) {
+      drawPhaserBeam(player, screen, cameraX, cameraY);
+    }
 
     // if (respawnTimer < 0) {
     drawPlayer(player);
     // }
 
     // if (!awaitingRespawn) {
-    //   drawPlayer(opponent);
+    drawPlayer(opponent);
     // }
 
-    // updateStatusDisplay(screen);
+    updateStatusDisplay(screen);
 
     // updateRadarDisplay(
     //   screen,
@@ -477,7 +480,7 @@ const playGame = (): void => {
     // flip to canvas here
     SURF.blitToCanvas();
 
-    if (!quit) {
+    if (!quit && framesDrawn < 5000) {
       // replace with !quit at some point
       window.requestAnimationFrame(whileLoop);
     }

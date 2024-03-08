@@ -46,7 +46,7 @@ export const INVINCIBLE_TIME = 300;
 export const PLAYER_FORWARD_THRUST = 3;
 export const PLAYER_REVERSE_THRUST = -1;
 
-export const PHASER_RANGE = WORLD_WIDTH * 2;
+export const PHASER_RANGE = WORLD_WIDTH / 4;
 
 export enum PlayerType {
   WARRIOR,
