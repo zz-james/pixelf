@@ -2,7 +2,9 @@
 - opponent hitting ✓
 - player status ✓
 - opponent status ✓
-- radars (1/2 √)
+- radars √
 - kill state √
 - respawn state √
 - sound
+- fix particles so they appear where the ship is - seems
+- what the fuck is going on with the distances?

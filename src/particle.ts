@@ -102,7 +102,7 @@ export const createParticleExplosion = (
       x,
       y,
       angle: ((Math.random() * 1028) | 0) % 360,
-      energy: ((Math.random() * 1028) | 0) % ((energy * 1000) / 1000) | 0,
+      energy: ((Math.random() * 1028) | 0) % (((energy * 1000) / 1000) | 0),
       r,
       g,
       b,

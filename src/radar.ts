@@ -106,7 +106,7 @@ export const updateRadarDisplay = (
     y: 0,
   };
 
-  // ...but scale the x, y
+  // figure the x, y by scaling the player x, y
   let destCoord: Coord = {
     x: ((playerX / (g.WORLD_WIDTH / 100)) | 0) + radar.physicX,
     y: ((playerY / (g.WORLD_HEIGHT / 100)) | 0) + radar.physicY,
@@ -134,7 +134,7 @@ export const updateRadarDisplay = (
     y: 0,
   };
 
-  // scale the x and y of the blobs to fit on the radar
+  // figure the x and y of the blob by scaling the x and y of opponent
   destCoord.x = ((oppX / (g.WORLD_WIDTH / 100)) | 0) + radar.physicX;
   destCoord.y = ((oppY / (g.WORLD_HEIGHT / 100)) | 0) + radar.physicY;
 
