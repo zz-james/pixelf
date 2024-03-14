@@ -303,40 +303,34 @@ const playGame = (): void => {
 
     chargePhasers(player);
 
-    /* If the local player is destroyed, the respawn timer will
+    /* If the player is destroyed, the respawn timer will
            start counting. During this time the controls are disabled
            and explosion sequence occurs. */
-    // if (respawnTimer >= 0) {
-    //   respawnTimer++;
+    if (respawnTimer >= 0) {
+      respawnTimer++;
 
-    //   if (respawnTimer >= g.RESPAWN_TIME / timeScale) {
-    //     respawnTimer = -1;
-    //     initPlayer(player, PlayerType.WARRIOR);
+      if (respawnTimer >= g.RESPAWN_TIME / timeScale) {
+        respawnTimer = -1;
+        initPlayer(player, PlayerType.WARRIOR);
+        setStatusMessage("GOOD LUCK, WARRIOR!!");
 
-    //     /* Set the localPlayerRespawn flag so the
-    // 		   network thread will notify the opponent
-    // 		   of the respawn. */
-    //     // localPlayerRespawn = 1;
-
-    // setStatusMessage("GOOD LUCK, WARRIOR!!");
-
-    //     /* Go to invincible state */
-    //     player.state = PlayerState.INVINCIBLE;
-    //     invincibleTimer++;
-    //   }
-    // }
+        /* Go to invincible state */
+        player.state = PlayerState.INVINCIBLE;
+        invincibleTimer++;
+      }
+    }
 
     /* Respond to input and network events, but not if we're in a respawn. */
-    // if (respawnTimer == -1) {
-    //   /* Small period of time invincible */
-    //   if (invincibleTimer >= 0) {
-    //     invincibleTimer++;
-    //     if (invincibleTimer >= g.INVINCIBLE_TIME / timeScale) {
-    //       invincibleTimer = -1;
-    //       /* Back to normal */
-    //       player.state = PlayerState.EVADE;
-    //     }
-    //   }
+    if (respawnTimer == -1) {
+      /* Small period of time invincible */
+      if (invincibleTimer >= 0) {
+        invincibleTimer++;
+        if (invincibleTimer >= g.INVINCIBLE_TIME / timeScale) {
+          invincibleTimer = -1;
+          /* Back to normal */
+          player.state = PlayerState.EVADE;
+        }
+      }
 
     if (keystate["q"]) {
       quit = true;
@@ -364,23 +358,21 @@ const playGame = (): void => {
 
     /* Spacebar fires phasers. */
     if (keystate[" "]) {
-      // if (canPlayerFire(player)) {
+        if (canPlayerFire(player)) {
       firePhasers(player);
 
-      // /* If it's a hit, either notify the opponent
-      //              or exact the damage. Create a satisfying particle
-      //              burst. */
-      // if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
-      //   showPhaserHit(opponent);
-      //   damageOpponent();
-      //   /* if that killed the opponent, set the
-      //               "awaiting respawn" state to prevent
-      //               multiple kills */
-      //   if (opponent.shields <= 0) {
-      //     awaitingRespawn = true;
-      //   }
-      // }
-      // }
+          /* If it's a hit, either notify the opponent or exact the damage. Create a satisfying particle burst. */
+          if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
+            showPhaserHit(opponent);
+            damageOpponent();
+            /* if that killed the opponent, set the
+                      "awaiting respawn" state to prevent
+                      multiple kills */
+            if (opponent.shields <= 0) {
+              awaitingRespawn = true;
+            }
+          }
+        }
     }
 
     //   /* Turn. */
@@ -391,14 +383,16 @@ const playGame = (): void => {
     /* If this is a network game, the remote player will
                tell us if we've died. Otherwise we have to check
                for failed shields. */
-    // if (player.shields <= 0) {
-    //   console.log("Local player has been destroyed.\n");
-    //   localPlayerDead = 0;
+      if (player.shields <= 0) {
+        console.log("Local player has been destroyed.\n");
+        // localPlayerDead = 0;
 
-    //   /* Kaboom! */
-
-    if (framesDrawn === 6) {
+        /* Kaboom! */
       killPlayer();
+
+        /* Respawn. */
+        respawnTimer = 0;
+      }
     }
 
     //   /* Respawn. */
@@ -409,20 +403,21 @@ const playGame = (): void => {
     runGameScript(player, opponent);
 
     /* Check for phaser hits against the player. */
-    //   if (opponent.firing) {
-    //       if (CheckPhaserHit(opponent,player)) {
-    // if (player.state != INVINCIBLE){
-    //               showPhaserHit(&player);
-    //               player.shields -= PHASER_DAMAGE_DEVIL;
+    if (opponent.firing) {
+      if (checkPhaserHit(opponent, player)) {
+        if (player.state !== PlayerState.INVINCIBLE) {
+          showPhaserHit(player);
+          player.shields -= PHASER_DAMAGE_DEVIL;
 
-    //               /* Did that destroy the player? */
-    //               if (respawnTimer < 0 && player.shields <= 0) {
-    //                   killPlayer();
-    //                   respawnTimer = 0;
-    //               }
-    //           }
-    //       }
-    //   }
+          /* Did that destroy the player? */
+          if (respawnTimer < 0 && player.shields <= 0) {
+            console.log("kill player");
+            killPlayer();
+            respawnTimer = 0;
+          }
+        }
+      }
+    }
 
     chargePhasers(opponent);
     updatePlayer(opponent);
@@ -431,8 +426,8 @@ const playGame = (): void => {
     /* Update the player's position. */
     updatePlayer(player);
 
-    // setPlayerStatusInfo(player.score, player.shields, player.charge);
-    // setOpponentStatusInfo(opponent.score, opponent.shields);
+    setPlayerStatusInfo(player.score, player.shields, player.charge);
+    setOpponentStatusInfo(opponent.score, opponent.shields);
 
     /* make the camera follow the player (but impose limits) */
     cameraX = (player.worldX - g.SCREEN_WIDTH / 2) | 0;
@@ -459,13 +454,13 @@ const playGame = (): void => {
       drawPhaserBeam(player, screen, cameraX, cameraY);
     }
 
-    // if (respawnTimer < 0) {
+    if (respawnTimer < 0) {
     drawPlayer(player);
-    // }
+    }
 
-    // if (!awaitingRespawn) {
+    if (!awaitingRespawn) {
     drawPlayer(opponent);
-    // }
+    }
 
     updateStatusDisplay(screen);
 

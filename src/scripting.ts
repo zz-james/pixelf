@@ -5,6 +5,7 @@ import {
   PLAYER_FORWARD_THRUST,
   PLAYER_REVERSE_THRUST,
   Player_t,
+  PlayerState,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from "./globals";
@@ -12,9 +13,14 @@ import {
 // see page 264 in chapter 6
 
 // we could easily add more states
-const opponent = {
-  state: "attack",
-}; // this should be enum
+export enum OpponentState {
+  ATTACK,
+  EVADE,
+}
+
+let opponent = {
+  state: OpponentState.ATTACK,
+};
 
 let target: Coord = {
   x: 0,
@@ -51,7 +57,7 @@ export const runGameScript = (player: Player_t, computer: Player_t) => {
 const playComputer = (player: Player_t, computer: Player_t) => {
   // uses pass by refrence so doesn't bother to return the player and computer objects
 
-  if (opponent.state === "attack") {
+  if (opponent.state === OpponentState.ATTACK) {
     // in attack mode the player is the target
     target.x = player.worldX;
     target.y = player.worldY;
@@ -60,7 +66,7 @@ const playComputer = (player: Player_t, computer: Player_t) => {
     const distance = getDistanceToTarget(computer, target);
     if (distance < 25) {
       console.log("going into evade mode");
-      opponent.state = "evade";
+      opponent.state = OpponentState.EVADE;
       target.x = -1;
       // setting invalid target triggers coming up with a new one
       return;
@@ -86,7 +92,7 @@ const playComputer = (player: Player_t, computer: Player_t) => {
       Math.abs(computer.worldY - target.y) < 25
     ) {
       console.log("going back into attack mode");
-      opponent.state = "attack";
+      opponent.state = OpponentState.ATTACK;
       return;
     }
 
