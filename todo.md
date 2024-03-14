@@ -1,7 +1,8 @@
-- hitting
-- opponent hitting
-- player status
-- opponent status
-- radars
-- kill state
-- respawn state
+- hitting ✓
+- opponent hitting ✓
+- player status ✓
+- opponent status ✓
+- radars (1/2 √)
+- kill state √
+- respawn state √
+- sound
