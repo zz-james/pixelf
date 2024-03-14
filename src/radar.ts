@@ -1,5 +1,5 @@
 import * as SURF from "./surfaces";
-import { Surface, Rect } from "./surfaces"; // types
+import { Surface, Rect, Coord } from "./surfaces"; // types
 import * as IMG from "./image";
 import * as g from "./globals";
 
@@ -69,7 +69,7 @@ export const cleanUpRadarDisplay = () => {
 };
 
 const distance = (x: number, y: number, v: number, w: number) => {
-  return Math.sqrt(((x - v) ^ 2) + ((y - w) ^ 2));
+  return Math.sqrt((Math.abs(x - v) ^ 2) + (Math.abs(y - w) ^ 2));
 };
 
 export const updateRadarDisplay = (
@@ -79,55 +79,7 @@ export const updateRadarDisplay = (
   oppX: number,
   oppY: number
 ) => {
-  let srcRect: Rect = {
-    w: radar.playerIcon.w,
-    h: radar.playerIcon.h,
-    x: 0,
-    y: 0,
-  };
-
-  let destRect: Rect = srcRect;
-
-  // scale the x, y
-  destRect.x = playerX / (g.WORLD_WIDTH / 100) + radar.physicX;
-  destRect.y = playerY / (g.WORLD_HEIGHT / 100) + radar.physicY;
-
-  if (
-    distance(
-      playerX / (g.WORLD_WIDTH / 100),
-      playerY / (g.WORLD_HEIGHT / 100),
-      50,
-      50
-    ) < 50
-  ) {
-    // draw player icon
-    SURF.blitSurface(radar.playerIcon, srcRect, screen, destRect);
-  }
-
-  destRect.x = oppX / (g.WORLD_WIDTH / 100) + radar.physicX;
-  destRect.y = oppY / (g.WORLD_HEIGHT / 100) + radar.physicY;
-
-  if (
-    distance(
-      oppX / (g.WORLD_WIDTH / 100),
-      oppY / (g.WORLD_HEIGHT / 100),
-      50,
-      50
-    ) < 50
-  ) {
-    // draw opponent icon
-    if (radar.oppIconState < 10) {
-      // draw player icon
-      SURF.blitSurface(radar.oppIconOn, srcRect, screen, destRect);
-    } else if (radar.oppIconState <= 20) {
-      SURF.blitSurface(radar.oppIconOff, srcRect, screen, destRect);
-      radar.oppIconState++;
-      if (radar.oppIconState === 20) {
-        radar.oppIconState = 0;
-      }
-    }
-  }
-
+  // first draw radar background on screen
   let src: Rect = {
     x: 0,
     y: 0,
@@ -143,4 +95,72 @@ export const updateRadarDisplay = (
   };
 
   SURF.blitSurface(radar.radarSurface, src, screen, dest);
+
+  // now do player 'dot' on the screen on top of the radar (why don't we blit onto the radar surface then blit at the end?)
+
+  // start with player dot
+  let playerBlobSrcRect: Rect = {
+    w: radar.playerIcon.w,
+    h: radar.playerIcon.h,
+    x: 0,
+    y: 0,
+  };
+
+  // ...but scale the x, y
+  let destCoord: Coord = {
+    x: ((playerX / (g.WORLD_WIDTH / 100)) | 0) + radar.physicX,
+    y: ((playerY / (g.WORLD_HEIGHT / 100)) | 0) + radar.physicY,
+  };
+
+  if (
+    distance(
+      playerX / (g.WORLD_WIDTH / 100),
+      playerY / (g.WORLD_HEIGHT / 100),
+      50,
+      50
+    ) < 8
+  ) {
+    // draw player icon
+    SURF.blitSurface(radar.playerIcon, playerBlobSrcRect, screen, destCoord);
+  }
+
+  //now do the opponent blob
+
+  // start with player dot
+  let oppenentBlobSrcRect: Rect = {
+    w: radar.oppIconOn.w,
+    h: radar.oppIconOn.h,
+    x: 0,
+    y: 0,
+  };
+
+  // scale the x and y of the blobs to fit on the radar
+  destCoord.x = ((oppX / (g.WORLD_WIDTH / 100)) | 0) + radar.physicX;
+  destCoord.y = ((oppY / (g.WORLD_HEIGHT / 100)) | 0) + radar.physicY;
+
+  if (
+    distance(
+      oppX / (g.WORLD_WIDTH / 100),
+      oppY / (g.WORLD_HEIGHT / 100),
+      50,
+      50
+    ) < 8
+  ) {
+    if (radar.oppIconState < 10) {
+      // draw opposition icon
+      SURF.blitSurface(radar.oppIconOn, oppenentBlobSrcRect, screen, destCoord);
+      radar.oppIconState++;
+    } else if (radar.oppIconState <= 20) {
+      SURF.blitSurface(
+        radar.oppIconOff,
+        oppenentBlobSrcRect,
+        screen,
+        destCoord
+      );
+      radar.oppIconState++;
+      if (radar.oppIconState === 20) {
+        radar.oppIconState = 0;
+      }
+    }
+  }
 };
