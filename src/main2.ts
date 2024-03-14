@@ -17,7 +17,7 @@ import {
 import { checkPhaserHit, drawPhaserBeam } from "./weapon";
 import { initRadarDisplay, updateRadarDisplay } from "./radar";
 
-import { runGameScript, OpponentState } from "./scripting";
+import { runGameScript } from "./scripting";
 
 import { Rect, Surface } from "./surfaces"; //types
 
@@ -29,12 +29,10 @@ import {
   PHASER_DAMAGE_DEVIL,
 } from "./globals";
 
-enum Opponent_type {
-  OPP_COMPUTER,
-  OPP_NETWORK,
-}
-
-let opponentType: Opponent_type;
+// enum Opponent_type {
+//   OPP_COMPUTER,
+//   OPP_NETWORK,
+// }
 
 // eg. let blah = opponent_type.OPP_COMPUTER;
 

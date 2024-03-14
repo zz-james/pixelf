@@ -5,7 +5,6 @@ import {
   PLAYER_FORWARD_THRUST,
   PLAYER_REVERSE_THRUST,
   Player_t,
-  PlayerState,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from "./globals";
