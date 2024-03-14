@@ -15,14 +15,19 @@ import {
   updateStatusDisplay,
 } from "./status";
 import { checkPhaserHit, drawPhaserBeam } from "./weapon";
-import { updateRadarDisplay } from "./radar";
+import { initRadarDisplay, updateRadarDisplay } from "./radar";
 
-import { runGameScript } from "./scripting";
+import { runGameScript, OpponentState } from "./scripting";
 
 import { Rect, Surface } from "./surfaces"; //types
 
 import * as g from "./globals";
-import { PlayerType, PlayerState, Player_t } from "./globals";
+import {
+  PlayerType,
+  PlayerState,
+  Player_t,
+  PHASER_DAMAGE_DEVIL,
+} from "./globals";
 
 enum Opponent_type {
   OPP_COMPUTER,
@@ -77,7 +82,7 @@ let screen: Surface; /* global for convenience */
 // the moment so we've got some figuring out to do.
 //-- used in network game
 // let localPlayerHit: number = 0; /* local player has been hit  */
-let localPlayerDead: number = 0; /* local player has been destroyed */
+// let localPlayerDead: number = 0; /* local player has been destroyed */
 // let localPlayerRespawn: number = 0; /* remote player respawned */
 
 // let fullscreen: number = 0;
@@ -332,34 +337,34 @@ const playGame = (): void => {
         }
       }
 
-    if (keystate["q"]) {
-      quit = true;
-    }
-
-    turn = 0;
-
-    if (turn == 0) {
-      if (keystate["ArrowLeft"]) {
-        turn += 10;
+      if (keystate["q"]) {
+        quit = true;
       }
-      if (keystate["ArrowRight"]) {
-        turn -= 10;
+
+      turn = 0;
+
+      if (turn == 0) {
+        if (keystate["ArrowLeft"]) {
+          turn += 10;
+        }
+        if (keystate["ArrowRight"]) {
+          turn -= 10;
+        }
       }
-    }
 
-    // forward and back arrow keys activate thrusters */
-    player.accel = 0;
-    if (keystate["ArrowUp"]) {
-      player.accel = g.PLAYER_FORWARD_THRUST;
-    }
-    if (keystate["ArrowDown"]) {
-      player.accel = g.PLAYER_REVERSE_THRUST;
-    }
+      // forward and back arrow keys activate thrusters */
+      player.accel = 0;
+      if (keystate["ArrowUp"]) {
+        player.accel = g.PLAYER_FORWARD_THRUST;
+      }
+      if (keystate["ArrowDown"]) {
+        player.accel = g.PLAYER_REVERSE_THRUST;
+      }
 
-    /* Spacebar fires phasers. */
-    if (keystate[" "]) {
+      /* Spacebar fires phasers. */
+      if (keystate[" "]) {
         if (canPlayerFire(player)) {
-      firePhasers(player);
+          firePhasers(player);
 
           /* If it's a hit, either notify the opponent or exact the damage. Create a satisfying particle burst. */
           if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
@@ -373,14 +378,14 @@ const playGame = (): void => {
             }
           }
         }
-    }
+      }
 
-    //   /* Turn. */
-    player.angle += (turn * timeScale) | 0;
-    if (player.angle < 0) player.angle += 360;
-    if (player.angle >= 360) player.angle -= 360;
+      /* Turn. */
+      player.angle += (turn * timeScale) | 0;
+      if (player.angle < 0) player.angle += 360;
+      if (player.angle >= 360) player.angle -= 360;
 
-    /* If this is a network game, the remote player will
+      /* If this is a network game, the remote player will
                tell us if we've died. Otherwise we have to check
                for failed shields. */
       if (player.shields <= 0) {
@@ -388,17 +393,12 @@ const playGame = (): void => {
         // localPlayerDead = 0;
 
         /* Kaboom! */
-      killPlayer();
+        killPlayer();
 
         /* Respawn. */
         respawnTimer = 0;
       }
     }
-
-    //   /* Respawn. */
-    //   respawnTimer = 0;
-    // }
-    // }
 
     runGameScript(player, opponent);
 
@@ -455,22 +455,22 @@ const playGame = (): void => {
     }
 
     if (respawnTimer < 0) {
-    drawPlayer(player);
+      drawPlayer(player);
     }
 
     if (!awaitingRespawn) {
-    drawPlayer(opponent);
+      drawPlayer(opponent);
     }
 
     updateStatusDisplay(screen);
 
-    // updateRadarDisplay(
-    //   screen,
-    //   player.worldX,
-    //   player.worldY,
-    //   opponent.worldX,
-    //   opponent.worldY
-    // );
+    updateRadarDisplay(
+      screen,
+      player.worldX,
+      player.worldY,
+      opponent.worldX,
+      opponent.worldY
+    );
 
     // flip to canvas here
     SURF.blitToCanvas();
@@ -531,7 +531,7 @@ export const main = async () => {
 
   await initStatusDisplay();
 
-  // initRaderDisplay();
+  await initRadarDisplay();
 
   // initAudio();
 
