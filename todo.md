@@ -8,3 +8,4 @@
 - sound
 - fix particles so they appear where the ship is - seems
 - what the fuck is going on with the distances?
+- why is enemy so easy to kill?

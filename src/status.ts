@@ -244,16 +244,12 @@ export const setPlayerStatusInfo = (
   shields: number = 0,
   charge: number = 0
 ) => {
-  const buf: number[] = [0, 0, 0];
+  const buf: string = score.toString().padStart(2, "0");
   let pixels: Uint8ClampedArray;
   let i: number;
 
-  // set the score counter
-  // sprintf(buf, "%2i", score);
-  // console.log(score);
-
-  // drawChar5x5(playerScore.led_surface, buf[0], 1, 0, 0);
-  // drawChar5x5(playerScore.led_surface, buf[1], 1, 6, 0);
+  drawChar5x5(playerScore.led_surface, buf.charCodeAt(0), 1, 0, 0);
+  drawChar5x5(playerScore.led_surface, buf.charCodeAt(1), 1, 6, 0);
 
   // set the shield bar
   // SDL_LockSurface(playerShields.led_surface)
@@ -286,15 +282,15 @@ export const setPlayerStatusInfo = (
 /* Sets the player or opponent's on-screen status
 information. */
 export const setOpponentStatusInfo = (score: number, shields: number) => {
-  const buf: number[] = [0, 0, 0];
+  const buf: string = score.toString().padStart(2, "0");
   let pixels: Uint8ClampedArray;
   let i: number;
 
   /* set the score counter */
   // sprintf(buf, "%2i", score);
   // console.log(score);
-  // drawChar5x5(opponentScore.led_surface, buf[0], 1, 0, 0);
-  // drawChar5x5(opponentScore.led_surface, buf[1], 1, 6, 0);
+  drawChar5x5(opponentScore.led_surface, buf.charCodeAt(0), 1, 1, 0);
+  drawChar5x5(opponentScore.led_surface, buf.charCodeAt(1), 1, 7, 0);
 
   /* set shield as bar */
   // SURF.locksurface(opponentShields.ledsurface)
