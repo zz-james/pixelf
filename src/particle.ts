@@ -53,10 +53,10 @@ export const drawParticles = (
     /* find the color of this particle */
     color = createPixel(particles[i].r, particles[i].g, particles[i].b);
 
-    pixels[y * (dest.w * 4) + x + 0] = color[0];
-    pixels[y * (dest.w * 4) + x + 1] = color[1];
-    pixels[y * (dest.w * 4) + x + 2] = color[2];
-    pixels[y * (dest.w * 4) + x + 3] = color[3];
+    pixels[y * (dest.w * 4) + x * 4 + 0] = color[0];
+    pixels[y * (dest.w * 4) + x * 4 + 1] = color[1];
+    pixels[y * (dest.w * 4) + x * 4 + 2] = color[2];
+    pixels[y * (dest.w * 4) + x * 4 + 3] = color[3];
   }
 };
 

@@ -73,29 +73,7 @@ let cameraX: number; // position of the 640x480 viewport within the world
 let cameraY: number;
 
 let screen: Surface; /* global for convenience */
-
-// this has got something to do with network threads
-// they are set there and then the main loop copies
-// them into the player structures. we don't have a network thread at
-// the moment so we've got some figuring out to do.
-//-- used in network game
-// let localPlayerHit: number = 0; /* local player has been hit  */
-// let localPlayerDead: number = 0; /* local player has been destroyed */
-// let localPlayerRespawn: number = 0; /* remote player respawned */
-
-// let fullscreen: number = 0;
-// let hwsurface:number = 0
-// let doublebuf:number = 0
-
 let timeScale: number = 0;
-
-// prototypes;
-// const getRandom:() => {};
-// const initRandom:() => {};
-// const drawPlayer:(p: Player_t) => {};
-// const initPlayer:(p: Player_t, type: PlayerType ) => {};
-// const updatePlayer:(p:Player_t) => {};
-// const playGame:() => {};
 
 /**
  * Drawing
@@ -216,7 +194,7 @@ const chargePhasers = (p: Player_t): void => {
 /* Show a small explosion due to phaser damage. */
 const showPhaserHit = (p: Player_t): void => {
   createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 10, 300);
-  createParticleExplosion(-p.worldX, p.worldY, 255, 0, 0, 5, 100);
+  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 5, 100);
   createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 2, 50);
 };
 
@@ -473,8 +451,7 @@ const playGame = (): void => {
     // flip to canvas here
     SURF.blitToCanvas();
 
-    if (!quit && framesDrawn < 5000) {
-      // replace with !quit at some point
+    if (!quit) {
       window.requestAnimationFrame(whileLoop);
     }
 
