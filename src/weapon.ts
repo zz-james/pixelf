@@ -313,7 +313,7 @@ export const drawPhaserBeam = (
 
 /* Checks whether a phaser beam originating from the given
 player hits the given target. Requires the same data
-as DrawPhaserBeam. Returns 1 on hit, 0 on miss. */
+as DrawPhaserBeam. Returns true on hit, false on miss. */
 export const checkPhaserHit = (source: Player_t, target: Player_t): boolean => {
   let v1x: number;
   let v1y: number;
@@ -344,7 +344,7 @@ export const checkPhaserHit = (source: Player_t, target: Player_t): boolean => {
 
   dist = Math.sqrt((v2x - px) * (v2x - px) + (v2y - py) * (v2y - py));
 
-  if (dist < 650) {
+  if (dist < 200) {
     return true;
   }
 

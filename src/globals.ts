@@ -35,6 +35,8 @@ export const PHASER_DAMAGE_DEVIL = 1;
 export const WORLD_WIDTH = 2000;
 export const WORLD_HEIGHT = 2000;
 
+export const SHIP_LIMIT_WIDTH = WORLD_WIDTH - 40;
+
 /* Number of particles allowed in the particle system. */
 export const MAX_PARTICLES = 30000;
 
@@ -46,7 +48,7 @@ export const INVINCIBLE_TIME = 300;
 export const PLAYER_FORWARD_THRUST = 3;
 export const PLAYER_REVERSE_THRUST = -1;
 
-export const PHASER_RANGE = WORLD_WIDTH / 4;
+export const PHASER_RANGE = WORLD_WIDTH / 10;
 
 export enum PlayerType {
   WARRIOR,

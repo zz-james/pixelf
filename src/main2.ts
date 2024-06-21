@@ -159,8 +159,8 @@ const updatePlayer = (p: Player_t) => {
   p.worldY += (p.velocity * -Math.sin((angle * Math.PI) / 180) * timeScale) | 0;
 
   /* make sure the player doesn't slide off the edge of the world */
-  if (p.worldX < 0) p.worldX = 0;
-  if (p.worldX >= g.WORLD_WIDTH) p.worldX = g.WORLD_WIDTH - 1;
+  if (p.worldX < 40) p.worldX = 40;
+  if (p.worldX >= g.SHIP_LIMIT_WIDTH) p.worldX = g.SHIP_LIMIT_WIDTH;
   if (p.worldY < 0) p.worldY = 0;
   if (p.worldY >= g.WORLD_HEIGHT) p.worldY = g.WORLD_HEIGHT - 1;
 };
@@ -193,16 +193,16 @@ const chargePhasers = (p: Player_t): void => {
 
 /* Show a small explosion due to phaser damage. */
 const showPhaserHit = (p: Player_t): void => {
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 10, 300);
-  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 5, 100);
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 2, 50);
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 10, 30);
+  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 5, 10);
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 2, 5);
 };
 
 /* Show a large ship explosion. */
 const showShipExplosion = (p: Player_t): void => {
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 15, 3000);
-  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 10, 1000);
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 5, 500);
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 15, 300);
+  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 10, 100);
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 5, 50);
 };
 
 /* destroy the opponent */

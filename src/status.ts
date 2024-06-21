@@ -80,35 +80,27 @@ const LED_DrawDisplay = (
 ): void => {
   let row: number;
   let col: number;
-
   let srcRect: Rect = {
     w: disp.on_image.w,
     h: disp.on_image.h,
     x: 0,
     y: 0,
   };
-
   let destCoord: Coord = { x: 0, y: 0 };
-
   let leds: Uint8ClampedArray = disp.led_surface.pixels; // get pointer to pixels
-
   for (row = 0; row < disp.phys_h; row++) {
     for (col = 0; col < disp.phys_w; col++) {
       let led: number;
       destCoord.x = col * disp.on_image.w + x;
       destCoord.y = row * disp.on_image.h + y;
-
       led = leds[row * disp.led_surface.w + col];
-
       if (led) {
         SURF.blitSurface(disp.on_image, srcRect, dest, destCoord);
       } else {
         SURF.blitSurface(disp.off_image, srcRect, dest, destCoord);
       }
-      SURF.blitToCanvas();
     }
   }
-
   // unlock surface
 };
 
