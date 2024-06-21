@@ -1,5 +1,5 @@
 import * as SURF from "./surfaces";
-import { Surface, Rect, Coord } from "./surfaces"; // import types
+import { Surface, Rect } from "./surfaces"; // import types
 import { backStarTiles, frontStarTiles, numStarTiles } from "./resources";
 import { createMultiArray } from "./utils/multiArray";
 import * as g from "./globals";

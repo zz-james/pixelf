@@ -3,10 +3,10 @@ import { Surface, Rect, Coord } from "./surfaces"; // types
 import * as IMG from "./image";
 import * as g from "./globals";
 
-enum IconState {
-  ON,
-  OFF,
-}
+// enum IconState {
+//   ON,
+//   OFF,
+// }
 
 type RadarDisplay = {
   radarSurface: Surface;

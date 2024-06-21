@@ -330,7 +330,7 @@ export const checkPhaserHit = (source: Player_t, target: Player_t): boolean => {
   [x0, y0, x1, y1] = calcPhaserBeamCoords(source);
 
   v1x = x1 - x0;
-  v1y = y1 = y0;
+  v1y = y1 - y0;
   v2x = target.worldX - x0;
   v2y = target.worldY - y0;
 

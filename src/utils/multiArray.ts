@@ -10,6 +10,7 @@ export const createMultiArray = (length: number, ...rest: number[]) => {
   if (rest.length > 0) {
     // are there more params
     // loop through the array backwards and call createArray with first value (a number) of unused param
+    // @ts-ignore
     while (i--) arr[length - 1 - i] = createMultiArray.apply(rest[0], rest);
   }
 

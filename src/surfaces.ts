@@ -50,7 +50,7 @@ let mainSurfaceWidth: number; // surface width in pixels
 let mainSurfaceHeight: number; // surface height in pixels
 let mainBuffer: Uint8ClampedArray; // framebuffer that we can flip to canvas
 let mainBufferSize: number; // size of the buffer (in bytes?)
-let tix: number = new Date().getTime();
+// let tix: number = new Date().getTime();
 
 /**
  * initialises the pix_elf library
@@ -160,10 +160,12 @@ export const createSurfaceWithImage = (image: HTMLImageElement): Surface => {
   const offscreen_context = offscreen_canvas.getContext("2d", {
     willReadFrequently: true,
   })!;
+  // @ts-ignore
   offscreen_context.drawImage(image, 0, 0);
   return {
     w: image.width,
     h: image.height,
+    // @ts-ignore
     pixels: offscreen_context.getImageData(0, 0, image.width, image.height)
       .data, // extract typedArray
   };
@@ -178,12 +180,13 @@ export const createSurface = (width: number, height: number): Surface => {
   return {
     w: width,
     h: height,
+    // @ts-ignore
     pixels: offscreen_context.getImageData(0, 0, width, height).data, // extract typedArray
   };
 };
 
 export const freeSurface = (surface: Surface) => {
-  delete surface.pixels;
+  surface.pixels = new Uint8ClampedArray([]);
 };
 
 // /**

@@ -13,7 +13,7 @@ type Particle_t = {
 
 const particles: Particle_t[] = []; // up to MAX_PARTICLES items
 
-let timeScale = 0.1; // for now
+// let timeScale = 0.1; // for now
 
 let activeParticles: number = 0;
 
