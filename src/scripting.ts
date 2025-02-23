@@ -1,5 +1,5 @@
-import { canPlayerFire, firePhasers } from "./main2";
-import { Coord } from "./surfaces";
+import { canPlayerFire, firePhasers } from "./warrior";
+import { Coord } from "./pixelf/surfaces";
 
 import {
   PLAYER_FORWARD_THRUST,

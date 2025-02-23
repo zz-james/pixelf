@@ -1,4 +1,4 @@
-import { Surface } from "./surfaces"; //types
+import { Surface } from "./pixelf/surfaces"; //types
 import * as g from "./globals";
 import { Player_t } from "./globals";
 
@@ -54,7 +54,7 @@ export const drawLine32 = (
 
   // so we need to figure out what we need to convert from pixels to bytes for when we are in the loop
 
-  drawpos = surf.w * 4 * y0 + x0 * 4; // in bytes!
+  drawpos = surf.w * (4 * y0) + 4 * x0; // in bytes!
 
   /* our loop will be different depending on the major axis */
   if (xspan < yspan) {
@@ -262,7 +262,6 @@ export const clipLineAgainstRectange = (
 // calculates the starting and ending coordinates of a phaser beam fired
 // from the given player's position and angle
 const calcPhaserBeamCoords = (source: Player_t): number[] => {
-  // these are pointers like global shiz
   const x0 = source.worldX;
   const y0 = source.worldY;
   const x1 =

@@ -1,9 +1,3 @@
-/**
- * Project: canvas_sprite_blitter
- * User: james
- * Date: 23/08/13
- * Time: 16:56
- */
 "use strict";
 
 var pressed: Record<string, boolean> = {};

@@ -1,4 +1,4 @@
-import { Surface } from "./surfaces"; // import types
+import { Surface } from "./pixelf/surfaces"; // import types
 
 /* draws a line of the given color from (x0, y)) to (x1, y1)
 Does not perform clipping against the edges of the surface

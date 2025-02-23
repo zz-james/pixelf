@@ -1,12 +1,6 @@
 import * as SURF from "./surfaces";
 import { Surface } from "./surfaces";
 
-// type BufferData = { buffer: Surface; image: HTMLImageElement };
-// let bufferDataContainer: BufferData[] = []; // array [{surface object, image object},...]
-// let numLoadedImgs: number = 0;
-// let callback;
-// let tmpImg: HTMLImageElement = new Image(); // just have this image pointer in heap
-
 // takes a url and returns an empty html image element with their id
 // set to the url they will load
 // image to surface function actually loads the image
@@ -16,7 +10,6 @@ export const createImagePlaceholder = (url: string): HTMLImageElement => {
 
   img.id = url; // when we load we'll set src = id
 
-  // console.log("queueing image " + url); // debug
   return img;
 };
 

@@ -1,5 +1,5 @@
-import * as SURF from "./surfaces";
-import { Surface, Rect } from "./surfaces"; // import types
+import * as SURF from "./pixelf/surfaces";
+import { Surface, Rect } from "./pixelf/surfaces"; // import types
 import { backStarTiles, frontStarTiles, numStarTiles } from "./resources";
 import { createMultiArray } from "./utils/multiArray";
 import * as g from "./globals";

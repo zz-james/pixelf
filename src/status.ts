@@ -1,7 +1,7 @@
 import * as g from "./globals";
-import { Surface, Rect, Coord } from "./surfaces"; // import types
-import * as SURF from "./surfaces";
-import * as IMG from "./image";
+import { Surface, Rect, Coord } from "./pixelf/surfaces"; // import types
+import * as SURF from "./pixelf/surfaces";
+import * as IMG from "./pixelf/image";
 
 import { Font5x5 } from "./font5x5";
 

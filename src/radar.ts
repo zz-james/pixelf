@@ -1,6 +1,6 @@
-import * as SURF from "./surfaces";
-import { Surface, Rect, Coord } from "./surfaces"; // types
-import * as IMG from "./image";
+import * as SURF from "./pixelf/surfaces";
+import { Surface, Rect, Coord } from "./pixelf/surfaces"; // types
+import * as IMG from "./pixelf/image";
 import * as g from "./globals";
 
 // enum IconState {

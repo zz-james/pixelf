@@ -1,12 +1,13 @@
-import * as SURF from "./surfaces";
-import * as KEY from "./keys";
-import { shipStrip, loadGameData } from "./resources";
-import { initBackground, drawBackground, drawParallax } from "./background";
+import * as SURF from "./pixelf/surfaces";
+import * as KEY from "./pixelf/keys";
 import {
   createParticleExplosion,
   updateParticles,
   drawParticles,
-} from "./particle";
+} from "./pixelf/particle";
+
+import { shipStrip, loadGameData } from "./resources";
+import { initBackground, drawBackground, drawParallax } from "./background";
 import {
   setStatusMessage,
   initStatusDisplay,
@@ -19,7 +20,7 @@ import { initRadarDisplay, updateRadarDisplay } from "./radar";
 
 import { runGameScript } from "./scripting";
 
-import { Rect, Surface } from "./surfaces"; //types
+import { Rect, Surface } from "./pixelf/surfaces"; //types
 
 import * as g from "./globals";
 import {
@@ -28,13 +29,6 @@ import {
   Player_t,
   PHASER_DAMAGE_DEVIL,
 } from "./globals";
-
-// enum Opponent_type {
-//   OPP_COMPUTER,
-//   OPP_NETWORK,
-// }
-
-// eg. let blah = opponent_type.OPP_COMPUTER;
 
 let player: Player_t = {
   type: PlayerType.WARRIOR,
@@ -153,15 +147,13 @@ const updatePlayer = (p: Player_t) => {
     if (p.velocity < g.DEVIL_MIN_VELOCITY) p.velocity = g.DEVIL_MIN_VELOCITY;
   }
 
-  // console.log(Math.cos((angle * Math.PI) / 180));
-
   p.worldX += (p.velocity * Math.cos((angle * Math.PI) / 180) * timeScale) | 0;
   p.worldY += (p.velocity * -Math.sin((angle * Math.PI) / 180) * timeScale) | 0;
 
   /* make sure the player doesn't slide off the edge of the world */
   if (p.worldX < 40) p.worldX = 40;
   if (p.worldX >= g.SHIP_LIMIT_WIDTH) p.worldX = g.SHIP_LIMIT_WIDTH;
-  if (p.worldY < 0) p.worldY = 0;
+  if (p.worldY < 40) p.worldY = 40;
   if (p.worldY >= g.WORLD_HEIGHT) p.worldY = g.WORLD_HEIGHT - 1;
 };
 
@@ -301,7 +293,7 @@ const playGame = (): void => {
       }
     }
 
-    /* Respond to input and network events, but not if we're in a respawn. */
+    /* Respond to input events, but not if we're in a respawn. */
     if (respawnTimer == -1) {
       /* Small period of time invincible */
       if (invincibleTimer >= 0) {
@@ -473,36 +465,9 @@ const playGame = (): void => {
   // end here
 };
 
-export const main = async () => {
-  // we not really using this right now
-  // enum GameType {
-  //   GAME_COMPUTER,
-  //   GAME_NETWORK,
-  //   GAME_UNKNOWN,
-  // }
-
-  // let gameType: GameType = GameType.GAME_UNKNOWN;
-
-  // gameType = GameType.GAME_COMPUTER;
-
-  // opponentType = Opponent_type.OPP_COMPUTER;
-
-  // initScripting() // probably don't need this
-
-  if (
-    SURF.init(
-      document.getElementById("canvas")! as HTMLCanvasElement,
-      g.SCREEN_WIDTH,
-      g.SCREEN_HEIGHT
-    ) !== true
-  ) {
-    throw "Unable to initialize Pixelf" + SURF.getError();
-  }
-
+export const main = async (scrn: SURF.Surface) => {
   /* Save the screen pointer for later use. */
-  screen = SURF.getMainSurface(); // global reference to screen for blitting
-
-  // todo: set window title to Penguin Warriot
+  screen = scrn;
 
   await initStatusDisplay();
 
@@ -519,7 +484,7 @@ export const main = async () => {
   initBackground();
 
   initPlayer(player, PlayerType.WARRIOR);
-  // initPlayer(player, PlayerType.WARRIOR);
+
   playGame();
 
   // cleanupStatusDisplay();

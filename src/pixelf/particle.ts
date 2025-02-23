@@ -1,5 +1,5 @@
 import { Surface } from "./surfaces";
-import * as g from "./globals";
+import * as g from "../globals";
 
 type Particle_t = {
   x: number;

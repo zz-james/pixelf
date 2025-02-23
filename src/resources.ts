@@ -1,5 +1,5 @@
-import { Surface } from "./surfaces"; // import types
-import * as IMG from "./image";
+import { Surface } from "./pixelf/surfaces"; // import types
+import * as IMG from "./pixelf/image";
 
 export let shipStrip: Surface;
 export let backStarTiles: Surface;
