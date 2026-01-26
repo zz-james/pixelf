@@ -435,6 +435,7 @@ export const main = async (scrn: SURF.Surface) => {
   initBackground();
 
   initPlayer(player, PlayerType.WARRIOR);
+  initPlayer(opponent, PlayerType.DEVIL);
 
   playGame();
 
