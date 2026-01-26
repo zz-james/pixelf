@@ -5,9 +5,9 @@ import { main } from "./warrior";
 import "./style.css";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-    <div class="card">
-      <canvas id="canvas" width="${g.SCREEN_WIDTH}" height="${g.SCREEN_HEIGHT}"></canvas>
-    </div>
+  <div id="game-container">
+    <canvas id="canvas" width="${g.SCREEN_WIDTH}" height="${g.SCREEN_HEIGHT}"></canvas>
+  </div>
 `;
 
 /* Fire up PIX. */
