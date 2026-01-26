@@ -126,8 +126,8 @@ const drawPlayer = (p: Player_t) => {
 const initPlayer = (p: Player_t, type: PlayerType): void => {
   p.state = PlayerState.EVADE;
   p.type = type;
-  p.worldX = ((Math.random() * 1024) | 0) % g.WORLD_WIDTH;
-  p.worldY = ((Math.random() * 1024) | 0) % g.WORLD_HEIGHT;
+  p.worldX = (Math.random() * g.WORLD_WIDTH) | 0;
+  p.worldY = (Math.random() * g.WORLD_HEIGHT) | 0;
   p.accel = 0;
   p.velocity = 0;
   p.angle = 0;
