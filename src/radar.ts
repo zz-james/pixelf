@@ -68,10 +68,6 @@ export const cleanUpRadarDisplay = () => {
   }
 };
 
-const distance = (x: number, y: number, v: number, w: number) => {
-  return Math.sqrt((x - v) * (x - v) + (y - w) * (y - w));
-};
-
 export const updateRadarDisplay = (
   screen: Surface,
   playerX: number,
@@ -107,18 +103,17 @@ export const updateRadarDisplay = (
   };
 
   // figure the x, y by scaling the player x, y
+  const scaledPlayerX = (playerX / (g.WORLD_WIDTH / 100)) | 0;
+  const scaledPlayerY = (playerY / (g.WORLD_HEIGHT / 100)) | 0;
+
   let destCoord: Coord = {
-    x: ((playerX / (g.WORLD_WIDTH / 100)) | 0) + radar.physicX,
-    y: ((playerY / (g.WORLD_HEIGHT / 100)) | 0) + radar.physicY,
+    x: scaledPlayerX + radar.physicX,
+    y: scaledPlayerY + radar.physicY,
   };
 
   if (
-    distance(
-      playerX / (g.WORLD_WIDTH / 100),
-      playerY / (g.WORLD_HEIGHT / 100),
-      50,
-      50
-    ) < 8
+    scaledPlayerX >= 0 && scaledPlayerX < radar.physicW &&
+    scaledPlayerY >= 0 && scaledPlayerY < radar.physicH
   ) {
     // draw player icon
     SURF.blitSurface(radar.playerIcon, playerBlobSrcRect, screen, destCoord);
@@ -135,16 +130,15 @@ export const updateRadarDisplay = (
   };
 
   // figure the x and y of the blob by scaling the x and y of opponent
-  destCoord.x = ((oppX / (g.WORLD_WIDTH / 100)) | 0) + radar.physicX;
-  destCoord.y = ((oppY / (g.WORLD_HEIGHT / 100)) | 0) + radar.physicY;
+  const scaledOppX = (oppX / (g.WORLD_WIDTH / 100)) | 0;
+  const scaledOppY = (oppY / (g.WORLD_HEIGHT / 100)) | 0;
+
+  destCoord.x = scaledOppX + radar.physicX;
+  destCoord.y = scaledOppY + radar.physicY;
 
   if (
-    distance(
-      oppX / (g.WORLD_WIDTH / 100),
-      oppY / (g.WORLD_HEIGHT / 100),
-      50,
-      50
-    ) < 8
+    scaledOppX >= 0 && scaledOppX < radar.physicW &&
+    scaledOppY >= 0 && scaledOppY < radar.physicH
   ) {
     if (radar.oppIconState < 10) {
       // draw opposition icon
