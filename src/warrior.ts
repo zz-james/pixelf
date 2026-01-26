@@ -366,7 +366,8 @@ const playGame = (): void => {
   player.score = 0;
   opponent.score = 0;
 
-  prevTicks = Date.now();
+  curTicks = Date.now();
+  prevTicks = curTicks;
 
   const whileLoop = () => {
     prevTicks = curTicks;
