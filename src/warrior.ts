@@ -229,20 +229,20 @@ const damageOpponent = (): void => {
 /* Updates respawn and invincibility timers. */
 const updateTimers = (): void => {
   if (respawnTimer >= 0) {
-    respawnTimer++;
+    respawnTimer += timeScale;
 
-    if (respawnTimer >= g.RESPAWN_TIME / timeScale) {
+    if (respawnTimer >= g.RESPAWN_TIME) {
       respawnTimer = -1;
       initPlayer(player, PlayerType.WARRIOR);
       setStatusMessage("GOOD LUCK, WARRIOR!!");
       player.state = PlayerState.INVINCIBLE;
-      invincibleTimer++;
+      invincibleTimer += timeScale;
     }
   }
 
   if (respawnTimer == -1 && invincibleTimer >= 0) {
-    invincibleTimer++;
-    if (invincibleTimer >= g.INVINCIBLE_TIME / timeScale) {
+    invincibleTimer += timeScale;
+    if (invincibleTimer >= g.INVINCIBLE_TIME) {
       invincibleTimer = -1;
       player.state = PlayerState.EVADE;
     }
