@@ -15,4 +15,11 @@ document.onkeyup = function (e) {
 export const getKeyState = (): Record<string, boolean> => {
   return pressed;
 };
-/* usage eg if(pressed[37]) {} */
+
+export const setKeyPressed = (key: string): void => {
+  pressed[key] = true;
+};
+
+export const clearKeyPressed = (key: string): void => {
+  delete pressed[key];
+};
