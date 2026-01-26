@@ -42,27 +42,30 @@ export const initBackground = (): void => {
   }
 };
 
-/* draws the background on the screen, with respect to the global 'camera' position
+/* draws a tile layer on the screen, with respect to the global 'camera' position
   the camera marks the 640x480 section of the world that we can see at any given time
   this is usually in the vicinity of the players ship */
-export const drawBackground = (
+const drawTileLayer = (
   dest: Surface,
   cameraX: number,
-  cameraY: number
+  cameraY: number,
+  parallaxFactor: number,
+  tileGrid: number[][],
+  tileSurface: Surface
 ) => {
   let drawX: number, drawY: number; /* drawing position on screen */
   let startDrawX: number, startDrawY: number;
-  let tileX: number, tileY: number; /* indices in the backTiles array */
+  let tileX: number, tileY: number; /* indices in the tile array */
   let startTileX: number, startTileY: number;
 
   /* map the camera position into the tile indices */
   startTileX =
-    (cameraX / PARALLAX_BACK_FACTOR / TILE_WIDTH) % PARALLAX_GRID_WIDTH | 0;
+    (cameraX / parallaxFactor / TILE_WIDTH) % PARALLAX_GRID_WIDTH | 0;
   startTileY =
-    (cameraY / PARALLAX_BACK_FACTOR / TILE_HEIGHT) % PARALLAX_GRID_HEIGHT | 0;
+    (cameraY / parallaxFactor / TILE_HEIGHT) % PARALLAX_GRID_HEIGHT | 0;
 
-  startDrawX = -((cameraX / PARALLAX_BACK_FACTOR) % TILE_WIDTH) | 0;
-  startDrawY = -((cameraY / PARALLAX_BACK_FACTOR) % TILE_HEIGHT) | 0;
+  startDrawX = -((cameraX / parallaxFactor) % TILE_WIDTH) | 0;
+  startDrawY = -((cameraY / parallaxFactor) % TILE_HEIGHT) | 0;
 
   tileY = startTileY;
   drawY = startDrawY;
@@ -72,7 +75,7 @@ export const drawBackground = (
     drawX = startDrawX;
     while (drawX < g.SCREEN_WIDTH) {
       const srcRect: Rect = {
-        x: TILE_WIDTH * backTiles[tileX][tileY],
+        x: TILE_WIDTH * tileGrid[tileX][tileY],
         y: 0,
         w: TILE_WIDTH,
         h: TILE_HEIGHT,
@@ -83,7 +86,7 @@ export const drawBackground = (
         w: TILE_WIDTH,
         h: TILE_HEIGHT,
       };
-      SURF.blitSurface(backStarTiles, srcRect, dest, destRect);
+      SURF.blitSurface(tileSurface, srcRect, dest, destRect);
       tileX++;
       tileX %= PARALLAX_GRID_WIDTH;
       drawX += TILE_WIDTH;
@@ -94,51 +97,18 @@ export const drawBackground = (
   }
 };
 
+export const drawBackground = (
+  dest: Surface,
+  cameraX: number,
+  cameraY: number
+) => {
+  drawTileLayer(dest, cameraX, cameraY, PARALLAX_BACK_FACTOR, backTiles, backStarTiles);
+};
+
 export const drawParallax = (
   dest: Surface,
   cameraX: number,
   cameraY: number
 ): void => {
-  let drawX: number, drawY: number; /* drawing position on screen */
-  let startDrawX: number, startDrawY: number;
-  let tileX: number, tileY: number; /* indices in the backTiles array */
-  let startTileX: number, startTileY: number;
-
-  /* map the camera position into the tile indices */
-  startTileX =
-    (cameraX / PARALLAX_FRONT_FACTOR / TILE_WIDTH) % PARALLAX_GRID_WIDTH | 0;
-  startTileY =
-    (cameraY / PARALLAX_FRONT_FACTOR / TILE_HEIGHT) % PARALLAX_GRID_HEIGHT | 0;
-
-  startDrawX = -((cameraX / PARALLAX_FRONT_FACTOR) % TILE_WIDTH) | 0;
-  startDrawY = -((cameraY / PARALLAX_FRONT_FACTOR) % TILE_HEIGHT) | 0;
-
-  tileY = startTileY;
-  drawY = startDrawY;
-
-  while (drawY < g.SCREEN_HEIGHT) {
-    tileX = startTileX;
-    drawX = startDrawX;
-    while (drawX < g.SCREEN_WIDTH) {
-      const srcRect: Rect = {
-        x: TILE_WIDTH * frontTiles[tileX][tileY],
-        y: 0,
-        w: TILE_WIDTH,
-        h: TILE_HEIGHT,
-      };
-      const destRect: Rect = {
-        x: drawX,
-        y: drawY,
-        w: TILE_WIDTH,
-        h: TILE_HEIGHT,
-      };
-      SURF.blitSurface(frontStarTiles, srcRect, dest, destRect);
-      tileX++;
-      tileX %= PARALLAX_GRID_WIDTH;
-      drawX += TILE_WIDTH;
-    }
-    tileY++;
-    tileY %= PARALLAX_GRID_HEIGHT;
-    drawY += TILE_HEIGHT;
-  }
+  drawTileLayer(dest, cameraX, cameraY, PARALLAX_FRONT_FACTOR, frontTiles, frontStarTiles);
 };

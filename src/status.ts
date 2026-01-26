@@ -231,70 +231,45 @@ export const setStatusMessage = (msg: string) => {
   scrollerMsg = msg;
 };
 
+/* Sets a shield bar on an LED display based on shield percentage (0-100). */
+const setShieldBar = (display: LED_Display, shields: number): void => {
+  const pixels = display.led_surface.pixels;
+  for (let i = 0; i < 12; i++) {
+    pixels[i] = i < (shields * 12) / 100 ? 1 : 0;
+  }
+};
+
+/* Sets a score display using two 5x5 font digits. */
+const setScoreDisplay = (
+  display: LED_Display,
+  score: number,
+  x0: number,
+  x1: number
+): void => {
+  const buf = score.toString().padStart(2, "0");
+  drawChar5x5(display.led_surface, buf.charCodeAt(0), 1, x0, 0);
+  drawChar5x5(display.led_surface, buf.charCodeAt(1), 1, x1, 0);
+};
+
 export const setPlayerStatusInfo = (
   score: number = 0,
   shields: number = 0,
   charge: number = 0
 ) => {
-  const buf: string = score.toString().padStart(2, "0");
-  let pixels: Uint8ClampedArray;
-  let i: number;
-
-  drawChar5x5(playerScore.led_surface, buf.charCodeAt(0), 1, 0, 0);
-  drawChar5x5(playerScore.led_surface, buf.charCodeAt(1), 1, 6, 0);
-
-  // set the shield bar
-  // SDL_LockSurface(playerShields.led_surface)
-  pixels = playerShields.led_surface.pixels;
-
-  for (i = 0; i < 12; i++) {
-    if (i < (shields * 12) / 100) {
-      pixels[i] = 1;
-    } else {
-      pixels[i] = 0;
-    }
-  }
-  // SURF.unlockSurface(playerShields.led_surface);
+  setScoreDisplay(playerScore, score, 0, 6);
+  setShieldBar(playerShields, shields);
 
   /* set the phaser charge bar */
-  // SURF.lockSurface(playerCharge.led_surface);
-
-  pixels = playerCharge.led_surface.pixels;
-  for (i = 0; i < 80; i++) {
-    if (i < (charge * 80) / g.PHASER_CHARGE_MAX) {
-      pixels[i] = 1;
-    } else {
-      pixels[i] = 0;
-    }
+  const pixels = playerCharge.led_surface.pixels;
+  for (let i = 0; i < 80; i++) {
+    pixels[i] = i < (charge * 80) / g.PHASER_CHARGE_MAX ? 1 : 0;
   }
-
-  // SURF.unlocksurface(playerCharge.led_surface)
 };
 
-/* Sets the player or opponent's on-screen status
-information. */
+/* Sets the opponent's on-screen status information. */
 export const setOpponentStatusInfo = (score: number, shields: number) => {
-  const buf: string = score.toString().padStart(2, "0");
-  let pixels: Uint8ClampedArray;
-  let i: number;
-
-  /* set the score counter */
-  // sprintf(buf, "%2i", score);
-  // console.log(score);
-  drawChar5x5(opponentScore.led_surface, buf.charCodeAt(0), 1, 1, 0);
-  drawChar5x5(opponentScore.led_surface, buf.charCodeAt(1), 1, 7, 0);
-
-  /* set shield as bar */
-  // SURF.locksurface(opponentShields.ledsurface)
-  pixels = opponentShields.led_surface.pixels;
-  for (i = 0; i < 12; i++) {
-    if (i < (shields * 12) / 100) {
-      pixels[i] = 1;
-    } else {
-      pixels[i] = 0;
-    }
-  }
-  // SURF.unlocksuface(opponentShields.ledsurface)
+  setScoreDisplay(opponentScore, score, 1, 7);
+  setShieldBar(opponentShields, shields);
 };
 
 /* Updates and redraws the status display. */

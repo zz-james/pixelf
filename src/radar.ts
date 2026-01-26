@@ -69,7 +69,7 @@ export const cleanUpRadarDisplay = () => {
 };
 
 const distance = (x: number, y: number, v: number, w: number) => {
-  return Math.sqrt((Math.abs(x - v) ^ 2) + (Math.abs(y - w) ^ 2));
+  return Math.sqrt((x - v) * (x - v) + (y - w) * (y - w));
 };
 
 export const updateRadarDisplay = (

@@ -69,6 +69,12 @@ let cameraY: number;
 let screen: Surface; /* global for convenience */
 let timeScale: number = 0;
 
+/* Game state - used across update functions */
+let quit: boolean = false;
+let awaitingRespawn: boolean = false;
+let respawnTimer: number = -1;
+let invincibleTimer: number = -1;
+
 /**
  * Drawing
  */
@@ -183,30 +189,29 @@ const chargePhasers = (p: Player_t): void => {
   if (p.charge > g.PHASER_CHARGE_MAX) p.charge = g.PHASER_CHARGE_MAX;
 };
 
-/* Show a small explosion due to phaser damage. */
-const showPhaserHit = (p: Player_t): void => {
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 10, 30);
-  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 5, 10);
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 2, 5);
-};
-
-/* Show a large ship explosion. */
-const showShipExplosion = (p: Player_t): void => {
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, 15, 300);
-  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, 10, 100);
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, 5, 50);
+/* Show a particle explosion at the player's position.
+   Small values for a phaser hit, large values for a ship destruction. */
+const showExplosion = (
+  p: Player_t,
+  whiteCount: number, whiteSpread: number,
+  redCount: number, redSpread: number,
+  yellowCount: number, yellowSpread: number
+): void => {
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, whiteCount, whiteSpread);
+  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, redCount, redSpread);
+  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, yellowCount, yellowSpread);
 };
 
 /* destroy the opponent */
 const killOpponent = (): void => {
   player.score++;
-  showShipExplosion(opponent);
+  showExplosion(opponent, 15, 300, 10, 100, 5, 50);
   initPlayer(opponent, PlayerType.DEVIL);
 };
 
 /* destory the local player */
 const killPlayer = (): void => {
-  showShipExplosion(player);
+  showExplosion(player, 15, 300, 10, 100, 5, 50);
   player.velocity = 0;
   player.accel = 0;
   player.state = PlayerState.DEAD;
@@ -221,248 +226,193 @@ const damageOpponent = (): void => {
   }
 };
 
+/* Updates respawn and invincibility timers. */
+const updateTimers = (): void => {
+  if (respawnTimer >= 0) {
+    respawnTimer++;
+
+    if (respawnTimer >= g.RESPAWN_TIME / timeScale) {
+      respawnTimer = -1;
+      initPlayer(player, PlayerType.WARRIOR);
+      setStatusMessage("GOOD LUCK, WARRIOR!!");
+      player.state = PlayerState.INVINCIBLE;
+      invincibleTimer++;
+    }
+  }
+
+  if (respawnTimer == -1 && invincibleTimer >= 0) {
+    invincibleTimer++;
+    if (invincibleTimer >= g.INVINCIBLE_TIME / timeScale) {
+      invincibleTimer = -1;
+      player.state = PlayerState.EVADE;
+    }
+  }
+};
+
+/* Handles keyboard input for player movement and firing.
+   Disabled during respawn. */
+const handleInput = (keystate: Record<string, boolean>): void => {
+  if (respawnTimer !== -1) return;
+
+  if (keystate["q"]) {
+    quit = true;
+  }
+
+  let turn = 0;
+  if (keystate["ArrowLeft"]) turn += 10;
+  if (keystate["ArrowRight"]) turn -= 10;
+
+  player.accel = 0;
+  if (keystate["ArrowUp"]) player.accel = g.PLAYER_FORWARD_THRUST;
+  if (keystate["ArrowDown"]) player.accel = g.PLAYER_REVERSE_THRUST;
+
+  /* Spacebar fires phasers. */
+  if (keystate[" "]) {
+    if (canPlayerFire(player)) {
+      firePhasers(player);
+
+      if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
+        showExplosion(opponent, 10, 30, 5, 10, 2, 5);
+        damageOpponent();
+        if (opponent.shields <= 0) {
+          awaitingRespawn = true;
+        }
+      }
+    }
+  }
+
+  /* Turn. */
+  player.angle += (turn * timeScale) | 0;
+  if (player.angle < 0) player.angle += 360;
+  if (player.angle >= 360) player.angle -= 360;
+
+  /* Check for player death. */
+  if (player.shields <= 0) {
+    console.log("Local player has been destroyed.\n");
+    killPlayer();
+    respawnTimer = 0;
+  }
+};
+
+/* Checks opponent phaser hits against the player. */
+const checkOpponentCombat = (): void => {
+  if (opponent.firing) {
+    if (checkPhaserHit(opponent, player)) {
+      if (player.state !== PlayerState.INVINCIBLE) {
+        showExplosion(player, 10, 30, 5, 10, 2, 5);
+        player.shields -= PHASER_DAMAGE_DEVIL;
+
+        if (respawnTimer < 0 && player.shields <= 0) {
+          console.log("kill player");
+          killPlayer();
+          respawnTimer = 0;
+        }
+      }
+    }
+  }
+};
+
+/* Updates camera position to follow the player, clamped to world bounds. */
+const updateCamera = (): void => {
+  cameraX = (player.worldX - g.SCREEN_WIDTH / 2) | 0;
+  cameraY = (player.worldY - g.SCREEN_HEIGHT / 2) | 0;
+
+  if (cameraX < 0) cameraX = 0;
+  if (cameraX >= g.WORLD_WIDTH - g.SCREEN_WIDTH)
+    cameraX = g.WORLD_WIDTH - g.SCREEN_WIDTH - 1;
+  if (cameraY < 0) cameraY = 0;
+  if (cameraY >= g.WORLD_HEIGHT - g.SCREEN_HEIGHT)
+    cameraY = g.WORLD_HEIGHT - g.SCREEN_HEIGHT - 1;
+};
+
+/* Draws everything to the screen buffer and flips to canvas. */
+const renderFrame = (): void => {
+  drawBackground(screen, cameraX, cameraY);
+  drawParallax(screen, cameraX, cameraY);
+  drawParticles(screen, cameraX, cameraY);
+
+  if (opponent.firing) drawPhaserBeam(opponent, screen, cameraX, cameraY);
+  if (player.firing) drawPhaserBeam(player, screen, cameraX, cameraY);
+
+  if (respawnTimer < 0) drawPlayer(player);
+  if (!awaitingRespawn) drawPlayer(opponent);
+
+  updateStatusDisplay(screen);
+  updateRadarDisplay(
+    screen,
+    player.worldX,
+    player.worldY,
+    opponent.worldX,
+    opponent.worldY
+  );
+
+  SURF.blitToCanvas();
+};
+
 /**
  * !! main game loop !!
  */
 const playGame = (): void => {
-  let keystate: Record<string, boolean>;
-  let quit: boolean = false;
-  let turn: number;
   let prevTicks: number = 0;
   let curTicks: number = 0;
-  let awaitingRespawn: boolean = false;
-
-  /* framerate counter variables */
-  let startTime: number;
-  let endTime: number;
+  let goOn: number = 0;
   let framesDrawn: number = 0;
+  const startTime = Date.now();
 
-  /* respawn times */
-  let respawnTimer: number = -1;
-
-  /* invincible timer */
-  let invincibleTimer: number = -1;
-
-  prevTicks = Date.now();
-  startTime = Date.now();
-
-  /* reset the score timers */
+  quit = false;
+  awaitingRespawn = false;
+  respawnTimer = -1;
+  invincibleTimer = -1;
   player.score = 0;
   opponent.score = 0;
 
-  let goOn: number = 0;
+  prevTicks = Date.now();
 
-  /* start the game! */
   const whileLoop = () => {
-    /* determine how many milliseconds have passed since 
-       the last frame, and update our motion scaling */
     prevTicks = curTicks;
     curTicks = Date.now();
-
-    if (goOn !== 4) {
-      timeScale = (curTicks - prevTicks) / 30;
-    }
+    if (goOn !== 4) timeScale = (curTicks - prevTicks) / 30;
     goOn = 0;
 
-    /* grab a snapshot of keyboard */
-    keystate = KEY.getKeyState();
+    const keystate = KEY.getKeyState();
 
-    /* Update phasers. */
+    /* Update phaser firing timers */
     player.firing -= timeScale;
     if (player.firing < 0) player.firing = 0;
-
     opponent.firing -= timeScale;
     if (opponent.firing < 0) opponent.firing = 0;
 
     chargePhasers(player);
-
-    /* If the player is destroyed, the respawn timer will
-           start counting. During this time the controls are disabled
-           and explosion sequence occurs. */
-    if (respawnTimer >= 0) {
-      respawnTimer++;
-
-      if (respawnTimer >= g.RESPAWN_TIME / timeScale) {
-        respawnTimer = -1;
-        initPlayer(player, PlayerType.WARRIOR);
-        setStatusMessage("GOOD LUCK, WARRIOR!!");
-
-        /* Go to invincible state */
-        player.state = PlayerState.INVINCIBLE;
-        invincibleTimer++;
-      }
-    }
-
-    /* Respond to input events, but not if we're in a respawn. */
-    if (respawnTimer == -1) {
-      /* Small period of time invincible */
-      if (invincibleTimer >= 0) {
-        invincibleTimer++;
-        if (invincibleTimer >= g.INVINCIBLE_TIME / timeScale) {
-          invincibleTimer = -1;
-          /* Back to normal */
-          player.state = PlayerState.EVADE;
-        }
-      }
-
-      if (keystate["q"]) {
-        quit = true;
-      }
-
-      turn = 0;
-
-      if (turn == 0) {
-        if (keystate["ArrowLeft"]) {
-          turn += 10;
-        }
-        if (keystate["ArrowRight"]) {
-          turn -= 10;
-        }
-      }
-
-      // forward and back arrow keys activate thrusters */
-      player.accel = 0;
-      if (keystate["ArrowUp"]) {
-        player.accel = g.PLAYER_FORWARD_THRUST;
-      }
-      if (keystate["ArrowDown"]) {
-        player.accel = g.PLAYER_REVERSE_THRUST;
-      }
-
-      /* Spacebar fires phasers. */
-      if (keystate[" "]) {
-        if (canPlayerFire(player)) {
-          firePhasers(player);
-
-          /* If it's a hit, either notify the opponent or exact the damage. Create a satisfying particle burst. */
-          if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
-            showPhaserHit(opponent);
-            damageOpponent();
-            /* if that killed the opponent, set the
-                      "awaiting respawn" state to prevent
-                      multiple kills */
-            if (opponent.shields <= 0) {
-              awaitingRespawn = true;
-            }
-          }
-        }
-      }
-
-      /* Turn. */
-      player.angle += (turn * timeScale) | 0;
-      if (player.angle < 0) player.angle += 360;
-      if (player.angle >= 360) player.angle -= 360;
-
-      /* If this is a network game, the remote player will
-               tell us if we've died. Otherwise we have to check
-               for failed shields. */
-      if (player.shields <= 0) {
-        console.log("Local player has been destroyed.\n");
-        // localPlayerDead = 0;
-
-        /* Kaboom! */
-        killPlayer();
-
-        /* Respawn. */
-        respawnTimer = 0;
-      }
-    }
+    updateTimers();
+    handleInput(keystate);
 
     runGameScript(player, opponent);
-
-    /* Check for phaser hits against the player. */
-    if (opponent.firing) {
-      if (checkPhaserHit(opponent, player)) {
-        if (player.state !== PlayerState.INVINCIBLE) {
-          showPhaserHit(player);
-          player.shields -= PHASER_DAMAGE_DEVIL;
-
-          /* Did that destroy the player? */
-          if (respawnTimer < 0 && player.shields <= 0) {
-            console.log("kill player");
-            killPlayer();
-            respawnTimer = 0;
-          }
-        }
-      }
-    }
+    checkOpponentCombat();
 
     chargePhasers(opponent);
     updatePlayer(opponent);
-    // }
-
-    /* Update the player's position. */
     updatePlayer(player);
 
     setPlayerStatusInfo(player.score, player.shields, player.charge);
     setOpponentStatusInfo(opponent.score, opponent.shields);
 
-    /* make the camera follow the player (but impose limits) */
-    cameraX = (player.worldX - g.SCREEN_WIDTH / 2) | 0;
-    cameraY = (player.worldY - g.SCREEN_HEIGHT / 2) | 0;
-
-    if (cameraX < 0) cameraX = 0;
-    if (cameraX >= g.WORLD_WIDTH - g.SCREEN_WIDTH)
-      cameraX = g.WORLD_WIDTH - g.SCREEN_WIDTH - 1;
-    if (cameraY < 0) cameraY = 0;
-    if (cameraY >= g.WORLD_HEIGHT - g.SCREEN_HEIGHT)
-      cameraY = g.WORLD_HEIGHT - g.SCREEN_HEIGHT - 1;
-
+    updateCamera();
     updateParticles();
+    renderFrame();
 
-    // redraw everything
-    drawBackground(screen, cameraX, cameraY);
-    drawParallax(screen, cameraX, cameraY);
-    drawParticles(screen, cameraX, cameraY);
-
-    if (opponent.firing) {
-      drawPhaserBeam(opponent, screen, cameraX, cameraY);
-    }
-    if (player.firing) {
-      drawPhaserBeam(player, screen, cameraX, cameraY);
-    }
-
-    if (respawnTimer < 0) {
-      drawPlayer(player);
-    }
-
-    if (!awaitingRespawn) {
-      drawPlayer(opponent);
-    }
-
-    updateStatusDisplay(screen);
-
-    updateRadarDisplay(
-      screen,
-      player.worldX,
-      player.worldY,
-      opponent.worldX,
-      opponent.worldY
-    );
-
-    // flip to canvas here
-    SURF.blitToCanvas();
-
-    if (!quit) {
-      window.requestAnimationFrame(whileLoop);
-    }
-
+    if (!quit) window.requestAnimationFrame(whileLoop);
     framesDrawn++;
   };
 
   whileLoop();
 
-  endTime = new Date().getTime();
-
+  let endTime = new Date().getTime();
   if (startTime == endTime) endTime++;
-
   console.log(
     `Drew ${framesDrawn} frames in ${
       endTime - startTime
     } seconds, for a framerate of ${framesDrawn / (endTime - startTime)} fps`
   );
-
-  // end here
 };
 
 export const main = async (scrn: SURF.Surface) => {

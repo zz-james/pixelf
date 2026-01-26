@@ -123,9 +123,9 @@ const playComputer = (player: Player_t, computer: Player_t) => {
 
 const getDistanceToTarget = (computer: Player_t, target: Coord) => {
   let xdiff = Math.abs(computer.worldX - target.x);
-  let ydiff = Math.abs(computer.worldX - target.y);
+  let ydiff = Math.abs(computer.worldY - target.y);
 
-  return Math.sqrt((xdiff ^ 2) + (ydiff ^ 2));
+  return Math.sqrt(xdiff * xdiff + ydiff * ydiff);
 };
 
 const getAngleToTarget = (computer: Player_t, target: Coord) => {
