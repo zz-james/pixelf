@@ -1,6 +1,7 @@
 import * as g from "./globals";
 import * as SURF from "./pixelf/surfaces";
 import { main } from "./warrior";
+import { initTouchControls } from "./touch-controls";
 
 import "./style.css";
 
@@ -22,5 +23,7 @@ if (
 }
 
 const screen = SURF.getMainSurface(); // global reference to screen for blitting
+
+initTouchControls(document.getElementById("game-container")!);
 
 main(screen);
