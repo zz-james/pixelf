@@ -30,7 +30,9 @@ import {
   PHASER_DAMAGE_DEVIL,
 } from "./globals";
 
-let player: Player_t = {
+import { getJoystickAngle, getJoystickDistance } from "./touch-controls";
+
+const player: Player_t = {
   type: PlayerType.WARRIOR,
   state: PlayerState.ATTACK,
   angle: 0,
@@ -46,7 +48,7 @@ let player: Player_t = {
   score: 0,
   hit: 0,
 }; // the player at the computer
-let opponent: Player_t = {
+const opponent: Player_t = {
   type: PlayerType.DEVIL,
   state: PlayerState.EVADE,
   angle: 0,
@@ -193,13 +195,32 @@ const chargePhasers = (p: Player_t): void => {
    Small values for a phaser hit, large values for a ship destruction. */
 const showExplosion = (
   p: Player_t,
-  whiteCount: number, whiteSpread: number,
-  redCount: number, redSpread: number,
-  yellowCount: number, yellowSpread: number
+  whiteCount: number,
+  whiteSpread: number,
+  redCount: number,
+  redSpread: number,
+  yellowCount: number,
+  yellowSpread: number
 ): void => {
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 255, whiteCount, whiteSpread);
+  createParticleExplosion(
+    p.worldX,
+    p.worldY,
+    255,
+    255,
+    255,
+    whiteCount,
+    whiteSpread
+  );
   createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, redCount, redSpread);
-  createParticleExplosion(p.worldX, p.worldY, 255, 255, 0, yellowCount, yellowSpread);
+  createParticleExplosion(
+    p.worldX,
+    p.worldY,
+    255,
+    255,
+    0,
+    yellowCount,
+    yellowSpread
+  );
 };
 
 /* destroy the opponent */
@@ -258,6 +279,30 @@ const handleInput = (keystate: Record<string, boolean>): void => {
     quit = true;
   }
 
+  const joystickAngle = getJoystickAngle();
+
+  const joystickDistance = getJoystickDistance();
+  console.log(joystickDistance);
+  if (joystickDistance) {
+    keystate["ArrowUp"] = true;
+    if (joystickAngle !== undefined) {
+      if (joystickAngle - player.angle < 180) {
+        keystate["ArrowLeft"] = true;
+        keystate["ArrowRight"] = false;
+      } else {
+        keystate["ArrowLeft"] = false;
+        keystate["ArrowRight"] = true;
+      }
+      // calculate the difference between the joystick angle and the player angle
+    }
+  } else {
+    keystate["ArrowLeft"] = false;
+    keystate["ArrowRight"] = false;
+    keystate["ArrowUp"] = false;
+  }
+
+  console.log(keystate);
+
   let turn = 0;
   if (keystate["ArrowLeft"]) turn += 10;
   if (keystate["ArrowRight"]) turn -= 10;
@@ -285,7 +330,6 @@ const handleInput = (keystate: Record<string, boolean>): void => {
   player.angle += (turn * timeScale) | 0;
   if (player.angle < 0) player.angle += 360;
   if (player.angle >= 360) player.angle -= 360;
-
   /* Check for player death. */
   if (player.shields <= 0) {
     console.log("Local player has been destroyed.\n");
@@ -355,7 +399,6 @@ const renderFrame = (): void => {
 const playGame = (): void => {
   let prevTicks: number = 0;
   let curTicks: number = 0;
-  let goOn: number = 0;
   let framesDrawn: number = 0;
   const startTime = Date.now();
 
@@ -372,8 +415,7 @@ const playGame = (): void => {
   const whileLoop = () => {
     prevTicks = curTicks;
     curTicks = Date.now();
-    if (goOn !== 4) timeScale = (curTicks - prevTicks) / 30;
-    goOn = 0;
+    timeScale = (curTicks - prevTicks) / 30;
 
     const keystate = KEY.getKeyState();
 

@@ -14,31 +14,39 @@ let fireButton: HTMLElement;
 let baseCenterX = 0;
 let baseCenterY = 0;
 
-const updateKeysFromJoystick = (dx: number, dy: number): void => {
-  if (dx < -DEAD_ZONE) {
-    setKeyPressed("ArrowLeft");
-    clearKeyPressed("ArrowRight");
-  } else if (dx > DEAD_ZONE) {
-    setKeyPressed("ArrowRight");
-    clearKeyPressed("ArrowLeft");
-  } else {
-    clearKeyPressed("ArrowLeft");
-    clearKeyPressed("ArrowRight");
-  }
+let angle: number | undefined = undefined;
+let speed = 0;
 
-  if (dy < -DEAD_ZONE) {
-    setKeyPressed("ArrowUp");
-    clearKeyPressed("ArrowDown");
-  } else if (dy > DEAD_ZONE) {
-    setKeyPressed("ArrowDown");
-    clearKeyPressed("ArrowUp");
-  } else {
-    clearKeyPressed("ArrowUp");
-    clearKeyPressed("ArrowDown");
-  }
+const updateKeysFromJoystick = (dx: number, dy: number): void => {
+  angle = Math.atan2(-dy, dx) * (180 / Math.PI);
+  if (angle < 0) angle += 360;
+  speed = Math.sqrt(dx * dx + dy * dy);
+  // if (dx < -DEAD_ZONE) {
+  //   setKeyPressed("ArrowLeft");
+  //   clearKeyPressed("ArrowRight");
+  // } else if (dx > DEAD_ZONE) {
+  //   setKeyPressed("ArrowRight");
+  //   clearKeyPressed("ArrowLeft");
+  // } else {
+  //   clearKeyPressed("ArrowLeft");
+  //   clearKeyPressed("ArrowRight");
+  // }
+
+  // if (dy < -DEAD_ZONE) {
+  //   setKeyPressed("ArrowUp");
+  //   clearKeyPressed("ArrowDown");
+  // } else if (dy > DEAD_ZONE) {
+  //   setKeyPressed("ArrowDown");
+  //   clearKeyPressed("ArrowUp");
+  // } else {
+  //   clearKeyPressed("ArrowUp");
+  //   clearKeyPressed("ArrowDown");
+  // }
 };
 
 const clearJoystickKeys = (): void => {
+  angle = 0;
+  speed = 0;
   clearKeyPressed("ArrowLeft");
   clearKeyPressed("ArrowRight");
   clearKeyPressed("ArrowUp");
@@ -56,6 +64,14 @@ const clampAndPosition = (dx: number, dy: number): void => {
 
   joystickThumb.style.left = `${JOYSTICK_RADIUS + dx - THUMB_RADIUS}px`;
   joystickThumb.style.top = `${JOYSTICK_RADIUS + dy - THUMB_RADIUS}px`;
+};
+
+export const getJoystickAngle = (): number | undefined => {
+  return angle;
+};
+
+export const getJoystickDistance = (): number => {
+  return speed;
 };
 
 const resetThumb = (): void => {
@@ -164,10 +180,18 @@ const createDOM = (container: HTMLElement): void => {
   container.appendChild(touchControls);
 
   // Attach event listeners
-  joystickZone.addEventListener("touchstart", onJoystickTouchStart, { passive: false });
-  joystickZone.addEventListener("touchmove", onJoystickTouchMove, { passive: false });
-  joystickZone.addEventListener("touchend", onJoystickTouchEnd, { passive: false });
-  joystickZone.addEventListener("touchcancel", onJoystickTouchEnd, { passive: false });
+  joystickZone.addEventListener("touchstart", onJoystickTouchStart, {
+    passive: false,
+  });
+  joystickZone.addEventListener("touchmove", onJoystickTouchMove, {
+    passive: false,
+  });
+  joystickZone.addEventListener("touchend", onJoystickTouchEnd, {
+    passive: false,
+  });
+  joystickZone.addEventListener("touchcancel", onJoystickTouchEnd, {
+    passive: false,
+  });
 
   fireZone.addEventListener("touchstart", onFireTouchStart, { passive: false });
   fireZone.addEventListener("touchend", onFireTouchEnd, { passive: false });
