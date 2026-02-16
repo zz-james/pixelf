@@ -283,51 +283,31 @@ const handleInput = (keystate: Record<string, boolean>): void => {
 
   const joystickDistance = getJoystickDistance() | 0;
 
-  // if (joystickDistance) {
-  //   keystate["ArrowUp"] = true;
-  // if (joystickAngle !== undefined) {
-  let angleDiff = 0; //= (joystickAngle - player.angle) | 0;
-  //console.log({ joystickAngle, player: player.angle, angleDiff });
-  // let turn = undefined;
+  if (joystickDistance) {
+    keystate["ArrowUp"] = true;
+  }
 
   if (joystickAngle) {
     if (joystickAngle > player.angle) {
       if (joystickAngle - player.angle > 180) {
-        // turn = "clockwise";
-        player.angle--;
-        angleDiff = 360 - joystickAngle + player.angle;
+        // player.angle--;
+        player.angle -= (360 - joystickAngle + player.angle) / 10;
+        // angleDiff = 360 - joystickAngle + player.angle;
       } else {
-        // turn = "anti-clockwise";
-        player.angle++;
-        angleDiff = joystickAngle - player.angle; // use size of anglediff to control speed of turn
+        // angleDiff = () | 0; // use size of anglediff to control speed of turn
+        player.angle += (joystickAngle - player.angle) / 10;
       }
     } else {
-      console.log("brah");
       if (player.angle - joystickAngle > 180) {
-        player.angle++;
-        angleDiff = 360 - player.angle + joystickAngle;
+        // player.angle++;
+        // angleDiff = 360 - player.angle + joystickAngle;
+        player.angle += (joystickAngle - player.angle) / 10; // use size of anglediff to control speed of turn
       } else {
-        console.log("clockwise");
-        player.angle--;
-        angleDiff = player.angle - joystickAngle;
+        player.angle -= (player.angle - joystickAngle) / 10;
+        // angleDiff = player.angle - joystickAngle;
       }
     }
   }
-
-  console.log(angleDiff);
-
-  // if (angleDiff !== 0) {
-  //   if (angleDiff < 180) {
-  //     player.angle++;
-  //   } else {
-  //     player.angle--;
-  //   }
-  // }
-  // calculate the difference between the joystick angle and the player angle
-  // }
-  // } else {
-  //   keystate["ArrowUp"] = false;
-  // }
 
   let turn = 0;
   if (keystate["ArrowLeft"]) turn += 10;

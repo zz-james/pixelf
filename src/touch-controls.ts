@@ -18,30 +18,9 @@ let angle: number | undefined = undefined;
 let speed = 0;
 
 const updateKeysFromJoystick = (dx: number, dy: number): void => {
-  angle = Math.atan2(-dy, dx) * (180 / Math.PI);
+  angle = (Math.atan2(-dy, dx) * (180 / Math.PI)) | 0;
   if (angle < 0) angle += 360;
   speed = Math.sqrt(dx * dx + dy * dy);
-  // if (dx < -DEAD_ZONE) {
-  //   setKeyPressed("ArrowLeft");
-  //   clearKeyPressed("ArrowRight");
-  // } else if (dx > DEAD_ZONE) {
-  //   setKeyPressed("ArrowRight");
-  //   clearKeyPressed("ArrowLeft");
-  // } else {
-  //   clearKeyPressed("ArrowLeft");
-  //   clearKeyPressed("ArrowRight");
-  // }
-
-  // if (dy < -DEAD_ZONE) {
-  //   setKeyPressed("ArrowUp");
-  //   clearKeyPressed("ArrowDown");
-  // } else if (dy > DEAD_ZONE) {
-  //   setKeyPressed("ArrowDown");
-  //   clearKeyPressed("ArrowUp");
-  // } else {
-  //   clearKeyPressed("ArrowUp");
-  //   clearKeyPressed("ArrowDown");
-  // }
 };
 
 const clearJoystickKeys = (): void => {
