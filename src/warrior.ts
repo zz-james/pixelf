@@ -281,27 +281,53 @@ const handleInput = (keystate: Record<string, boolean>): void => {
 
   const joystickAngle = getJoystickAngle();
 
-  const joystickDistance = getJoystickDistance();
-  console.log(joystickDistance);
-  if (joystickDistance) {
-    keystate["ArrowUp"] = true;
-    if (joystickAngle !== undefined) {
-      if (joystickAngle - player.angle < 180) {
-        keystate["ArrowLeft"] = true;
-        keystate["ArrowRight"] = false;
+  const joystickDistance = getJoystickDistance() | 0;
+
+  // if (joystickDistance) {
+  //   keystate["ArrowUp"] = true;
+  // if (joystickAngle !== undefined) {
+  let angleDiff = 0; //= (joystickAngle - player.angle) | 0;
+  //console.log({ joystickAngle, player: player.angle, angleDiff });
+  // let turn = undefined;
+
+  if (joystickAngle) {
+    if (joystickAngle > player.angle) {
+      if (joystickAngle - player.angle > 180) {
+        // turn = "clockwise";
+        player.angle--;
+        angleDiff = 360 - joystickAngle + player.angle;
       } else {
-        keystate["ArrowLeft"] = false;
-        keystate["ArrowRight"] = true;
+        // turn = "anti-clockwise";
+        player.angle++;
+        angleDiff = joystickAngle - player.angle; // use size of anglediff to control speed of turn
       }
-      // calculate the difference between the joystick angle and the player angle
+    } else {
+      console.log("brah");
+      if (player.angle - joystickAngle > 180) {
+        player.angle++;
+        angleDiff = 360 - player.angle + joystickAngle;
+      } else {
+        console.log("clockwise");
+        player.angle--;
+        angleDiff = player.angle - joystickAngle;
+      }
     }
-  } else {
-    keystate["ArrowLeft"] = false;
-    keystate["ArrowRight"] = false;
-    keystate["ArrowUp"] = false;
   }
 
-  console.log(keystate);
+  console.log(angleDiff);
+
+  // if (angleDiff !== 0) {
+  //   if (angleDiff < 180) {
+  //     player.angle++;
+  //   } else {
+  //     player.angle--;
+  //   }
+  // }
+  // calculate the difference between the joystick angle and the player angle
+  // }
+  // } else {
+  //   keystate["ArrowUp"] = false;
+  // }
 
   let turn = 0;
   if (keystate["ArrowLeft"]) turn += 10;
@@ -344,7 +370,7 @@ const checkOpponentCombat = (): void => {
     if (checkPhaserHit(opponent, player)) {
       if (player.state !== PlayerState.INVINCIBLE) {
         showExplosion(player, 10, 30, 5, 10, 2, 5);
-        player.shields -= PHASER_DAMAGE_DEVIL;
+        // player.shields -= PHASER_DAMAGE_DEVIL;
 
         if (respawnTimer < 0 && player.shields <= 0) {
           console.log("kill player");
