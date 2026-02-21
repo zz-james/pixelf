@@ -287,26 +287,9 @@ const handleInput = (keystate: Record<string, boolean>): void => {
     keystate["ArrowUp"] = true;
   }
 
-  if (joystickAngle) {
-    if (joystickAngle > player.angle) {
-      if (joystickAngle - player.angle > 180) {
-        // player.angle--;
-        player.angle -= (360 - joystickAngle + player.angle) / 10;
-        // angleDiff = 360 - joystickAngle + player.angle;
-      } else {
-        // angleDiff = () | 0; // use size of anglediff to control speed of turn
-        player.angle += (joystickAngle - player.angle) / 10;
-      }
-    } else {
-      if (player.angle - joystickAngle > 180) {
-        // player.angle++;
-        // angleDiff = 360 - player.angle + joystickAngle;
-        player.angle += (joystickAngle - player.angle) / 10; // use size of anglediff to control speed of turn
-      } else {
-        player.angle -= (player.angle - joystickAngle) / 10;
-        // angleDiff = player.angle - joystickAngle;
-      }
-    }
+  if (joystickAngle !== undefined) {
+    const diff = ((joystickAngle - player.angle + 540) % 360) - 180;
+    player.angle = (((player.angle + diff / 10) % 360) + 360) % 360;
   }
 
   let turn = 0;
