@@ -281,15 +281,13 @@ const handleInput = (keystate: Record<string, boolean>): void => {
 
   const joystickAngle = getJoystickAngle();
 
-  const joystickDistance = getJoystickDistance() | 0;
+  const joystickDistance = getJoystickDistance();
 
   if (joystickDistance) {
-    keystate["ArrowUp"] = true;
-  }
-
-  if (joystickAngle !== undefined) {
-    const diff = ((joystickAngle - player.angle + 540) % 360) - 180;
-    player.angle = (((player.angle + diff / 10) % 360) + 360) % 360;
+    if (joystickAngle !== undefined) {
+      const diff = ((joystickAngle - player.angle + 540) % 360) - 180;
+      player.angle = (((player.angle + diff / 10) % 360) + 360) % 360;
+    }
   }
 
   let turn = 0;
@@ -297,6 +295,17 @@ const handleInput = (keystate: Record<string, boolean>): void => {
   if (keystate["ArrowRight"]) turn -= 10;
 
   player.accel = 0;
+
+  if (joystickDistance) {
+    player.accel = g.PLAYER_FORWARD_THRUST;
+  } else if (
+    joystickDistance !== undefined &&
+    !keystate["ArrowDown"] &&
+    !keystate["ArrowUp"]
+  ) {
+    player.velocity = 0;
+  }
+
   if (keystate["ArrowUp"]) player.accel = g.PLAYER_FORWARD_THRUST;
   if (keystate["ArrowDown"]) player.accel = g.PLAYER_REVERSE_THRUST;
 
@@ -333,7 +342,7 @@ const checkOpponentCombat = (): void => {
     if (checkPhaserHit(opponent, player)) {
       if (player.state !== PlayerState.INVINCIBLE) {
         showExplosion(player, 10, 30, 5, 10, 2, 5);
-        // player.shields -= PHASER_DAMAGE_DEVIL;
+        player.shields -= PHASER_DAMAGE_DEVIL;
 
         if (respawnTimer < 0 && player.shields <= 0) {
           console.log("kill player");

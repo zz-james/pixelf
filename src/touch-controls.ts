@@ -2,7 +2,7 @@ import { setKeyPressed, clearKeyPressed } from "./pixelf/keys";
 
 const JOYSTICK_RADIUS = 60;
 const THUMB_RADIUS = 25;
-const DEAD_ZONE = 15;
+// const DEAD_ZONE = 15;
 
 let joystickTouchId: number | null = null;
 let fireTouchId: number | null = null;
@@ -15,7 +15,7 @@ let baseCenterX = 0;
 let baseCenterY = 0;
 
 let angle: number | undefined = undefined;
-let speed = 0;
+let speed: number | undefined = undefined;
 
 const updateKeysFromJoystick = (dx: number, dy: number): void => {
   angle = (Math.atan2(-dy, dx) * (180 / Math.PI)) | 0;
@@ -49,7 +49,7 @@ export const getJoystickAngle = (): number | undefined => {
   return angle;
 };
 
-export const getJoystickDistance = (): number => {
+export const getJoystickDistance = (): number | undefined => {
   return speed;
 };
 
