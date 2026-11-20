@@ -92,14 +92,21 @@ export const drawLine32 = (
   // SURF.unlocksurface(surf)
 };
 
+/* The clip functions work in place on a line stored as [x0, y0, x1, y1] in a
+   Float64Array, so the clipped endpoints reach the caller and nothing is
+   allocated per call. They return false if no part of the line is visible,
+   in which case the array contents are undefined. */
+
 const clipLineAgainstVerticals = (
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
+  line: Float64Array,
   left: number,
   right: number
 ): boolean => {
+  const x0 = line[0];
+  const y0 = line[1];
+  const x1 = line[2];
+  const y1 = line[3];
+
   let a: number;
   let b: number;
   let c: number;
@@ -107,8 +114,9 @@ const clipLineAgainstVerticals = (
   let hspan: number;
   let vspan: number;
 
+  // handle completely vertical line
   if (x0 === x1) {
-    if (x0 > left || x0 > right) {
+    if (x0 < left || x0 > right) {
       return false;
     }
     return true;
@@ -156,24 +164,34 @@ const clipLineAgainstVerticals = (
     return false;
   }
 
-  // pass the clipped coordinates back to the caller
-  x0 = a;
-  y0 = b;
-  x1 = c;
-  y1 = d;
+  // pass the clipped coordinates back to the caller, keeping the original
+  // endpoint order so that (x0, y0) stays the end the line started from
+  if (x0 < x1) {
+    line[0] = a;
+    line[1] = b;
+    line[2] = c;
+    line[3] = d;
+  } else {
+    line[0] = c;
+    line[1] = d;
+    line[2] = a;
+    line[3] = b;
+  }
 
   // successful clip
   return true;
 };
 
 const clipLineAgainstHorizontals = (
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
+  line: Float64Array,
   top: number,
   bottom: number
 ): boolean => {
+  const x0 = line[0];
+  const y0 = line[1];
+  const x1 = line[2];
+  const y1 = line[3];
+
   let a: number;
   let b: number;
   let c: number;
@@ -190,7 +208,7 @@ const clipLineAgainstHorizontals = (
   }
 
   // if both y coordinates are out of range, the line is completely invisible
-  // return 0 to indicate this
+  // return false to indicate this
   if ((y0 < top && y1 < top) || (y0 > bottom && y1 > bottom)) {
     return false;
   }
@@ -229,30 +247,37 @@ const clipLineAgainstHorizontals = (
     return false;
   }
 
-  x0 = a;
-  y0 = b;
-  x1 = c;
-  y1 = d;
+  // pass the clipped coordinates back to the caller, keeping the original
+  // endpoint order so that (x0, y0) stays the end the line started from
+  if (y0 < y1) {
+    line[0] = a;
+    line[1] = b;
+    line[2] = c;
+    line[3] = d;
+  } else {
+    line[0] = c;
+    line[1] = d;
+    line[2] = a;
+    line[3] = b;
+  }
 
   // successful clip
   return true;
 };
 
-// clips the line from (x0,y0) to (x1,y1) against the rectangle from
-// (left, top) to (right, bottom). Returns true if the line is visible false if not
+// clips the line in place against the rectangle from (left, top) to
+// (right, bottom). Returns true if the line is visible, false if not.
+// The horizontal clip runs first and the vertical clip works on its result.
 export const clipLineAgainstRectange = (
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
+  line: Float64Array,
   left: number,
   top: number,
   right: number,
   bottom: number
 ): boolean => {
   if (
-    clipLineAgainstHorizontals(x0, y0, x1, y1, top, bottom) == false ||
-    clipLineAgainstVerticals(x0, y0, x1, y1, left, right) == false
+    clipLineAgainstHorizontals(line, top, bottom) == false ||
+    clipLineAgainstVerticals(line, left, right) == false
   ) {
     return false;
   }
@@ -288,17 +313,16 @@ export const drawPhaserBeam = (
 ) => {
   calcPhaserBeamCoords(source);
 
-  const x0 = beamCoords[0] - visX;
-  const y0 = beamCoords[1] - visY;
-  const x1 = beamCoords[2] - visX;
-  const y1 = beamCoords[3] - visY;
+  // convert to screen coordinates, in place
+  beamCoords[0] -= visX;
+  beamCoords[1] -= visY;
+  beamCoords[2] -= visX;
+  beamCoords[3] -= visY;
 
+  // clip the beam to the screen; beamCoords then holds the visible part
   if (
     clipLineAgainstRectange(
-      x0,
-      y0,
-      x1,
-      y1,
+      beamCoords,
       0,
       0,
       g.SCREEN_WIDTH - 1,
@@ -307,6 +331,13 @@ export const drawPhaserBeam = (
   ) {
     return;
   }
+
+  // drawLine32 indexes the buffer from its start point, so that must be a
+  // whole pixel. Clipping can move it off the grid; the far end can stay as is.
+  const x0 = Math.round(beamCoords[0]);
+  const y0 = Math.round(beamCoords[1]);
+  const x1 = beamCoords[2];
+  const y1 = beamCoords[3];
 
   // the color of the laser is the last argument
   drawLine32(surf, x0, y0, x1, y1, 0xd2ff); // rgba = 26, 23 31, 256
