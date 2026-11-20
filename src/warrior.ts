@@ -385,7 +385,8 @@ const renderFrame = (): void => {
     player.worldX,
     player.worldY,
     opponent.worldX,
-    opponent.worldY
+    opponent.worldY,
+    timeScale
   );
 
   SURF.blitToCanvas();
@@ -427,7 +428,7 @@ const playGame = (): void => {
     updateTimers();
     handleInput(keystate);
 
-    runGameScript(player, opponent);
+    runGameScript(player, opponent, timeScale);
     checkOpponentCombat();
 
     chargePhasers(opponent);
