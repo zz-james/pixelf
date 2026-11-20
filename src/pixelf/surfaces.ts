@@ -85,25 +85,8 @@ export const init = (
   defaultSrcRect.w = w;
   defaultSrcRect.h = h;
 
-  // mainBuffer = new ArrayBuffer(mainBufferSize);
   return true;
 };
-
-// export const contextToBuffer = (
-//   context: CanvasRenderingContext2D,
-//   width: number,
-//   height: number
-// ): Uint8ClampedArray => {
-//   const tmpImageData: ImageData = context.getImageData(0, 0, width, height);
-//   return tmpImageData.data;
-// };
-
-// /**
-//  * returns number of milliseconds since the library was initialised
-//  */
-// my.SURF_GetTicks = function () {
-//   return new Date().getTime() - _tix;
-// };
 
 /**
  * gets surface with a pionter to the main image buffer.
@@ -116,16 +99,6 @@ export const getMainSurface = (): Surface => ({
   h: mainSurfaceHeight,
   w: mainSurfaceWidth,
 });
-
-// /**
-//  * creates an empty unitialised surface object
-//  * @returns {{surface: undefined}}
-//  */
-// export const newSurface = (): Surface => {
-//   return { data: undefined };
-// };
-
-// /* -------- blitting using context methods --------- */
 
 /**
  * copy a surface's data to screen
@@ -142,14 +115,6 @@ export const blitToCanvas = (
   srcRect: Rect = defaultSrcRect,
   destCoord: Coord = defaultDestCoord
 ) => {
-  // create a new arraybuffer and uint8 view if the buffer size passed in is too bit to blit.
-  // if (surfaceData.length > mainBufferSize) {
-  //   surfaceData = surfaceData.slice(0, mainBufferSize);
-  //   mainBuffer.set(surfaceData);
-  //   throw new Error("main display buffer overflow");
-  //   error = "main display buffer overflow";
-  // }
-
   // Finally, we use putImageData() to copy the image data back to the canvas
   ctx.putImageData(
     imageData, // imageData is the object associated with the mainBuffer
@@ -196,30 +161,6 @@ export const freeSurface = (surface: Surface) => {
   surface.pixels = new Uint8ClampedArray([]);
 };
 
-// /**
-//  * kind of a blitter using drawimage
-//  * seems sort of pointless wrapper but we'll see
-//  * @param src_surface
-//  * @param src
-//  * @param dest
-//  * @constructor
-//  */
-// my.SURF_DrawToCanvas = function (src_surface, src, dest) {
-//   _ctx.drawImage(
-//     src_surface,
-//     src.x,
-//     src.y,
-//     src.w,
-//     src.h,
-//     dest.x,
-//     dest.y,
-//     dest.w,
-//     dest.h
-//   );
-// };
-
-// /* --------- quickly dump buffer on screen ------------- */
-
 /**
  * this just a function to display whatever is in the buffer of a
  * picture object not usually used in a game
@@ -230,11 +171,7 @@ export const showImageData = function (surface: Surface) {
   let surfacePixels = surface.pixels;
 
   if (surfacePixels.length > mainBufferSize) {
-    // surfacePixels = surfaceData.slice(0, mainBufferSize); // truncate framebuffer to fit
     error = "main display buffer overflow";
-    // const tempImageData = new ImageData(surface.pixels, surface.w, surface.h);
-    // ctx.putImageData(tempImageData, 0, 0);
-    // throw new Error("main display buffer overflow");
   }
   const tempImageData = new ImageData(surfacePixels, surface.w, surface.h);
   ctx.putImageData(
@@ -261,12 +198,6 @@ export const blitSurface = (
   dest: Surface,
   destCoord: Coord = { x: 0, y: 0 }
 ) => {
-  // if (src.pixels.length > dest.pixels.length) {
-  //   src.pixels = src.pixels.slice(0, dest.pixels.length); // truncate if src framebuffer too big
-  //   error = "destination buffer overflow";
-  // }
-  // dest.pixels.set(src.pixels); // only copies entire image for now? this needs some thought!
-
   const destPixels = dest.pixels;
   const srcPixels = src.pixels;
 
@@ -296,35 +227,6 @@ export const blitSurface = (
   }
 };
 
-// /**
-//  * sort of unnecessary wrapper on drawImage
-//  */
-// my.SURF_DrawImage = function (surface) {
-//   _ctx.drawImage(surface, 0, 0);
-// };
-
-// /**
-//  * copy main buffer to canvas
-//  */
-// my.SURF_Flip = function () {
-//   _ctx.putImageData(_mainBuffer, 0, 0);
-// };
-
-// /**
-//  * frees up a surface's memory
-//  * @param image_buf
-//  */
-// export const freeSurface = (image_buf: Surface) => {
-//   image_buf = { surface: undefined };
-// };
-
-// /**
-//  * makes buffer go black
-//  */
-// my.SURF_ClearScreen = function () {
-//   _ctx.clearRect(0, 0, _mainSurfaceHeight, _mainSurfaceWidth);
-// };
-
 /**
  * retrieves any error string
  * @constructor
@@ -352,27 +254,5 @@ export const memcpy = (
   var srcU8 = new Uint8Array(src, srcOffset, length);
   dstU8.set(srcU8);
 };
-
-// /*
-//     var kwikShowBuffer = function(buffer) {
-//         var  canvas_buf = new Uint8Array(buffer);
-//         CANVAS_VIEW.set(buffer);
-//         IMAGE_DATA.data.set(CANVAS_VIEW);
-//         CTX.putImageData(IMAGE_DATA, 0, 0);
-//     };
-//     */
-
-// /* REMEMBER WE NEED  THESE
-//     IMAGE_DATA.data.set(CANVAS_VIEW);
-//     CTX.putImageData(IMAGE_DATA, 0, 0);
-//     */
-
-// /*
-//      // V I E W S /////////////////////////////////////////////////////////////
-//      var CANVAS_VIEW = new Uint8ClampedArray(VIDEO_BUFFER); // 8 bit aligned for assigning to canvas
-//      var RGB_VIEW = new Uint32Array(VIDEO_BUFFER); // 32 bit aligned for quick 32bit RGB writes
-//      */
-
-// return my;
 
 export const loadBMP = () => {};

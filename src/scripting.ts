@@ -73,7 +73,6 @@ const playComputer = (
     // if we're too close to player switch to evade
     const distance = getDistanceToTarget(computer, target);
     if (distance < 25) {
-      console.log("going into evade mode");
       opponent.state = OpponentState.EVADE;
       target.x = -1;
       // setting invalid target triggers coming up with a new one
@@ -99,7 +98,6 @@ const playComputer = (
       Math.abs(computer.worldX - target.x) < 25 &&
       Math.abs(computer.worldY - target.y) < 25
     ) {
-      console.log("going back into attack mode");
       opponent.state = OpponentState.ATTACK;
       return;
     }
@@ -110,7 +108,6 @@ const playComputer = (
       // as target
       target.x = Math.floor(Math.random() * WORLD_WIDTH);
       target.y = Math.floor(Math.random() * WORLD_HEIGHT);
-      console.log("selected new evade target");
     }
 
     computer.accel = PLAYER_FORWARD_THRUST;

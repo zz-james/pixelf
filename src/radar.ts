@@ -45,8 +45,6 @@ export const initRadarDisplay = async () => {
 
   const imageSurfaces: Surface[] = await IMG.loadImages(imageQueue);
 
-  console.log(imageSurfaces);
-
   radar = {
     physicW: 100,
     physicH: 100,
@@ -60,12 +58,6 @@ export const initRadarDisplay = async () => {
 
     oppIconTimer: 0,
   };
-};
-
-export const cleanUpRadarDisplay = () => {
-  if (radar.radarSurface !== null) {
-    // radar.radarSurface.freesurface();
-  }
 };
 
 export const updateRadarDisplay = (
