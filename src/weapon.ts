@@ -22,24 +22,26 @@ export const drawLine32 = (
   // get the surface's data pointer
   buffer = surf.pixels;
 
-  /* Calculate the x and y spans of the line. */
-  xspan = x1 - x0 + 1; // in pixels
-  yspan = y1 - y0 + 1;
-
-  /* figure out the correct increment for the major axis
-    account for negative spans (x1<x0 for instance) */
+  /* Calculate the x and y spans of the line, in pixels. The span is the
+    distance plus one (both end pixels are drawn) in either direction, so work
+    out the direction first and only then add one to the magnitude.
+    Account for negative spans (x1<x0 for instance) in the increments. */
+  xspan = x1 - x0;
   if (xspan < 0) {
     xinc = -4;
-    xspan = -xspan;
+    xspan = -xspan + 1;
   } else {
-    xinc = 4; // in pixels
+    xinc = 4; // in bytes
+    xspan = xspan + 1;
   }
 
+  yspan = y1 - y0;
   if (yspan < 0) {
     yinc = -surf.w * 4;
-    yspan = -yspan;
+    yspan = -yspan + 1;
   } else {
     yinc = surf.w * 4; // in bytes
+    yspan = yspan + 1;
   }
 
   i = 0;
