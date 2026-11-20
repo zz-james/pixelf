@@ -48,9 +48,8 @@ const loadImageToSurface = async (
       // console.log("completed loading image " + image.id);
       resolve(SURF.createSurfaceWithImage(image));
     };
-    image.onerror = function (event: Event | string) {
-      if (typeof event === "string") reject(`there was an error ${event}`);
-      reject("there was an error loading " + (event as Event).currentTarget);
+    image.onerror = () => {
+      reject(new Error(`failed to load image "${image.id}"`));
     };
 
     image.src = image.id; // trigger the actual loading of the image

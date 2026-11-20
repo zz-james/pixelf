@@ -43,13 +43,7 @@ export const initRadarDisplay = async () => {
     "radar.png",
   ]);
 
-  let imageSurfaces: Surface[];
-
-  try {
-    imageSurfaces = await IMG.loadImages(imageQueue);
-  } catch (e) {
-    throw new Error(e as string);
-  }
+  const imageSurfaces: Surface[] = await IMG.loadImages(imageQueue);
 
   console.log(imageSurfaces);
 

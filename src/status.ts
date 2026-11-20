@@ -43,13 +43,7 @@ const LED_CreateDisplay = async (
 
   const imageQueue: HTMLImageElement[] = IMG.queueImages([on, off]); // this goes into a loading list
 
-  let imageSurfaces: Surface[];
-
-  try {
-    imageSurfaces = await IMG.loadImages(imageQueue);
-  } catch (e) {
-    throw new Error(e as string);
-  }
+  const imageSurfaces: Surface[] = await IMG.loadImages(imageQueue);
 
   const disp: LED_Display = {
     led_surface: SURF.createSurface(vcols, vrows),
