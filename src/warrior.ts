@@ -134,7 +134,7 @@ const initPlayer = (p: Player_t, type: PlayerType): void => {
   p.angle = 0;
   p.charge = 0;
   p.firing = 0;
-  p.shields = 100;
+  p.shields = g.PLAYER_MAX_SHIELDS;
   updatePlayer(p);
 };
 
