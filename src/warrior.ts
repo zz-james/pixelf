@@ -1,20 +1,15 @@
 import * as SURF from "./pixelf/surfaces";
-import {
-  createParticleExplosion,
-  updateParticles,
-  drawParticles,
-} from "./pixelf/particle";
+import { updateParticles, drawParticles } from "./pixelf/particle";
 
 import { shipStrip, loadGameData } from "./resources";
 import { initBackground, drawBackground, drawParallax } from "./background";
 import {
-  setStatusMessage,
   initStatusDisplay,
   setPlayerStatusInfo,
   setOpponentStatusInfo,
   updateStatusDisplay,
 } from "./status";
-import { checkPhaserHit, drawPhaserBeam } from "./weapon";
+import { drawPhaserBeam } from "./weapon";
 import { initRadarDisplay, updateRadarDisplay } from "./radar";
 
 import { runGameScript } from "./scripting";
@@ -30,12 +25,15 @@ import {
 import { Rect, Surface } from "./pixelf/surfaces"; //types
 
 import * as g from "./globals";
+import { PlayerType, PlayerState, Player_t } from "./globals";
 import {
-  PlayerType,
-  PlayerState,
-  Player_t,
-  PHASER_DAMAGE_DEVIL,
-} from "./globals";
+  resetCombat,
+  isRespawning,
+  resolvePlayerShot,
+  checkPlayerDeath,
+  checkOpponentCombat,
+  updateTimers,
+} from "./combat";
 
 import { readInput, applySteeringAndThrust, applyTurn } from "./input";
 
@@ -79,8 +77,6 @@ let screen: Surface; /* global for convenience */
 
 /* Game state - used across update functions */
 let quit: boolean = false;
-let respawnTimer: number = -1;
-let invincibleTimer: number = -1;
 
 /**
  * Drawing
@@ -129,89 +125,10 @@ const drawPlayer = (p: Player_t) => {
   SURF.blitSurface(shipStrip, src, screen, dest);
 };
 
-/* Show a particle explosion at the player's position.
-   Small values for a phaser hit, large values for a ship destruction. */
-const showExplosion = (
-  p: Player_t,
-  whiteCount: number,
-  whiteSpread: number,
-  redCount: number,
-  redSpread: number,
-  yellowCount: number,
-  yellowSpread: number
-): void => {
-  createParticleExplosion(
-    p.worldX,
-    p.worldY,
-    255,
-    255,
-    255,
-    whiteCount,
-    whiteSpread
-  );
-  createParticleExplosion(p.worldX, p.worldY, 255, 0, 0, redCount, redSpread);
-  createParticleExplosion(
-    p.worldX,
-    p.worldY,
-    255,
-    255,
-    0,
-    yellowCount,
-    yellowSpread
-  );
-};
-
-/* destroy the opponent */
-const killOpponent = (): void => {
-  player.score++;
-  showExplosion(opponent, 15, 300, 10, 100, 5, 50);
-  initPlayer(opponent, PlayerType.DEVIL);
-};
-
-/* destory the local player */
-const killPlayer = (): void => {
-  showExplosion(player, 15, 300, 10, 100, 5, 50);
-  player.velocity = 0;
-  player.accel = 0;
-  player.state = PlayerState.DEAD;
-  opponent.score++;
-};
-
-/* cause damage to the opponent */
-const damageOpponent = (): void => {
-  opponent.shields -= g.PHASER_DAMAGE;
-  if (opponent.shields <= 0) {
-    killOpponent();
-  }
-};
-
-/* Updates respawn and invincibility timers. */
-const updateTimers = (): void => {
-  if (respawnTimer >= 0) {
-    respawnTimer += timeScale;
-
-    if (respawnTimer >= g.RESPAWN_TIME) {
-      respawnTimer = -1;
-      initPlayer(player, PlayerType.WARRIOR);
-      setStatusMessage("GOOD LUCK, WARRIOR!!");
-      player.state = PlayerState.INVINCIBLE;
-      invincibleTimer += timeScale;
-    }
-  }
-
-  if (respawnTimer == -1 && invincibleTimer >= 0) {
-    invincibleTimer += timeScale;
-    if (invincibleTimer >= g.INVINCIBLE_TIME) {
-      invincibleTimer = -1;
-      player.state = PlayerState.EVADE;
-    }
-  }
-};
-
 /* Reads the player's input and applies it: steering and thrust, firing and
    the resulting hit, the turn, then the death check. Disabled during respawn. */
 const handleInput = (): void => {
-  if (respawnTimer !== -1) return;
+  if (isRespawning()) return;
 
   const input = readInput();
 
@@ -223,47 +140,13 @@ const handleInput = (): void => {
 
   if (input.fire && canPlayerFire(player)) {
     firePhasers(player);
-
-    if (checkPhaserHit(player, opponent)) {
-      showExplosion(opponent, 10, 30, 5, 10, 2, 5);
-      damageOpponent();
-    }
+    resolvePlayerShot(player, opponent);
   }
 
   applyTurn(player, input);
 
   /* Check for player death. */
-  if (player.shields <= 0) {
-    killPlayer();
-    respawnTimer = 0;
-  }
-};
-
-/* Time (in 30fps ticks) built up towards the next hit explosion on the player. */
-let opponentHitExplosionTimer: number = 0;
-
-/* Checks opponent phaser hits against the player. The beam is on for a fixed
-   time, not a fixed number of frames, so damage and explosions are scaled by
-   timeScale to keep a shot's total effect the same at any frame rate. */
-const checkOpponentCombat = (): void => {
-  if (opponent.firing) {
-    if (checkPhaserHit(opponent, player)) {
-      if (player.state !== PlayerState.INVINCIBLE) {
-        /* one explosion per tick, not per frame */
-        opponentHitExplosionTimer += timeScale;
-        if (opponentHitExplosionTimer >= 1) {
-          opponentHitExplosionTimer -= 1;
-          showExplosion(player, 10, 30, 5, 10, 2, 5);
-        }
-        player.shields -= PHASER_DAMAGE_DEVIL * timeScale;
-
-        if (respawnTimer < 0 && player.shields <= 0) {
-          killPlayer();
-          respawnTimer = 0;
-        }
-      }
-    }
-  }
+  checkPlayerDeath(player, opponent);
 };
 
 /* Updates camera position to follow the player, clamped to world bounds. */
@@ -288,7 +171,7 @@ const renderFrame = (): void => {
   if (opponent.firing) drawPhaserBeam(opponent, screen, cameraX, cameraY);
   if (player.firing) drawPhaserBeam(player, screen, cameraX, cameraY);
 
-  if (respawnTimer < 0) drawPlayer(player);
+  if (!isRespawning()) drawPlayer(player);
   drawPlayer(opponent);
 
   updateStatusDisplay(screen);
@@ -312,10 +195,7 @@ const playGame = (): void => {
   let curTicks: number = 0;
 
   quit = false;
-  respawnTimer = -1;
-  invincibleTimer = -1;
-  player.score = 0;
-  opponent.score = 0;
+  resetCombat(player, opponent);
 
   curTicks = Date.now();
   prevTicks = curTicks;
@@ -332,11 +212,11 @@ const playGame = (): void => {
     if (opponent.firing < 0) opponent.firing = 0;
 
     chargePhasers(player);
-    updateTimers();
+    updateTimers(player);
     handleInput();
 
     runGameScript(player, opponent, timeScale);
-    checkOpponentCombat();
+    checkOpponentCombat(player, opponent);
 
     chargePhasers(opponent);
     updatePlayer(opponent);
