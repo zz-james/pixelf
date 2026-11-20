@@ -71,6 +71,10 @@ const LED_FreeDisplay = (disp: LED_Display): void => {
   console.log(disp);
 };
 
+/* scratch values reused by every LED_DrawDisplay call so nothing is allocated per frame */
+const ledSrcRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
+const ledDestCoord: Coord = { x: 0, y: 0 };
+
 /* renders an LED display to a surface, starting at (x,y) on the destination */
 const LED_DrawDisplay = (
   disp: LED_Display,
@@ -80,13 +84,10 @@ const LED_DrawDisplay = (
 ): void => {
   let row: number;
   let col: number;
-  let srcRect: Rect = {
-    w: disp.on_image.w,
-    h: disp.on_image.h,
-    x: 0,
-    y: 0,
-  };
-  let destCoord: Coord = { x: 0, y: 0 };
+  const srcRect = ledSrcRect;
+  const destCoord = ledDestCoord;
+  srcRect.w = disp.on_image.w;
+  srcRect.h = disp.on_image.h;
   let leds: Uint8ClampedArray = disp.led_surface.pixels; // get pointer to pixels
   for (row = 0; row < disp.phys_h; row++) {
     for (col = 0; col < disp.phys_w; col++) {

@@ -22,6 +22,12 @@ type RadarDisplay = {
 
 let radar: RadarDisplay;
 
+/* scratch rects reused every frame by updateRadarDisplay so nothing is allocated in the game loop */
+const radarSrc: Rect = { x: 0, y: 0, w: 0, h: 0 };
+const radarDest: Rect = { x: 0, y: 0, w: 0, h: 0 };
+const iconSrc: Rect = { x: 0, y: 0, w: 0, h: 0 };
+const iconDest: Coord = { x: 0, y: 0 };
+
 export const initRadarDisplay = async () => {
   // filter the black ground
 
@@ -76,65 +82,49 @@ export const updateRadarDisplay = (
   oppY: number
 ) => {
   // first draw radar background on screen
-  let src: Rect = {
-    x: 0,
-    y: 0,
-    w: radar.physicW,
-    h: radar.physicH,
-  };
+  radarSrc.w = radar.physicW;
+  radarSrc.h = radar.physicH;
 
-  let dest: Rect = {
-    x: radar.physicX,
-    y: radar.physicY,
-    w: radar.physicW,
-    h: radar.physicH,
-  };
+  radarDest.x = radar.physicX;
+  radarDest.y = radar.physicY;
+  radarDest.w = radar.physicW;
+  radarDest.h = radar.physicH;
 
-  SURF.blitSurface(radar.radarSurface, src, screen, dest);
+  SURF.blitSurface(radar.radarSurface, radarSrc, screen, radarDest);
 
   // now do player 'dot' on the screen on top of the radar (why don't we blit onto the radar surface then blit at the end?)
 
   // start with player dot
-  let playerBlobSrcRect: Rect = {
-    w: radar.playerIcon.w,
-    h: radar.playerIcon.h,
-    x: 0,
-    y: 0,
-  };
+  iconSrc.w = radar.playerIcon.w;
+  iconSrc.h = radar.playerIcon.h;
 
   // figure the x, y by scaling the player x, y
   const scaledPlayerX = (playerX / (g.WORLD_WIDTH / 100)) | 0;
   const scaledPlayerY = (playerY / (g.WORLD_HEIGHT / 100)) | 0;
 
-  let destCoord: Coord = {
-    x: scaledPlayerX + radar.physicX,
-    y: scaledPlayerY + radar.physicY,
-  };
+  iconDest.x = scaledPlayerX + radar.physicX;
+  iconDest.y = scaledPlayerY + radar.physicY;
 
   if (
     scaledPlayerX >= 0 && scaledPlayerX < radar.physicW &&
     scaledPlayerY >= 0 && scaledPlayerY < radar.physicH
   ) {
     // draw player icon
-    SURF.blitSurface(radar.playerIcon, playerBlobSrcRect, screen, destCoord);
+    SURF.blitSurface(radar.playerIcon, iconSrc, screen, iconDest);
   }
 
   //now do the opponent blob
 
   // start with player dot
-  let oppenentBlobSrcRect: Rect = {
-    w: radar.oppIconOn.w,
-    h: radar.oppIconOn.h,
-    x: 0,
-    y: 0,
-  };
+  iconSrc.w = radar.oppIconOn.w;
+  iconSrc.h = radar.oppIconOn.h;
 
   // figure the x and y of the blob by scaling the x and y of opponent
   const scaledOppX = (oppX / (g.WORLD_WIDTH / 100)) | 0;
   const scaledOppY = (oppY / (g.WORLD_HEIGHT / 100)) | 0;
 
-  destCoord.x = scaledOppX + radar.physicX;
-  destCoord.y = scaledOppY + radar.physicY;
+  iconDest.x = scaledOppX + radar.physicX;
+  iconDest.y = scaledOppY + radar.physicY;
 
   if (
     scaledOppX >= 0 && scaledOppX < radar.physicW &&
@@ -142,15 +132,10 @@ export const updateRadarDisplay = (
   ) {
     if (radar.oppIconState < 10) {
       // draw opposition icon
-      SURF.blitSurface(radar.oppIconOn, oppenentBlobSrcRect, screen, destCoord);
+      SURF.blitSurface(radar.oppIconOn, iconSrc, screen, iconDest);
       radar.oppIconState++;
     } else if (radar.oppIconState <= 20) {
-      SURF.blitSurface(
-        radar.oppIconOff,
-        oppenentBlobSrcRect,
-        screen,
-        destCoord
-      );
+      SURF.blitSurface(radar.oppIconOff, iconSrc, screen, iconDest);
       radar.oppIconState++;
       if (radar.oppIconState === 20) {
         radar.oppIconState = 0;

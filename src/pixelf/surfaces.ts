@@ -82,6 +82,9 @@ export const init = (
   mainSurfaceWidth = w;
   mainBufferSize = mainBuffer.length;
 
+  defaultSrcRect.w = w;
+  defaultSrcRect.h = h;
+
   // mainBuffer = new ArrayBuffer(mainBufferSize);
   return true;
 };
@@ -131,9 +134,13 @@ export const getMainSurface = (): Surface => ({
  * @param dest
  * @constructor
  */
+/* default arguments for blitToCanvas, allocated once instead of per call */
+const defaultSrcRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
+const defaultDestCoord: Coord = { x: 0, y: 0 };
+
 export const blitToCanvas = (
-  srcRect: Rect = { x: 0, y: 0, w: mainSurfaceWidth, h: mainSurfaceHeight },
-  destCoord: Coord = { x: 0, y: 0 }
+  srcRect: Rect = defaultSrcRect,
+  destCoord: Coord = defaultDestCoord
 ) => {
   // create a new arraybuffer and uint8 view if the buffer size passed in is too bit to blit.
   // if (surfaceData.length > mainBufferSize) {
