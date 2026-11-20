@@ -31,16 +31,6 @@ const LED_CreateDisplay = async (
   on: string /* path to image */,
   off: string /* path to image */
 ): Promise<LED_Display> => {
-  let c: Uint8ClampedArray = new Uint8ClampedArray([0, 0, 0, 0]);
-  let i: number;
-
-  for (i = 0; i < 256; i++) {
-    c[0] = i;
-    c[1] = i;
-    c[2] = i;
-    c[3] = 255;
-  }
-
   const imageQueue: HTMLImageElement[] = IMG.queueImages([on, off]); // this goes into a loading list
 
   const imageSurfaces: Surface[] = await IMG.loadImages(imageQueue);
@@ -58,11 +48,6 @@ const LED_CreateDisplay = async (
   };
 
   return disp;
-};
-
-const LED_FreeDisplay = (disp: LED_Display): void => {
-  // don't implement this for now.
-  console.log(disp);
 };
 
 /* scratch values reused by every LED_DrawDisplay call so nothing is allocated per frame */
@@ -206,16 +191,6 @@ export const initStatusDisplay = async (): Promise<boolean> => {
     "led-green-off.png"
   );
   return true;
-};
-
-/* Shuts down the status display system. */
-export const CleanupStatusDisplay = () => {
-  LED_FreeDisplay(playerScore);
-  LED_FreeDisplay(playerShields);
-  LED_FreeDisplay(playerCharge);
-  LED_FreeDisplay(opponentScore);
-  LED_FreeDisplay(opponentShields);
-  LED_FreeDisplay(statusMsg);
 };
 
 /* Sets the scrolling status message at the top

@@ -73,7 +73,6 @@ let timeScale: number = 0;
 
 /* Game state - used across update functions */
 let quit: boolean = false;
-let awaitingRespawn: boolean = false;
 let respawnTimer: number = -1;
 let invincibleTimer: number = -1;
 
@@ -314,12 +313,9 @@ const handleInput = (keystate: Record<string, boolean>): void => {
     if (canPlayerFire(player)) {
       firePhasers(player);
 
-      if (!awaitingRespawn && checkPhaserHit(player, opponent)) {
+      if (checkPhaserHit(player, opponent)) {
         showExplosion(opponent, 10, 30, 5, 10, 2, 5);
         damageOpponent();
-        if (opponent.shields <= 0) {
-          awaitingRespawn = true;
-        }
       }
     }
   }
@@ -330,7 +326,6 @@ const handleInput = (keystate: Record<string, boolean>): void => {
   if (player.angle >= 360) player.angle -= 360;
   /* Check for player death. */
   if (player.shields <= 0) {
-    console.log("Local player has been destroyed.\n");
     killPlayer();
     respawnTimer = 0;
   }
@@ -345,7 +340,6 @@ const checkOpponentCombat = (): void => {
         player.shields -= PHASER_DAMAGE_DEVIL;
 
         if (respawnTimer < 0 && player.shields <= 0) {
-          console.log("kill player");
           killPlayer();
           respawnTimer = 0;
         }
@@ -377,7 +371,7 @@ const renderFrame = (): void => {
   if (player.firing) drawPhaserBeam(player, screen, cameraX, cameraY);
 
   if (respawnTimer < 0) drawPlayer(player);
-  if (!awaitingRespawn) drawPlayer(opponent);
+  drawPlayer(opponent);
 
   updateStatusDisplay(screen);
   updateRadarDisplay(
@@ -398,11 +392,8 @@ const renderFrame = (): void => {
 const playGame = (): void => {
   let prevTicks: number = 0;
   let curTicks: number = 0;
-  let framesDrawn: number = 0;
-  const startTime = Date.now();
 
   quit = false;
-  awaitingRespawn = false;
   respawnTimer = -1;
   invincibleTimer = -1;
   player.score = 0;
@@ -443,18 +434,9 @@ const playGame = (): void => {
     renderFrame();
 
     if (!quit) window.requestAnimationFrame(whileLoop);
-    framesDrawn++;
   };
 
   whileLoop();
-
-  let endTime = new Date().getTime();
-  if (startTime == endTime) endTime++;
-  console.log(
-    `Drew ${framesDrawn} frames in ${
-      endTime - startTime
-    } seconds, for a framerate of ${framesDrawn / (endTime - startTime)} fps`
-  );
 };
 
 export const main = async (scrn: SURF.Surface) => {
@@ -479,10 +461,6 @@ export const main = async (scrn: SURF.Surface) => {
   initPlayer(opponent, PlayerType.DEVIL);
 
   playGame();
-
-  // cleanupStatusDisplay();
-
-  // cleanupRadarDisplay()
 
   // unloadGameData();
 

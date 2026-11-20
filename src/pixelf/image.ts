@@ -45,7 +45,6 @@ const loadImageToSurface = async (
 ): Promise<Surface> => {
   return new Promise((resolve, reject) => {
     image.onload = () => {
-      // console.log("completed loading image " + image.id);
       resolve(SURF.createSurfaceWithImage(image));
     };
     image.onerror = () => {
@@ -53,6 +52,5 @@ const loadImageToSurface = async (
     };
 
     image.src = image.id; // trigger the actual loading of the image
-    // console.log("started loading image " + image.id);
   });
 };
