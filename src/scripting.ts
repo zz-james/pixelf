@@ -2,6 +2,7 @@ import { canPlayerFire, firePhasers } from "./warrior";
 import { Coord } from "./pixelf/surfaces";
 
 import {
+  AI_TURN_RATE,
   PLAYER_FORWARD_THRUST,
   PLAYER_REVERSE_THRUST,
   Player_t,
@@ -32,8 +33,12 @@ const fireWeapon = (opponent: Player_t) => {
   }
 };
 
-export const runGameScript = (player: Player_t, computer: Player_t) => {
-  playComputer(player, computer);
+export const runGameScript = (
+  player: Player_t,
+  computer: Player_t,
+  timeScale: number
+) => {
+  playComputer(player, computer, timeScale);
 
   /* bit sloppy but we can do this because player and computer are objects that
   get passed by reference so we don't need to return anything from playComputer
@@ -53,7 +58,11 @@ export const runGameScript = (player: Player_t, computer: Player_t) => {
   }
 };
 
-const playComputer = (player: Player_t, computer: Player_t) => {
+const playComputer = (
+  player: Player_t,
+  computer: Player_t,
+  timeScale: number
+) => {
   // uses pass by refrence so doesn't bother to return the player and computer objects
 
   if (opponent.state === OpponentState.ATTACK) {
@@ -115,9 +124,9 @@ const playComputer = (player: Player_t, computer: Player_t) => {
   }
 
   if (arc < 180) {
-    computer.angle += 3;
+    computer.angle += AI_TURN_RATE * timeScale;
   } else {
-    computer.angle -= 3;
+    computer.angle -= AI_TURN_RATE * timeScale;
   }
 };
 

@@ -49,6 +49,12 @@ export const INVINCIBLE_TIME = 300;
    Stops a long frame (background tab, breakpoint) from teleporting ships. */
 export const MAX_TIME_SCALE = 3;
 
+/* How fast the scripted opponent turns, in degrees per 30fps tick. */
+export const AI_TURN_RATE = 3;
+
+/* Length of the radar's opponent blink cycle, in 30fps ticks (half on, half off). */
+export const RADAR_BLINK_PERIOD = 20;
+
 export const PLAYER_FORWARD_THRUST = 3;
 export const PLAYER_REVERSE_THRUST = -1;
 

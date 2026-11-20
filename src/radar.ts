@@ -15,7 +15,7 @@ type RadarDisplay = {
   physicX: number;
   physicY: number;
   playerIcon: Surface;
-  oppIconState: number;
+  oppIconTimer: number; // ticks into the blink cycle, advanced by timeScale
   oppIconOn: Surface;
   oppIconOff: Surface;
 };
@@ -64,7 +64,7 @@ export const initRadarDisplay = async () => {
     oppIconOn: imageSurfaces[1],
     oppIconOff: imageSurfaces[2],
 
-    oppIconState: 0,
+    oppIconTimer: 0,
   };
 };
 
@@ -79,7 +79,8 @@ export const updateRadarDisplay = (
   playerX: number,
   playerY: number,
   oppX: number,
-  oppY: number
+  oppY: number,
+  timeScale: number
 ) => {
   // first draw radar background on screen
   radarSrc.w = radar.physicW;
@@ -126,20 +127,18 @@ export const updateRadarDisplay = (
   iconDest.x = scaledOppX + radar.physicX;
   iconDest.y = scaledOppY + radar.physicY;
 
+  // blink is time based so it runs at the same speed at any frame rate
+  radar.oppIconTimer = (radar.oppIconTimer + timeScale) % g.RADAR_BLINK_PERIOD;
+
   if (
     scaledOppX >= 0 && scaledOppX < radar.physicW &&
     scaledOppY >= 0 && scaledOppY < radar.physicH
   ) {
-    if (radar.oppIconState < 10) {
+    if (radar.oppIconTimer < g.RADAR_BLINK_PERIOD / 2) {
       // draw opposition icon
       SURF.blitSurface(radar.oppIconOn, iconSrc, screen, iconDest);
-      radar.oppIconState++;
-    } else if (radar.oppIconState <= 20) {
+    } else {
       SURF.blitSurface(radar.oppIconOff, iconSrc, screen, iconDest);
-      radar.oppIconState++;
-      if (radar.oppIconState === 20) {
-        radar.oppIconState = 0;
-      }
     }
   }
 };
