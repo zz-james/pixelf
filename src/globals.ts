@@ -28,8 +28,10 @@ export const PHASER_FIRE_TIME = 5;
 /* Difficulty balance. Both ships start with PLAYER_MAX_SHIELDS shields.
    The warrior's shot does PHASER_DAMAGE once, when fired, so it takes 7 hits
    to destroy the devil. The devil's beam stays on for PHASER_FIRE_TIME ticks
-   and does PHASER_DAMAGE_DEVIL on every frame it overlaps the warrior, so a
-   single devil shot costs the warrior a few points of shield. */
+   and does PHASER_DAMAGE_DEVIL per tick (scaled by the frame time, so it is
+   the same at any frame rate) while it overlaps the warrior. A full devil shot
+   therefore costs the warrior about PHASER_DAMAGE_DEVIL * PHASER_FIRE_TIME
+   shield points, 5 with the current values. */
 export const PHASER_DAMAGE = 16;
 export const PHASER_DAMAGE_DEVIL = 1;
 
