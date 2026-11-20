@@ -1,4 +1,4 @@
-import { canPlayerFire, firePhasers } from "./warrior";
+import { canPlayerFire, firePhasers } from "./player";
 import { Coord } from "./pixelf/surfaces";
 
 import {
