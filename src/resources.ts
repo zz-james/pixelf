@@ -13,12 +13,7 @@ export const loadGameData = async () => {
     "front-stars.png",
   ]); // this goes into a loading list
 
-  let imageSurfaces: Surface[];
-  try {
-    imageSurfaces = await IMG.loadImages(imageQueue); // returns an array of Surfaces with the queued image data in.
-  } catch (e) {
-    throw new Error(e as string);
-  }
+  const imageSurfaces: Surface[] = await IMG.loadImages(imageQueue); // returns an array of Surfaces with the queued image data in.
 
   [shipStrip, backStarTiles, frontStarTiles] = imageSurfaces;
 };

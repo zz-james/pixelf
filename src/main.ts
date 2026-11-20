@@ -11,6 +11,16 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   </div>
 `;
 
+const container = document.getElementById("game-container")!;
+
+/* Shows a fatal error over the canvas so a failure isn't just a blank screen. */
+const showFatalError = (message: string): void => {
+  const el = document.createElement("div");
+  el.id = "fatal-error";
+  el.textContent = message;
+  container.appendChild(el);
+};
+
 /* Fire up PIX. */
 if (
   SURF.init(
@@ -19,11 +29,18 @@ if (
     g.SCREEN_HEIGHT
   ) !== true
 ) {
-  throw "Unable to initialize Pixelf" + SURF.getError();
+  const error = new Error("Unable to initialize Pixelf: " + SURF.getError());
+  console.error(error);
+  showFatalError(error.message);
+} else {
+  const screen = SURF.getMainSurface(); // global reference to screen for blitting
+
+  initTouchControls(container);
+
+  main(screen).catch((e: unknown) => {
+    console.error(e);
+    showFatalError(
+      e instanceof Error ? e.message : "The game failed to start."
+    );
+  });
 }
-
-const screen = SURF.getMainSurface(); // global reference to screen for blitting
-
-initTouchControls(document.getElementById("game-container")!);
-
-main(screen);

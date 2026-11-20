@@ -101,3 +101,22 @@ body {
     display: none;
   }
 }
+
+/* Shown when the game fails to start (e.g. an asset could not be loaded) */
+#fatal-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(60, 0, 0, 0.9);
+  color: #fff;
+  font-family: monospace;
+  font-size: 16px;
+}
