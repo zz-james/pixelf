@@ -1,5 +1,4 @@
 import * as SURF from "./pixelf/surfaces";
-import * as KEY from "./pixelf/keys";
 import {
   createParticleExplosion,
   updateParticles,
@@ -38,7 +37,7 @@ import {
   PHASER_DAMAGE_DEVIL,
 } from "./globals";
 
-import { getJoystickAngle, getJoystickDistance } from "./touch-controls";
+import { readInput, applySteeringAndThrust, applyTurn } from "./input";
 
 const player: Player_t = {
   type: PlayerType.WARRIOR,
@@ -209,61 +208,30 @@ const updateTimers = (): void => {
   }
 };
 
-/* Handles keyboard input for player movement and firing.
-   Disabled during respawn. */
-const handleInput = (keystate: Record<string, boolean>): void => {
+/* Reads the player's input and applies it: steering and thrust, firing and
+   the resulting hit, the turn, then the death check. Disabled during respawn. */
+const handleInput = (): void => {
   if (respawnTimer !== -1) return;
 
-  if (keystate["q"]) {
+  const input = readInput();
+
+  if (input.quit) {
     quit = true;
   }
 
-  const joystickAngle = getJoystickAngle();
+  applySteeringAndThrust(player, input);
 
-  const joystickDistance = getJoystickDistance();
+  if (input.fire && canPlayerFire(player)) {
+    firePhasers(player);
 
-  if (joystickDistance) {
-    if (joystickAngle !== undefined) {
-      const diff = ((joystickAngle - player.angle + 540) % 360) - 180;
-      player.angle = (((player.angle + diff / 10) % 360) + 360) % 360;
+    if (checkPhaserHit(player, opponent)) {
+      showExplosion(opponent, 10, 30, 5, 10, 2, 5);
+      damageOpponent();
     }
   }
 
-  let turn = 0;
-  if (keystate["ArrowLeft"]) turn += 10;
-  if (keystate["ArrowRight"]) turn -= 10;
+  applyTurn(player, input);
 
-  player.accel = 0;
-
-  if (joystickDistance) {
-    player.accel = g.PLAYER_FORWARD_THRUST;
-  } else if (
-    joystickDistance !== undefined &&
-    !keystate["ArrowDown"] &&
-    !keystate["ArrowUp"]
-  ) {
-    player.velocity = 0;
-  }
-
-  if (keystate["ArrowUp"]) player.accel = g.PLAYER_FORWARD_THRUST;
-  if (keystate["ArrowDown"]) player.accel = g.PLAYER_REVERSE_THRUST;
-
-  /* Spacebar fires phasers. */
-  if (keystate[" "]) {
-    if (canPlayerFire(player)) {
-      firePhasers(player);
-
-      if (checkPhaserHit(player, opponent)) {
-        showExplosion(opponent, 10, 30, 5, 10, 2, 5);
-        damageOpponent();
-      }
-    }
-  }
-
-  /* Turn. */
-  player.angle += (turn * timeScale) | 0;
-  if (player.angle < 0) player.angle += 360;
-  if (player.angle >= 360) player.angle -= 360;
   /* Check for player death. */
   if (player.shields <= 0) {
     killPlayer();
@@ -357,8 +325,6 @@ const playGame = (): void => {
     curTicks = Date.now();
     updateTimeScale(curTicks - prevTicks);
 
-    const keystate = KEY.getKeyState();
-
     /* Update phaser firing timers */
     player.firing -= timeScale;
     if (player.firing < 0) player.firing = 0;
@@ -367,7 +333,7 @@ const playGame = (): void => {
 
     chargePhasers(player);
     updateTimers();
-    handleInput(keystate);
+    handleInput();
 
     runGameScript(player, opponent, timeScale);
     checkOpponentCombat();
