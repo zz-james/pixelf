@@ -331,13 +331,23 @@ const handleInput = (keystate: Record<string, boolean>): void => {
   }
 };
 
-/* Checks opponent phaser hits against the player. */
+/* Time (in 30fps ticks) built up towards the next hit explosion on the player. */
+let opponentHitExplosionTimer: number = 0;
+
+/* Checks opponent phaser hits against the player. The beam is on for a fixed
+   time, not a fixed number of frames, so damage and explosions are scaled by
+   timeScale to keep a shot's total effect the same at any frame rate. */
 const checkOpponentCombat = (): void => {
   if (opponent.firing) {
     if (checkPhaserHit(opponent, player)) {
       if (player.state !== PlayerState.INVINCIBLE) {
-        showExplosion(player, 10, 30, 5, 10, 2, 5);
-        player.shields -= PHASER_DAMAGE_DEVIL;
+        /* one explosion per tick, not per frame */
+        opponentHitExplosionTimer += timeScale;
+        if (opponentHitExplosionTimer >= 1) {
+          opponentHitExplosionTimer -= 1;
+          showExplosion(player, 10, 30, 5, 10, 2, 5);
+        }
+        player.shields -= PHASER_DAMAGE_DEVIL * timeScale;
 
         if (respawnTimer < 0 && player.shields <= 0) {
           killPlayer();
