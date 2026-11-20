@@ -45,6 +45,10 @@ export const RESPAWN_TIME = 60;
 
 export const INVINCIBLE_TIME = 300;
 
+/* Upper bound on the per-frame time scale (1 = one 30fps tick, so 3 is ~90ms).
+   Stops a long frame (background tab, breakpoint) from teleporting ships. */
+export const MAX_TIME_SCALE = 3;
+
 export const PLAYER_FORWARD_THRUST = 3;
 export const PLAYER_REVERSE_THRUST = -1;
 

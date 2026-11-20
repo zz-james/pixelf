@@ -413,7 +413,7 @@ const playGame = (): void => {
   const whileLoop = () => {
     prevTicks = curTicks;
     curTicks = Date.now();
-    timeScale = (curTicks - prevTicks) / 30;
+    timeScale = Math.min((curTicks - prevTicks) / 30, g.MAX_TIME_SCALE);
 
     const keystate = KEY.getKeyState();
 
