@@ -138,55 +138,55 @@ let statusMsg: LED_Display;
 
 export const initStatusDisplay = async (): Promise<boolean> => {
   playerScore = await LED_CreateDisplay(
-    12,
-    5,
-    12,
-    5,
+    g.HUD_SCORE_COLS,
+    g.HUD_SCORE_ROWS,
+    g.HUD_SCORE_COLS,
+    g.HUD_SCORE_ROWS,
     "led-red-on.png",
     "led-red-off.png"
   );
 
   playerShields = await LED_CreateDisplay(
-    12,
+    g.HUD_SHIELD_LEDS,
     1,
-    12,
+    g.HUD_SHIELD_LEDS,
     1,
     "led-red-on.png",
     "led-red-off.png"
   );
 
   playerCharge = await LED_CreateDisplay(
-    80,
+    g.HUD_CHARGE_LEDS,
     1,
-    80,
+    g.HUD_CHARGE_LEDS,
     1,
     "led-red-on.png",
     "led-red-off.png"
   );
 
   opponentScore = await LED_CreateDisplay(
-    12,
-    5,
-    12,
-    5,
+    g.HUD_SCORE_COLS,
+    g.HUD_SCORE_ROWS,
+    g.HUD_SCORE_COLS,
+    g.HUD_SCORE_ROWS,
     "led-red-on.png",
     "led-red-off.png"
   );
 
   opponentShields = await LED_CreateDisplay(
-    12,
+    g.HUD_SHIELD_LEDS,
     1,
-    12,
+    g.HUD_SHIELD_LEDS,
     1,
     "led-red-on.png",
     "led-red-off.png"
   );
 
   statusMsg = await LED_CreateDisplay(
-    56,
-    5,
-    66,
-    5,
+    g.HUD_MESSAGE_COLS,
+    g.HUD_MESSAGE_ROWS,
+    g.HUD_MESSAGE_BUFFER_COLS,
+    g.HUD_MESSAGE_ROWS,
     "led-green-on.png",
     "led-green-off.png"
   );
@@ -204,8 +204,9 @@ export const setStatusMessage = (msg: string) => {
 /* Sets a shield bar on an LED display based on shield percentage (0-100). */
 const setShieldBar = (display: LED_Display, shields: number): void => {
   const pixels = display.led_surface.pixels;
-  for (let i = 0; i < 12; i++) {
-    pixels[i] = i < (shields * 12) / 100 ? 1 : 0;
+  for (let i = 0; i < g.HUD_SHIELD_LEDS; i++) {
+    pixels[i] =
+      i < (shields * g.HUD_SHIELD_LEDS) / g.PLAYER_MAX_SHIELDS ? 1 : 0;
   }
 };
 
@@ -231,8 +232,8 @@ export const setPlayerStatusInfo = (
 
   /* set the phaser charge bar */
   const pixels = playerCharge.led_surface.pixels;
-  for (let i = 0; i < 80; i++) {
-    pixels[i] = i < (charge * 80) / g.PHASER_CHARGE_MAX ? 1 : 0;
+  for (let i = 0; i < g.HUD_CHARGE_LEDS; i++) {
+    pixels[i] = i < (charge * g.HUD_CHARGE_LEDS) / g.PHASER_CHARGE_MAX ? 1 : 0;
   }
 };
 
@@ -241,6 +242,15 @@ export const setOpponentStatusInfo = (score: number, shields: number) => {
   setScoreDisplay(opponentScore, score, 1, 7);
   setShieldBar(opponentShields, shields);
 };
+
+/* where the opponent's panel starts, and the scrolling message (centred between the panels) */
+const OPPONENT_PANEL_X = g.SCREEN_WIDTH - g.HUD_PANEL_WIDTH;
+const MESSAGE_X =
+  g.HUD_PANEL_WIDTH +
+  (g.SCREEN_WIDTH -
+    2 * g.HUD_PANEL_WIDTH -
+    g.HUD_MESSAGE_COLS * g.HUD_LED_SIZE) /
+    2;
 
 /* Updates and redraws the status display. */
 export const updateStatusDisplay = (screen: Surface) => {
@@ -285,13 +295,8 @@ export const updateStatusDisplay = (screen: Surface) => {
 
   scrollerTicks++;
   LED_DrawDisplay(playerScore, screen, 0, 0);
-  LED_DrawDisplay(playerShields, screen, 0, 48);
-  LED_DrawDisplay(
-    statusMsg,
-    screen,
-    96 + (g.SCREEN_WIDTH - 2 * 96 - 448) / 2,
-    0
-  );
-  LED_DrawDisplay(opponentScore, screen, g.SCREEN_WIDTH - 96, 0);
-  LED_DrawDisplay(opponentShields, screen, g.SCREEN_WIDTH - 96, 48);
+  LED_DrawDisplay(playerShields, screen, 0, g.HUD_SHIELD_BAR_Y);
+  LED_DrawDisplay(statusMsg, screen, MESSAGE_X, 0);
+  LED_DrawDisplay(opponentScore, screen, OPPONENT_PANEL_X, 0);
+  LED_DrawDisplay(opponentShields, screen, OPPONENT_PANEL_X, g.HUD_SHIELD_BAR_Y);
 };

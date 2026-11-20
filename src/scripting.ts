@@ -2,6 +2,11 @@ import { canPlayerFire, firePhasers } from "./warrior";
 import { Coord } from "./pixelf/surfaces";
 
 import {
+  AI_ARRIVAL_DISTANCE,
+  AI_FIRE_DISTANCE,
+  AI_FULL_THRUST_DISTANCE,
+  AI_REDUCED_THRUST_DISTANCE,
+  AI_TOO_CLOSE_DISTANCE,
   AI_TURN_RATE,
   PLAYER_FORWARD_THRUST,
   PLAYER_REVERSE_THRUST,
@@ -72,7 +77,7 @@ const playComputer = (
 
     // if we're too close to player switch to evade
     const distance = getDistanceToTarget(computer, target);
-    if (distance < 25) {
+    if (distance < AI_TOO_CLOSE_DISTANCE) {
       opponent.state = OpponentState.EVADE;
       target.x = -1;
       // setting invalid target triggers coming up with a new one
@@ -80,23 +85,23 @@ const playComputer = (
     }
 
     // if we're far away, speed up, if we're close lay off
-    if (distance > 100) {
+    if (distance > AI_FULL_THRUST_DISTANCE) {
       computer.accel = PLAYER_FORWARD_THRUST;
-    } else if (distance > 50) {
+    } else if (distance > AI_REDUCED_THRUST_DISTANCE) {
       computer.accel = PLAYER_FORWARD_THRUST / 3;
     } else {
       computer.accel = 0;
     }
 
     // if we're close enoug to fire, fire away
-    if (distance < 200) {
+    if (distance < AI_FIRE_DISTANCE) {
       fireWeapon(computer);
     }
   } else {
     // evade state
     if (
-      Math.abs(computer.worldX - target.x) < 25 &&
-      Math.abs(computer.worldY - target.y) < 25
+      Math.abs(computer.worldX - target.x) < AI_ARRIVAL_DISTANCE &&
+      Math.abs(computer.worldY - target.y) < AI_ARRIVAL_DISTANCE
     ) {
       opponent.state = OpponentState.ATTACK;
       return;

@@ -25,11 +25,16 @@ export const PHASER_CHARGE_RATE = 30;
 /* Duration of each phaser shot, in ticks. (30 ticks/second) */
 export const PHASER_FIRE_TIME = 5;
 
-/* Amount of damage a single shot does.  warrior*/
+/* Difficulty balance. Both ships start with PLAYER_MAX_SHIELDS shields.
+   The warrior's shot does PHASER_DAMAGE once, when fired, so it takes 7 hits
+   to destroy the devil. The devil's beam stays on for PHASER_FIRE_TIME ticks
+   and does PHASER_DAMAGE_DEVIL on every frame it overlaps the warrior, so a
+   single devil shot costs the warrior a few points of shield. */
 export const PHASER_DAMAGE = 16;
-
-/* Amount of damage a single shot does. devil*/
 export const PHASER_DAMAGE_DEVIL = 1;
+
+/* Shields a ship starts with, and the value the shield bars are scaled to. */
+export const PLAYER_MAX_SHIELDS = 100;
 
 /* Total size (in pixels) of the complete playing field */
 export const WORLD_WIDTH = 2000;
@@ -59,6 +64,38 @@ export const PLAYER_FORWARD_THRUST = 3;
 export const PLAYER_REVERSE_THRUST = -1;
 
 export const PHASER_RANGE = WORLD_WIDTH / 10;
+
+/* A phaser beam hits a ship when it passes within this distance of the ship's
+   centre: half the sprite width, so the beam has to touch the ship. */
+export const PHASER_HIT_RADIUS = PLAYER_WIDTH / 2;
+
+/* Distances (in world pixels) the scripted opponent's behaviour is based on. */
+/* Closer than this to the warrior, the devil breaks off and evades. */
+export const AI_TOO_CLOSE_DISTANCE = 25;
+/* Farther than this from the warrior, the devil flies at full thrust. */
+export const AI_FULL_THRUST_DISTANCE = 100;
+/* Between this and AI_FULL_THRUST_DISTANCE it uses a third of the thrust; closer, none. */
+export const AI_REDUCED_THRUST_DISTANCE = 50;
+/* The devil fires whenever the warrior is inside its beam's range. */
+export const AI_FIRE_DISTANCE = PHASER_RANGE;
+/* While evading, the devil has reached its target within this distance on each axis. */
+export const AI_ARRIVAL_DISTANCE = 25;
+
+/* Status display (HUD) layout. LEDs are square images, so every size below is
+   in LEDs and is multiplied by HUD_LED_SIZE to get pixels. */
+export const HUD_LED_SIZE = 8;
+/* Width in pixels of the score/shield panels on each side of the screen. */
+export const HUD_PANEL_WIDTH = 12 * HUD_LED_SIZE;
+/* Vertical position of the shield bar, just below the 5 LED high score. */
+export const HUD_SHIELD_BAR_Y = 6 * HUD_LED_SIZE;
+export const HUD_SCORE_COLS = 12;
+export const HUD_SCORE_ROWS = 5;
+export const HUD_SHIELD_LEDS = 12;
+export const HUD_CHARGE_LEDS = 80;
+/* The scrolling message: visible width, and the width of its off-screen buffer. */
+export const HUD_MESSAGE_COLS = 56;
+export const HUD_MESSAGE_BUFFER_COLS = 66;
+export const HUD_MESSAGE_ROWS = 5;
 
 export enum PlayerType {
   WARRIOR,
