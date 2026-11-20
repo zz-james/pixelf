@@ -261,16 +261,18 @@ export const clipLineAgainstRectange = (
 
 // calculates the starting and ending coordinates of a phaser beam fired
 // from the given player's position and angle
-const calcPhaserBeamCoords = (source: Player_t): number[] => {
-  const x0 = source.worldX;
-  const y0 = source.worldY;
-  const x1 =
+// Results are written into the shared beamCoords buffer as [x0, y0, x1, y1]
+// so no array is allocated per call (hot path, called every frame).
+const beamCoords = new Float64Array(4);
+
+const calcPhaserBeamCoords = (source: Player_t): void => {
+  beamCoords[0] = source.worldX;
+  beamCoords[1] = source.worldY;
+  beamCoords[2] =
     g.PHASER_RANGE * Math.cos(source.angle * (Math.PI / 180.0)) + source.worldX;
-  const y1 =
+  beamCoords[3] =
     g.PHASER_RANGE * -Math.sin(source.angle * (Math.PI / 180.0)) +
     source.worldY;
-
-  return [x0, y0, x1, y1];
 };
 
 /* Phasers have a virtually unlimited range. */
@@ -284,12 +286,12 @@ export const drawPhaserBeam = (
   visX: number,
   visY: number
 ) => {
-  let [x0, y0, x1, y1] = calcPhaserBeamCoords(source); // yeah sort this globals out
+  calcPhaserBeamCoords(source);
 
-  x0 -= visX;
-  y0 -= visY;
-  x1 -= visX;
-  y1 -= visY;
+  const x0 = beamCoords[0] - visX;
+  const y0 = beamCoords[1] - visY;
+  const x1 = beamCoords[2] - visX;
+  const y1 = beamCoords[3] - visY;
 
   if (
     clipLineAgainstRectange(
@@ -326,7 +328,11 @@ export const checkPhaserHit = (source: Player_t, target: Player_t): boolean => {
   let x1: number;
   let y1: number;
 
-  [x0, y0, x1, y1] = calcPhaserBeamCoords(source);
+  calcPhaserBeamCoords(source);
+  x0 = beamCoords[0];
+  y0 = beamCoords[1];
+  x1 = beamCoords[2];
+  y1 = beamCoords[3];
 
   v1x = x1 - x0;
   v1y = y1 - y0;
