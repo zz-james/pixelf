@@ -113,7 +113,7 @@ export const updateTimers = (player: Player_t): void => {
       initPlayer(player, PlayerType.WARRIOR);
       setStatusMessage("GOOD LUCK, WARRIOR!!");
       player.state = PlayerState.INVINCIBLE;
-      invincibleTimer += timeScale;
+      invincibleTimer = 0; // not += : -1 + timeScale stays negative above 30 fps
     }
   }
 

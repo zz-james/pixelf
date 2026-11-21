@@ -50,6 +50,7 @@ export const MAX_PARTICLES = 30000;
 /* Time to delay before respawning, in ticks. */
 export const RESPAWN_TIME = 60;
 
+/* Invincibility after respawning, in ticks (a tick is 30ms, so 300 ticks = 9 seconds). */
 export const INVINCIBLE_TIME = 300;
 
 /* Upper bound on the per-frame time scale (1 = one 30fps tick, so 3 is ~90ms).
