@@ -157,9 +157,10 @@ export const createSurface = (width: number, height: number): Surface => {
   };
 };
 
-export const freeSurface = (surface: Surface) => {
-  surface.pixels = new Uint8ClampedArray([]);
-};
+// unused
+// export const freeSurface = (surface: Surface) => {
+//   surface.pixels = new Uint8ClampedArray([]);
+// };
 
 /**
  * this just a function to display whatever is in the buffer of a
@@ -167,7 +168,6 @@ export const freeSurface = (surface: Surface) => {
  * @param surface
  */
 export const showImageData = function (surface: Surface) {
-  console.log(surface);
   let surfacePixels = surface.pixels;
 
   if (surfacePixels.length > mainBufferSize) {
@@ -235,24 +235,25 @@ export const getError = (): string => {
   return error;
 };
 
-/**
- * this is a utility function - we using it to custom blit image data
- * @param dst
- * @param dstOffset *in bytes!*
- * @param src
- * @param srcOffset *in bytes!*
- * @param length *in bytes!*
- */
-export const memcpy = (
-  dst: ArrayBuffer,
-  dstOffset: number,
-  src: ArrayBuffer,
-  srcOffset: number,
-  length: number
-) => {
-  var dstU8 = new Uint8Array(dst, dstOffset, length);
-  var srcU8 = new Uint8Array(src, srcOffset, length);
-  dstU8.set(srcU8);
-};
-
-export const loadBMP = () => {};
+// unused
+// /**
+//  * this is a utility function - we using it to custom blit image data
+//  * @param dst
+//  * @param dstOffset *in bytes!*
+//  * @param src
+//  * @param srcOffset *in bytes!*
+//  * @param length *in bytes!*
+//  */
+// export const memcpy = (
+//   dst: ArrayBuffer,
+//   dstOffset: number,
+//   src: ArrayBuffer,
+//   srcOffset: number,
+//   length: number
+// ) => {
+//   var dstU8 = new Uint8Array(dst, dstOffset, length);
+//   var srcU8 = new Uint8Array(src, srcOffset, length);
+//   dstU8.set(srcU8);
+// };
+//
+// export const loadBMP = () => {};
