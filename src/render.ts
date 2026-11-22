@@ -11,6 +11,17 @@ import { updateRadarDisplay } from "./radar";
 import { timeScale } from "./clock";
 import { cameraX, cameraY } from "./camera";
 import { isRespawning } from "./combat";
+import {
+  perfLap,
+  PHASE_BACKGROUND,
+  PHASE_PARALLAX,
+  PHASE_PARTICLES,
+  PHASE_BEAMS,
+  PHASE_SPRITES,
+  PHASE_HUD,
+  PHASE_RADAR,
+  PHASE_CANVAS,
+} from "./perf";
 
 /* scratch rects reused by every drawPlayer call so nothing is allocated per frame */
 const shipSrc: Rect = { x: 0, y: 0, w: g.PLAYER_WIDTH, h: g.PLAYER_HEIGHT };
@@ -55,16 +66,22 @@ export const renderFrame = (
   opponent: Player_t
 ): void => {
   drawBackground(screen, cameraX, cameraY);
+  perfLap(PHASE_BACKGROUND);
   drawParallax(screen, cameraX, cameraY);
+  perfLap(PHASE_PARALLAX);
   drawParticles(screen, cameraX, cameraY);
+  perfLap(PHASE_PARTICLES);
 
   if (opponent.firing) drawPhaserBeam(opponent, screen, cameraX, cameraY);
   if (player.firing) drawPhaserBeam(player, screen, cameraX, cameraY);
+  perfLap(PHASE_BEAMS);
 
   if (!isRespawning()) drawPlayer(screen, player);
   drawPlayer(screen, opponent);
+  perfLap(PHASE_SPRITES);
 
   updateStatusDisplay(screen);
+  perfLap(PHASE_HUD);
   updateRadarDisplay(
     screen,
     player.worldX,
@@ -73,6 +90,8 @@ export const renderFrame = (
     opponent.worldY,
     timeScale
   );
+  perfLap(PHASE_RADAR);
 
   SURF.blitToCanvas();
+  perfLap(PHASE_CANVAS);
 };
