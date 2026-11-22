@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run dev` — Vite dev server
 - `npm run typecheck` — `tsc` (noEmit; strict, `noUnusedLocals`/`noUnusedParameters` are on, so unused vars fail the build)
-- `npm run build` — `tsc && vite build`
+- `npm run build` — `tsc && vite build`, then the size check below, so a build fails if the gzipped JavaScript is over budget
+- `npm run size` — checks the gzipped JavaScript in `dist/` against the 15 kB budget (`scripts/check-size.mjs`; `--budget <kB>` tries another figure, for example `npm run size -- --budget 5` should fail)
 - `npm run preview` — serve the production build
 - `npm test` — run the Vitest tests
 - `npm run bench:phone` — builds, then measures frame time and per-phase times on an Android phone connected by USB (`scripts/phone-bench.mjs`; options such as `--duration 30` and `--device SERIAL` go after `--`). Needs `adb`, USB debugging accepted, and the phone awake and unlocked. It uses `adb reverse`, not Wi-Fi.
@@ -56,7 +57,7 @@ The reference device is a mid-range Android phone, tested over USB in Chrome, wi
 
 **Measuring frame time:** `npm run bench:phone` (`scripts/phone-bench.mjs`, see Commands) prints the frame rate, the average and worst frame time and a per-phase table. For quick looks on any machine, open the game with `?perf` or `?perf=overlay` (`src/perf.ts`). To compare a change with `main`, run the benchmark alternately on each, several times, rather than one run each. The phone's display can switch between refresh rates (60 and about 90 fps) from one run to the next, which changes the frame cost, so compare only runs at the same frame rate and keep the phone awake and unlocked.
 
-**Measuring size:** read the gzip figure for the `.js` file from `npm run build`. An automatic check that fails the build over budget is planned in #62; update this section when it lands.
+**Measuring size:** `npm run build` ends with a size check (`npm run size` runs it alone, `scripts/check-size.mjs`) that adds up the gzipped JavaScript in `dist/` using the same gzip level as Vite, so its figure matches the one Vite prints. It fails the build if the total is over the budget. To change the budget, edit `DEFAULT_BUDGET_KB` in that script and this section together.
 
 ## Workflow
 
