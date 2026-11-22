@@ -27,6 +27,7 @@ The rest of the game logic is split into small modules that `warrior.ts` compose
 - `input.ts` reads the keyboard and joystick into one reused `InputState` (`readInput`) and applies steering, thrust and turn to the player.
 - `combat.ts` holds hits, damage, kills, explosions and the respawn, invincibility and hit-explosion timers. `isRespawning()` is the way to ask whether the player is dead.
 - `camera.ts` exports `cameraX`/`cameraY` (live bindings) and `updateCamera`; `render.ts` draws a frame (`renderFrame`) and blits to the canvas.
+- `perf.ts` is optional per-phase frame timing. Add `?perf` to the page URL to print average and maximum milliseconds per phase once a second (`?perf=overlay` also shows them on the page). Without the flag each call is a single boolean check. Add a `perfLap(PHASE_X)` call when you add a new phase to the frame.
 
 **Keep the import graph acyclic.** The old `warrior.ts` ↔ `scripting.ts` cycle was removed by moving shared code into `clock.ts` and `player.ts`. Lower modules must not import `warrior.ts`; put anything shared in one of the modules above.
 

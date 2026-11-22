@@ -35,6 +35,7 @@ import {
 import { updateCamera } from "./camera";
 import { renderFrame } from "./render";
 import { readInput, applySteeringAndThrust, applyTurn } from "./input";
+import { perfFrameStart, perfLap, perfFrameEnd, PHASE_UPDATE } from "./perf";
 
 const player: Player_t = {
   type: PlayerType.WARRIOR,
@@ -112,6 +113,7 @@ const playGame = (): void => {
   prevTicks = curTicks;
 
   const whileLoop = () => {
+    perfFrameStart();
     prevTicks = curTicks;
     curTicks = Date.now();
     updateTimeScale(curTicks - prevTicks);
@@ -138,7 +140,9 @@ const playGame = (): void => {
 
     updateCamera(player);
     updateParticles();
+    perfLap(PHASE_UPDATE);
     renderFrame(screen, player, opponent);
+    perfFrameEnd();
 
     if (!quit) window.requestAnimationFrame(whileLoop);
   };
