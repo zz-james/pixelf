@@ -185,8 +185,39 @@ export const showImageData = function (surface: Surface) {
   );
 };
 
+/* 32-bit views of pixel arrays, so a blit can move a whole pixel per read and
+   write. A view is made once per surface (looked up by its pixel array) and
+   reused, so nothing is allocated per blit after the first.
+   The view is signed (Int32Array) on purpose: the pixels are only copied and
+   masked, never compared, and on a phone's JavaScript engine signed loads
+   were measurably cheaper than unsigned ones. */
+const views = new WeakMap<Uint8ClampedArray, Int32Array>();
+
+const view32 = (pixels: Uint8ClampedArray): Int32Array | undefined => {
+  let v = views.get(pixels);
+  if (v === undefined) {
+    if (pixels.byteOffset % 4 !== 0 || pixels.byteLength % 4 !== 0) {
+      return undefined; // can't be viewed as whole pixels: caller uses the byte path
+    }
+    v = new Int32Array(pixels.buffer, pixels.byteOffset, pixels.length >> 2);
+    views.set(pixels, v);
+  }
+  return v;
+};
+
+/* Which bits of a 32-bit pixel hold the alpha byte. A pixel is R,G,B,A in
+   memory, so alpha is the top byte of the word on a little-endian machine. */
+const ALPHA_MASK = little_endian ? 0xff000000 : 0x000000ff;
+
 /**
  * blit one surface to another surface
+ *
+ * A pixel is copied whole (no blending) unless its source alpha is 0.
+ * Pixels that fall outside the destination array are dropped, and a row that
+ * runs off the left or right edge carries on into the next or previous row,
+ * exactly as the byte-by-byte version always did. The source rows are read
+ * from row 0 of the source: srcRect.y is ignored.
+ *
  * @param src
  * @param srcRect
  * @param dest
@@ -197,6 +228,79 @@ export const blitSurface = (
   srcRect: Rect = { x: 0, y: 0, w: src.w, h: src.h },
   dest: Surface,
   destCoord: Coord = { x: 0, y: 0 }
+) => {
+  const sx = srcRect.x;
+  const sw = srcRect.w;
+  const sh = srcRect.h;
+  const dx = destCoord.x;
+  const dy = destCoord.y;
+
+  const src32 = view32(src.pixels);
+  const dest32 = view32(dest.pixels);
+
+  /* The fast path needs whole-pixel views and whole-number coordinates.
+     Anything else (not seen in the game) takes the original byte path, so
+     the result is the same either way. */
+  if (
+    src32 === undefined ||
+    dest32 === undefined ||
+    !Number.isInteger(sx) ||
+    !Number.isInteger(sw) ||
+    !Number.isInteger(sh) ||
+    !Number.isInteger(dx) ||
+    !Number.isInteger(dy)
+  ) {
+    blitSurfaceBytes(src, srcRect, dest, destCoord);
+    return;
+  }
+
+  const srcW = src.w;
+  const destW = dest.w;
+
+  /* There is no clipping on purpose. Reads outside the source give undefined
+     (alpha 0, so skipped) and writes outside the destination array are
+     ignored by typed arrays, which is the behaviour the byte path relied on. */
+  for (let row = 0; row < sh; row++) {
+    const si = row * srcW + sx; // first source pixel of this row
+    const di = (row + dy) * destW + dx; // first destination pixel of this row
+
+    /* Eight pixels at a time: if none of the eight has any alpha, skip them
+       all with one test. Sprite and star layers are mostly transparent, so
+       this skips most of the work there. Otherwise copy each opaque pixel. */
+    let k = 0;
+    for (; k + 8 <= sw; k += 8) {
+      const a = src32[si + k];
+      const b = src32[si + k + 1];
+      const c = src32[si + k + 2];
+      const d = src32[si + k + 3];
+      const e = src32[si + k + 4];
+      const f = src32[si + k + 5];
+      const g = src32[si + k + 6];
+      const h = src32[si + k + 7];
+      if (((a | b | c | d | e | f | g | h) & ALPHA_MASK) === 0) continue;
+      if ((a & ALPHA_MASK) !== 0) dest32[di + k] = a;
+      if ((b & ALPHA_MASK) !== 0) dest32[di + k + 1] = b;
+      if ((c & ALPHA_MASK) !== 0) dest32[di + k + 2] = c;
+      if ((d & ALPHA_MASK) !== 0) dest32[di + k + 3] = d;
+      if ((e & ALPHA_MASK) !== 0) dest32[di + k + 4] = e;
+      if ((f & ALPHA_MASK) !== 0) dest32[di + k + 5] = f;
+      if ((g & ALPHA_MASK) !== 0) dest32[di + k + 6] = g;
+      if ((h & ALPHA_MASK) !== 0) dest32[di + k + 7] = h;
+    }
+    for (; k < sw; k++) {
+      const s = src32[si + k];
+      if ((s & ALPHA_MASK) !== 0) dest32[di + k] = s;
+    }
+  }
+};
+
+/* The original blit, one byte at a time. Used when the fast path can't apply,
+   and as the reference the fast path must match. */
+const blitSurfaceBytes = (
+  src: Surface,
+  srcRect: Rect,
+  dest: Surface,
+  destCoord: Coord
 ) => {
   const destPixels = dest.pixels;
   const srcPixels = src.pixels;
