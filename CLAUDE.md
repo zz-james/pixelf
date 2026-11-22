@@ -8,9 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run typecheck` — `tsc` (noEmit; strict, `noUnusedLocals`/`noUnusedParameters` are on, so unused vars fail the build)
 - `npm run build` — `tsc && vite build`
 - `npm run preview` — serve the production build
+- `npm test` — run the Vitest tests
 - `npm run bench:phone` — builds, then measures frame time and per-phase times on an Android phone connected by USB (`scripts/phone-bench.mjs`; options such as `--duration 30` and `--device SERIAL` go after `--`). Needs `adb`, USB debugging accepted, and the phone awake and unlocked. It uses `adb reverse`, not Wi-Fi.
 
-There is no test runner or linter configured.
+There is no linter configured. Tests use Vitest: `npm test` runs them once (`npx vitest` watches). Test files sit next to the code as `*.test.ts`; so far `src/pixelf/surfaces.test.ts` pins down `blitSurface` byte for byte.
 
 ## What this is
 
