@@ -42,6 +42,11 @@ export const initBackground = (): void => {
   }
 };
 
+/* scratch rects reused for every tile, so nothing is allocated per frame.
+   Only x (and y for the destination) change; the size is always one tile. */
+const tileSrc: Rect = { x: 0, y: 0, w: TILE_WIDTH, h: TILE_HEIGHT };
+const tileDest: Rect = { x: 0, y: 0, w: TILE_WIDTH, h: TILE_HEIGHT };
+
 /* draws a tile layer on the screen, with respect to the global 'camera' position
   the camera marks the 640x480 section of the world that we can see at any given time
   this is usually in the vicinity of the players ship */
@@ -74,19 +79,10 @@ const drawTileLayer = (
     tileX = startTileX;
     drawX = startDrawX;
     while (drawX < g.SCREEN_WIDTH) {
-      const srcRect: Rect = {
-        x: TILE_WIDTH * tileGrid[tileX][tileY],
-        y: 0,
-        w: TILE_WIDTH,
-        h: TILE_HEIGHT,
-      };
-      const destRect: Rect = {
-        x: drawX,
-        y: drawY,
-        w: TILE_WIDTH,
-        h: TILE_HEIGHT,
-      };
-      SURF.blitSurface(tileSurface, srcRect, dest, destRect);
+      tileSrc.x = TILE_WIDTH * tileGrid[tileX][tileY];
+      tileDest.x = drawX;
+      tileDest.y = drawY;
+      SURF.blitSurface(tileSurface, tileSrc, dest, tileDest);
       tileX++;
       tileX %= PARALLAX_GRID_WIDTH;
       drawX += TILE_WIDTH;
