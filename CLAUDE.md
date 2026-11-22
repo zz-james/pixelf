@@ -43,6 +43,21 @@ The rest of the game logic is split into small modules that `warrior.ts` compose
 
 **Mobile input:** `touch-controls.ts` builds an on-screen joystick and fire button. The joystick publishes an angle (0–360, 0 = right, counter-clockwise positive) and a distance through `getJoystickAngle`/`getJoystickDistance`. `input.ts` steers toward that angle, handling the 0/360 wraparound. The fire button and keyboard feed the same `keys.ts` map, so keyboard and touch share one path.
 
+## Performance budget
+
+Low resource use is part of the point of this project, so these are targets to check changes against, not guesses to repeat:
+
+| | Target | Baseline when set | Latest |
+|---|---|---|---|
+| Frame time at 640x480, on the reference phone at 60 fps | under 8 ms | about 11.4 ms (before #60) | about 8.3 ms (after #60) |
+| Gzipped JavaScript in `dist/` | under 15 kB | 8.17 kB | 8.17 kB |
+
+The reference device is a mid-range Android phone, tested over USB in Chrome, with the game idle (opponent AI running; no firing, particles or touch). A frame at 60 Hz is 16.7 ms, so 8 ms leaves room to add features. Results from one device are indicative only.
+
+**Measuring frame time:** `npm run bench:phone` (`scripts/phone-bench.mjs`, see Commands) prints the frame rate, the average and worst frame time and a per-phase table. For quick looks on any machine, open the game with `?perf` or `?perf=overlay` (`src/perf.ts`). To compare a change with `main`, run the benchmark alternately on each, several times, rather than one run each. The phone's display can switch between refresh rates (60 and about 90 fps) from one run to the next, which changes the frame cost, so compare only runs at the same frame rate and keep the phone awake and unlocked.
+
+**Measuring size:** read the gzip figure for the `.js` file from `npm run build`. An automatic check that fails the build over budget is planned in #62; update this section when it lands.
+
 ## Workflow
 
 Full spec is in `workflow_guide.md`; follow it for issue, branch, commit and PR work. Commits before the guide was introduced don't follow it; new work must.
