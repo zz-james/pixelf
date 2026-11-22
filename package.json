@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && npm run size",
     "preview": "vite preview",
     "bench:phone": "node scripts/phone-bench.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "size": "node scripts/check-size.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
