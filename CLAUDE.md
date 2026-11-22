@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run typecheck` — `tsc` (noEmit; strict, `noUnusedLocals`/`noUnusedParameters` are on, so unused vars fail the build)
 - `npm run build` — `tsc && vite build`
 - `npm run preview` — serve the production build
+- `npm run bench:phone` — builds, then measures frame time and per-phase times on an Android phone connected by USB (`scripts/phone-bench.mjs`; options such as `--duration 30` and `--device SERIAL` go after `--`). Needs `adb`, USB debugging accepted, and the phone awake and unlocked. It uses `adb reverse`, not Wi-Fi.
 
 There is no test runner or linter configured.
 

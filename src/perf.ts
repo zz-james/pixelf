@@ -1,6 +1,7 @@
 /**
  * Optional per-phase frame timing, switched on by adding ?perf to the page URL
- * (or ?perf=overlay to also show the numbers on the page).
+ * (?perf=overlay also shows the numbers on the page, ?perf=beacon posts them
+ * to the page's server, and ?perf=overlay,beacon does both).
  *
  * Once a second it prints the average and maximum milliseconds spent in each
  * phase of a frame, plus the frame rate. When the flag is absent every
@@ -16,7 +17,13 @@ const mode: string | null = new URLSearchParams(window.location.search).get(
   "perf"
 );
 export const perfEnabled: boolean = mode !== null;
-const showOverlay: boolean = mode === "overlay";
+/* ?perf=overlay,beacon: comma-separated options. */
+const options: string[] = mode === null ? [] : mode.split(",");
+const showOverlay: boolean = options.includes("overlay");
+/* beacon: also POST each report as JSON to /__perf on the page's own server.
+   scripts/phone-bench.mjs uses this to collect numbers from a phone without
+   attaching a debugger, which can slow the page down. */
+const sendBeacon: boolean = options.includes("beacon");
 
 /* Phase ids. The names match the calls in warrior.ts and render.ts. */
 export const PHASE_UPDATE = 0; // game logic, before renderFrame
@@ -82,6 +89,22 @@ const report = (now: number): void => {
   }
 
   console.log(`[perf] ${text}`);
+
+  if (sendBeacon) {
+    const phases: { [name: string]: number[] } = {};
+    for (let i = 0; i < PHASE_COUNT; i++) {
+      phases[NAMES[i]] = [sum[i] / frames, max[i]];
+    }
+    navigator.sendBeacon(
+      "/__perf",
+      JSON.stringify({
+        frames,
+        seconds,
+        total: [sum[TOTAL] / frames, max[TOTAL]],
+        phases,
+      })
+    );
+  }
 
   if (showOverlay) {
     if (!overlay) {
