@@ -166,6 +166,26 @@ describe("blitSurface fast path matches the original byte-by-byte blit", () => {
     expectSame(viaFast, viaLegacy, "unaligned arrays");
   });
 
+  it("on mostly transparent rows with a single opaque pixel at every position", () => {
+    // the fast path tests eight pixels at once, so check a lone pixel in each lane
+    for (let width = 1; width <= 21; width++) {
+      for (let lone = 0; lone < width; lone++) {
+        const pixels = new Uint8ClampedArray(width * 4);
+        pixels.set([11, 22, 33, 255], lone * 4);
+        const src: Surface = { w: width, h: 1, pixels };
+        const dest = randomSurface(width + 4, 3, makeRand(width * 100 + lone), 1000);
+        const srcRect: Rect = { x: 0, y: 0, w: width, h: 1 };
+        const destCoord: Coord = { x: 2, y: 1 };
+
+        const viaLegacy = copy(dest);
+        const viaFast = copy(dest);
+        legacyBlit(src, srcRect, viaLegacy, destCoord);
+        blitSurface(src, srcRect, viaFast, destCoord);
+        expectSame(viaFast, viaLegacy, `width ${width}, opaque pixel at ${lone}`);
+      }
+    }
+  });
+
   it("for the game's own pattern: 64x64 tiles from a strip, drawn across a 640x480 screen from a negative start", () => {
     const rand = makeRand(31337);
     const strip = randomSurface(64 * 4, 64, rand, 8);

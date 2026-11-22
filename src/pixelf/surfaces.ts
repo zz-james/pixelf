@@ -187,16 +187,19 @@ export const showImageData = function (surface: Surface) {
 
 /* 32-bit views of pixel arrays, so a blit can move a whole pixel per read and
    write. A view is made once per surface (looked up by its pixel array) and
-   reused, so nothing is allocated per blit after the first. */
-const views = new WeakMap<Uint8ClampedArray, Uint32Array>();
+   reused, so nothing is allocated per blit after the first.
+   The view is signed (Int32Array) on purpose: the pixels are only copied and
+   masked, never compared, and on a phone's JavaScript engine signed loads
+   were measurably cheaper than unsigned ones. */
+const views = new WeakMap<Uint8ClampedArray, Int32Array>();
 
-const view32 = (pixels: Uint8ClampedArray): Uint32Array | undefined => {
+const view32 = (pixels: Uint8ClampedArray): Int32Array | undefined => {
   let v = views.get(pixels);
   if (v === undefined) {
     if (pixels.byteOffset % 4 !== 0 || pixels.byteLength % 4 !== 0) {
       return undefined; // can't be viewed as whole pixels: caller uses the byte path
     }
-    v = new Uint32Array(pixels.buffer, pixels.byteOffset, pixels.length >> 2);
+    v = new Int32Array(pixels.buffer, pixels.byteOffset, pixels.length >> 2);
     views.set(pixels, v);
   }
   return v;
@@ -261,7 +264,30 @@ export const blitSurface = (
     const si = row * srcW + sx; // first source pixel of this row
     const di = (row + dy) * destW + dx; // first destination pixel of this row
 
-    for (let k = 0; k < sw; k++) {
+    /* Eight pixels at a time: if none of the eight has any alpha, skip them
+       all with one test. Sprite and star layers are mostly transparent, so
+       this skips most of the work there. Otherwise copy each opaque pixel. */
+    let k = 0;
+    for (; k + 8 <= sw; k += 8) {
+      const a = src32[si + k];
+      const b = src32[si + k + 1];
+      const c = src32[si + k + 2];
+      const d = src32[si + k + 3];
+      const e = src32[si + k + 4];
+      const f = src32[si + k + 5];
+      const g = src32[si + k + 6];
+      const h = src32[si + k + 7];
+      if (((a | b | c | d | e | f | g | h) & ALPHA_MASK) === 0) continue;
+      if ((a & ALPHA_MASK) !== 0) dest32[di + k] = a;
+      if ((b & ALPHA_MASK) !== 0) dest32[di + k + 1] = b;
+      if ((c & ALPHA_MASK) !== 0) dest32[di + k + 2] = c;
+      if ((d & ALPHA_MASK) !== 0) dest32[di + k + 3] = d;
+      if ((e & ALPHA_MASK) !== 0) dest32[di + k + 4] = e;
+      if ((f & ALPHA_MASK) !== 0) dest32[di + k + 5] = f;
+      if ((g & ALPHA_MASK) !== 0) dest32[di + k + 6] = g;
+      if ((h & ALPHA_MASK) !== 0) dest32[di + k + 7] = h;
+    }
+    for (; k < sw; k++) {
       const s = src32[si + k];
       if ((s & ALPHA_MASK) !== 0) dest32[di + k] = s;
     }
